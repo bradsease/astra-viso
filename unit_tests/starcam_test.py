@@ -13,7 +13,8 @@ class starcamtests(unittest.TestCase):
         
 class default_tests(starcamtests):
     def test_focal_length(self):
-        self.assertEqual( self.starcam.f, 93 )
+        self.assertEqual( self.starcam.f, 93, 
+                                            "Default focal length incorrect." )
 
 class integ_tests(starcamtests):
     
@@ -21,17 +22,21 @@ class integ_tests(starcamtests):
         
         # Generate empty image
         image = self.starcam.integ(0)
-        self.assertEqual( image.shape[0], self.starcam.r )
-        self.assertEqual( image.shape[1], self.starcam.r )
-        self.assertEqual( np.sum(image), 0 )
+        self.assertEqual( image.shape[0], self.starcam.r,
+                                                    "X Resolution incorrect." )
+        self.assertEqual( image.shape[1], self.starcam.r,
+                                                    "Y Resolution incorrect." )
+        self.assertEqual( np.sum(image), 0, "Image not strictly positive." )
         
     def test_nonempty_star_image(self):
     
         # Generate image
         image = self.starcam.integ(1)
-        self.assertEqual( image.shape[0], self.starcam.r )
-        self.assertEqual( image.shape[1], self.starcam.r )
-        self.assertTrue( (image >= 0).all() )
+        self.assertEqual( image.shape[0], self.starcam.r,
+                                                    "X Resolution incorrect." )
+        self.assertEqual( image.shape[1], self.starcam.r,
+                                                    "Y Resolution incorrect." )
+        self.assertTrue( (image >= 0).all(), "Image not strictly positive." )
         
         
 class setpsf_tests(starcamtests):
@@ -40,17 +45,17 @@ class setpsf_tests(starcamtests):
         
         # Set PSF -- nominal case
         self.starcam.setpsf(11,1)
-        self.assertEqual( self.starcam.psf.shape[0], 11 )
-        self.assertEqual( self.starcam.psf.shape[1], 11 )
-        self.assertEqual( np.sum(self.starcam.psf), 1 )
+        self.assertEqual( self.starcam.psf.shape[0], 11, "PSF size incorrect." )
+        self.assertEqual( self.starcam.psf.shape[1], 11, "PSF size incorrect." )
+        self.assertEqual( np.sum(self.starcam.psf), 1, "PSF sum incorrect." )
         
     def test_off_nominal_dimensions(self):
         
         # Set PSF -- nominal case
         self.starcam.setpsf(10,1)
-        self.assertEqual( self.starcam.psf.shape[0], 11 )
-        self.assertEqual( self.starcam.psf.shape[1], 11 )
-        self.assertEqual( np.sum(self.starcam.psf), 1 )
+        self.assertEqual( self.starcam.psf.shape[0], 11, "PSF size incorrect." )
+        self.assertEqual( self.starcam.psf.shape[1], 11, "PSF size incorrect." )
+        self.assertEqual( np.sum(self.starcam.psf), 1, "PSF sum incorrect." )
         
         
 class set_tests(starcamtests):
@@ -66,10 +71,11 @@ class set_tests(starcamtests):
         self.starcam.set(f = f, r = r, s = s)
         
         # Check result
-        self.assertEqual( f, self.starcam.f )
-        self.assertEqual( s, self.starcam.s )
-        self.assertEqual( r, self.starcam.r )
-        self.assertTrue( type(self.starcam.r) is int )
+        self.assertEqual( f, self.starcam.f, "Focal length not preserved." )
+        self.assertEqual( s, self.starcam.s, "Pixel size not preserved."   )
+        self.assertEqual( r, self.starcam.r, "Resolution not preserved."   )
+        self.assertTrue( type(self.starcam.r) is int, 
+                                              "Resolution not integer-valued" )
 		
     def test_fov_set(self):
 		
@@ -82,7 +88,8 @@ class set_tests(starcamtests):
         self.starcam.set(f = f, s = s, fov = fov)
         
         # Check result
-        self.assertEqual( f, self.starcam.f )
-        self.assertEqual( s, self.starcam.s )
+        self.assertEqual( f, self.starcam.f, "Focal length not preserved." )
+        self.assertEqual( s, self.starcam.s, "Pixel size not preserved." )
         self.assertTrue( np.isclose(self.starcam.r, 1024) )
-        self.assertTrue( type(self.starcam.r) is int )
+        self.assertTrue( type(self.starcam.r) is int, 
+                                              "Resolution not integer-valued" )
