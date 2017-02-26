@@ -18,7 +18,7 @@ class default_tests(starcamtests):
 
 class test_body2plane(starcamtests):
 	
-	def test_single_vector(self):
+	def test_single_pinhole(self):
 		
 		#  Convert vector and check dimensions
 		output = self.starcam.body2plane([0,0,1])
@@ -31,7 +31,7 @@ class test_body2plane(starcamtests):
 		self.assertEqual( output[0], output[1], "Incorrect projection." )
 		self.assertEqual( output[0], 512.5, "Incorrect projection." )
 		
-	def test_multiple_vectors(self):
+	def test_multiple_pinhole(self):
 		
 		#  Convert vector and check dimensions
 		output = self.starcam.body2plane([[0,0,1],[0,0,-1]])
@@ -43,12 +43,12 @@ class test_body2plane(starcamtests):
 										   "Mis-matched x and y coordinates." )
 		self.assertTrue( all(output[0] == output[1]), "Incorrect projection." )
 		
-class test_integ(starcamtests):
+class test_integrate(starcamtests):
     
     def test_empty_star_image(self):
         
         # Generate empty image
-        image = self.starcam.integ(0)
+        image = self.starcam.integrate(0)
         self.assertEqual( image.shape[0], self.starcam.r,
                                                     "X Resolution incorrect." )
         self.assertEqual( image.shape[1], self.starcam.r,
@@ -58,7 +58,7 @@ class test_integ(starcamtests):
     def test_nonempty_star_image(self):
     
         # Generate image
-        image = self.starcam.integ(1)
+        image = self.starcam.integrate(1)
         self.assertEqual( image.shape[0], self.starcam.r,
                                                     "X Resolution incorrect." )
         self.assertEqual( image.shape[1], self.starcam.r,

@@ -146,7 +146,7 @@ class starmap:
     def viewregion(self, vector, angle):
         
         # Select region
-        vector = vector / np.linalg.norm(vector)
+        #vector = vector / np.linalg.norm(vector)
         region = self.getregion(vector, angle)
         
         # Plot data

@@ -107,9 +107,14 @@ class starcam:
         
         # Return coordinates
         return np.array([img_x,img_y])
+        
+    def plane2body(self, xy):
+        
+        # To be implemented...
+        pass
     
     # Snap an image with set integration time
-    def integ(self, dt):
+    def integrate(self, dt):
         
         # Rotate star catalog
         vis     = np.dot(self.stars, self.DCM)
@@ -144,7 +149,7 @@ class starcam:
     def snap(self, dt):
         
         # Integrate photons
-        image = self.integ(dt)
+        image = self.integrate(dt)
         
         # Defocus image
         image = self.defocus(image, self.psf)
@@ -153,7 +158,7 @@ class starcam:
         image = np.floor(image * self.photon2elec)
         
         # Add noise
-        image = self.noise(image, dt)
+        image = self.addnoise(image, dt)
         
         # Return
         return image
@@ -179,7 +184,7 @@ class starcam:
         return img
     
     # Add noise to image
-    def noise(self, image, dt):
+    def addnoise(self, image, dt):
 
         # Poisson model
         if   (self.noise_model.lower() == "poisson"):
