@@ -8,18 +8,15 @@ class starcam:
         # Set default camera parameters
         # **** Should model this after real camera
         # Need to change convention on these variables
-        self.f          = 93     # Focal length      (mm)
-        # self.focal_len
-        self.s          = 0.016  # Pixel size        (mm)
-        # self.pix_size
-        self.r          = 1024   # Resolution        (px)
-        # self.num_pix
-        self.a          = 100    # Aperture          (mm^2)
-        # self.aperture
-        self.mv0_flux   = 19000  # Mv=0 photon flux  (photons/s/mm^2)
-        self.psf        = None
-        self.psf_model  = "blur" # Blur or explicit(not supported, yet)
+        self.f                = 93        # Focal length      (mm)
+        self.s                = 0.016     # Pixel size        (mm)
+        self.r                = 1024      # Resolution        (px)
+        self.aperture         = 100       # Aperture          (mm^2)
+        self.mv0_flux         = 19000     # Mv=0 photon flux  (photons/s/mm^2)
+        self.psf              = None
+        self.psf_model        = "blur"    # Blur or explicit(not supported, yet)
         self.setpsf(7,1)
+        self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
         
         # Set default noise
         self.photon2elec  = 0.22 # photon / e^-
@@ -87,9 +84,31 @@ class starcam:
     def setcat(self, name):
         self.stars = np.array([[0, 0.004, 0], [0, 0, 0.004], [1, 1, 1]]).T
         self.mags  = np.array([3, 4, 5])
-      
+    
+    def body2plane(self, v):
+        
+        # Check input
+        if (type(v) is not np.ndarray):
+            v = np.array(v)
+        if (len(v.shape) == 1):
+            v = v.reshape(1,3)
+        
+        # Project input vectors
+        if   (self.projection_model == "pinhole"):
+        
+            # Pinhole projection equations
+            img_x = (self.f/self.s) * np.divide(v[:,0], v[:,2]) + (self.r+1)/2
+            img_y = (self.f/self.s) * np.divide(v[:,1], v[:,2]) + (self.r+1)/2
+            
+        elif (self.projection_model == "polynomial"):
+        
+            # To be implemented...
+            pass
+        
+        # Return coordinates
+        return np.array([img_x,img_y])
+    
     # Snap an image with set integration time
-    # Need dynamics
     def integ(self, dt):
         
         # Rotate star catalog
@@ -98,11 +117,11 @@ class starcam:
         vis     = vis[:, visinds]
         
         # Extract and scale magnitudes
-        mags    = self.mv0_flux * (1 / (2.5**self.mags[visinds])) * dt * self.a
+        mags    = self.mv0_flux * (1 / (2.5**self.mags[visinds])) * dt * self.aperture
         
         # Project remaining stars
-        img_x   = (self.f/self.s) * np.divide(vis[:,0], vis[:,2]) + (self.r-1)/2
-        img_y   = (self.f/self.s) * np.divide(vis[:,1], vis[:,2]) + (self.r-1)/2
+        img_x   = (self.f/self.s) * np.divide(vis[:,0], vis[:,2]) + (self.r+1)/2
+        img_y   = (self.f/self.s) * np.divide(vis[:,1], vis[:,2]) + (self.r+1)/2
         
         # Create image
         img     = np.zeros((self.r, self.r))

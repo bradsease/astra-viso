@@ -16,7 +16,34 @@ class default_tests(starcamtests):
         self.assertEqual( self.starcam.f, 93, 
                                             "Default focal length incorrect." )
 
-class integ_tests(starcamtests):
+class test_body2plane(starcamtests):
+	
+	def test_single_vector(self):
+		
+		#  Convert vector and check dimensions
+		output = self.starcam.body2plane([0,0,1])
+		self.assertEqual( len(output), 2, 
+		                                   "Incorrect coordinate dimensions." )
+		self.assertEqual( len(output[0]), 1, 
+		                                    "Incorrect number of dimensions." )
+		self.assertEqual( len(output[0]), len(output[1]),
+										   "Mis-matched x and y coordinates." )
+		self.assertEqual( output[0], output[1], "Incorrect projection." )
+		self.assertEqual( output[0], 512.5, "Incorrect projection." )
+		
+	def test_multiple_vectors(self):
+		
+		#  Convert vector and check dimensions
+		output = self.starcam.body2plane([[0,0,1],[0,0,-1]])
+		self.assertEqual( len(output), 2, 
+		                                   "Incorrect coordinate dimensions." )
+		self.assertEqual( len(output[0]), 2, 
+		                                    "Incorrect number of dimensions." )
+		self.assertEqual( len(output[0]), len(output[1]),
+										   "Mis-matched x and y coordinates." )
+		self.assertTrue( all(output[0] == output[1]), "Incorrect projection." )
+		
+class test_integ(starcamtests):
     
     def test_empty_star_image(self):
         
@@ -39,7 +66,7 @@ class integ_tests(starcamtests):
         self.assertTrue( (image >= 0).all(), "Image not strictly positive." )
         
         
-class setpsf_tests(starcamtests):
+class test_setpsf(starcamtests):
     
     def test_nominal_dimensions(self):
         
@@ -58,7 +85,7 @@ class setpsf_tests(starcamtests):
         self.assertEqual( np.sum(self.starcam.psf), 1, "PSF sum incorrect." )
         
         
-class set_tests(starcamtests):
+class test_set(starcamtests):
     
     def test_identical_set(self):
         

@@ -137,6 +137,8 @@ class test_getregion(starmaptests):
 		
 		# Check single star along boresight
 		region = self.starmap.getregion([0,0,1], 0)
+		self.assertTrue( type(region["catalog"]) is np.ndarray )
+		self.assertTrue( type(region["magnitude"]) is np.ndarray )
 		self.assertEqual( len(region["catalog"]), 1, 
 												  "Incorrect region extract." )
 		self.assertEqual(len(region["magnitude"]), 1,
@@ -144,6 +146,8 @@ class test_getregion(starmaptests):
 												  
 		# Check 90 degree angle along y-axis
 		region = self.starmap.getregion([0,1,0], 90)
+		self.assertTrue( type(region["catalog"]) is np.ndarray )
+		self.assertTrue( type(region["magnitude"]) is np.ndarray )
 		self.assertEqual( len(region["catalog"]), 5, 
 												  "Incorrect region extract." )
 		self.assertEqual(len(region["magnitude"]), 5,
@@ -151,6 +155,8 @@ class test_getregion(starmaptests):
 												  
 		# Check 180 degree angle along negative x-axis
 		region = self.starmap.getregion([-1,-1,-1], 55)
+		self.assertTrue( type(region["catalog"]) is np.ndarray )
+		self.assertTrue( type(region["magnitude"]) is np.ndarray )
 		self.assertEqual( len(region["catalog"]), 3, 
 												  "Incorrect region extract." )
 		self.assertEqual(len(region["magnitude"]), 3,
@@ -172,6 +178,10 @@ class test_loadpreset(starmaptests):
 		norms_squared = np.array([ np.sum(el**2) for el in self.starmap.catalog])
 		self.assertTrue( (norms_squared == 1).all() )
 		
+		# Check types
+		self.assertTrue( type(self.starmap.catalog) is np.ndarray )
+		self.assertTrue( type(self.starmap.magnitude) is np.ndarray )
+		
 	def test_sixfaces(self):
 		
 		# Set up catalog and check
@@ -186,6 +196,10 @@ class test_loadpreset(starmaptests):
 		norms_squared = np.array([ np.sum(el**2) for el in self.starmap.catalog])
 		self.assertTrue( (norms_squared == 1).all() )
 		
+		# Check types
+		self.assertTrue( type(self.starmap.catalog) is np.ndarray )
+		self.assertTrue( type(self.starmap.magnitude) is np.ndarray )
+		
 	def test_random(self):
 		
 		# Set up catalog and check
@@ -199,6 +213,10 @@ class test_loadpreset(starmaptests):
 		# Check vector norms
 		norms_squared = np.array([ np.sum(el**2) for el in self.starmap.catalog])
 		self.assertTrue( np.allclose(norms_squared, 1) )
+		
+		# Check types
+		self.assertTrue( type(self.starmap.catalog) is np.ndarray )
+		self.assertTrue( type(self.starmap.magnitude) is np.ndarray )
 	
 	@unittest.skip("Test not required.")
 	def test_hipparcos(self):
@@ -215,6 +233,10 @@ class test_loadpreset(starmaptests):
 		norms_squared = np.array([ np.sum(el**2) for el in self.starmap.catalog])
 		self.assertTrue( np.allclose(norms_squared, 1) )
 		
+		# Check types
+		self.assertTrue( type(self.starmap.catalog) is np.ndarray )
+		self.assertTrue( type(self.starmap.magnitude) is np.ndarray )
+		
 	@unittest.skip("Test not required.")
 	def test_tycho(self):
 		
@@ -229,3 +251,7 @@ class test_loadpreset(starmaptests):
 		# Check vector norms
 		norms_squared = np.array([ np.sum(el**2) for el in self.starmap.catalog])
 		self.assertTrue( np.allclose(norms_squared, 1) )
+		
+		# Check types
+		self.assertTrue( type(self.starmap.catalog) is np.ndarray )
+		self.assertTrue( type(self.starmap.magnitude) is np.ndarray )
