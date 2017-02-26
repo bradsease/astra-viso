@@ -11,7 +11,7 @@ class starcam:
         self.f                = 93        # Focal length      (mm)
         self.s                = 0.016     # Pixel size        (mm)
         self.r                = 1024      # Resolution        (px)
-        self.aperture         = 100       # Aperture          (mm^2)
+        self.aperture         = 1087      # Aperture          (mm^2)
         self.mv0_flux         = 19000     # Mv=0 photon flux  (photons/s/mm^2)
         self.psf              = None
         self.psf_model        = "blur"    # Blur or explicit(not supported, yet)
@@ -113,7 +113,9 @@ class starcam:
         # To be implemented...
         pass
     
+    # .integrate
     # Snap an image with set integration time
+    #
     def integrate(self, dt):
         
         # Rotate star catalog
