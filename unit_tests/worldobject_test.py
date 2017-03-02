@@ -24,3 +24,25 @@ class test_init(worldobjecttests):
 											  "Incorrect position data type." )
 		self.assertTrue( type(self.worldobject.velocity) is np.ndarray,
 											  "Incorrect velocity data type." )
+											  
+class test_pointing_preset_kinematic(worldobjecttests):
+
+	def test_output(self):
+	
+		# Set up inputs
+		quaternion   = np.array([0,0,0,1])
+		angular_rate = np.array([0,0,0])
+		
+		# Call method
+		quaternion_deriv =                                                    \
+		   self.worldobject.pointing_preset_kinematic(quaternion, angular_rate)
+		   
+		# Check dimensions and type
+		self.assertEqual(len(quaternion_deriv), 4, 
+												 "Incorrect output dimension.")
+		self.assertTrue(type(quaternion_deriv) is np.ndarray, 
+													  "Incorrect output type.")
+													  
+		# Check values
+		self.assertTrue( np.array_equal(quaternion_deriv, np.array([0,0,0,0])), 
+													 "Incorrect output value.")

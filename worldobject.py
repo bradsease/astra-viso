@@ -40,8 +40,22 @@ class worldobject:
         
     def pointing_preset_kinematic(self, quaternion, angular_rate):
     
-        # To be implemented
-        pass
+        # Normalize quaternion
+        quaternion = quaternion / np.linalg.norm(quaternion)
+    
+        # Set up angular rate matrix
+        M = np.zeros((4,4))
+        M[0,1]   =  angular_rate[2]
+        M[1,0]   = -angular_rate[2]
+        M[0,2]   = -angular_rate[1]
+        M[2,0]   =  angular_rate[1]
+        M[1,2]   =  angular_rate[0]
+        M[2,1]   = -angular_rate[0]
+        M[0:3,3] =  angular_rate
+        M[3,0:3] = -angular_rate
+    
+        # Return quaternion rate
+        return np.dot(M, quaternion)/2
         
         
     def set_position_fcn(self, fcn, mode):
