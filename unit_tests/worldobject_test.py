@@ -46,3 +46,49 @@ class test_pointing_preset_kinematic(worldobjecttests):
 		# Check values
 		self.assertTrue( np.array_equal(quaternion_deriv, np.array([0,0,0,0])), 
 													 "Incorrect output value.")
+                                                     
+class test_set_pointing_fcn(worldobjecttests):
+
+    def test_ode(self):
+    
+        # Create "state" function
+        f = lambda t,state : [0,0,0,0,0,0,0]
+        
+        # Set function
+        self.worldobject.set_pointing_fcn(f, "ode")
+        
+        # Check properties
+        self.assertEqual(self.worldobject.model_attitude, "on", 
+                                                  "Incorrect modeling option.")
+        self.assertEqual(self.worldobject.pointing_mode, "ode", 
+                                                    "Incorrect pointing mode.")
+                                                
+        # Check function output
+        test_result     = self.worldobject.pointing_fcn(1)
+        expected_result = np.hstack((self.worldobject.quaternion,
+                                                self.worldobject.angular_rate))
+        self.assertTrue(np.all(test_result == expected_result),
+                                                  "Incorrect function result.")
+                                                  
+    def test_explicit(self):
+    
+        # Create "state" function
+        f = lambda t : np.hstack((self.worldobject.quaternion,
+                                                self.worldobject.angular_rate))
+        
+        # Set function
+        self.worldobject.set_pointing_fcn(f, "explicit")
+        
+        # Check properties
+        self.assertEqual(self.worldobject.model_attitude, "on", 
+                                                  "Incorrect modeling option.")
+        self.assertEqual(self.worldobject.pointing_mode, "explicit", 
+                                                    "Incorrect pointing mode.")
+                                                
+        # Check function output
+        test_result     = self.worldobject.pointing_fcn(1)
+        expected_result = np.hstack((self.worldobject.quaternion,
+                                                self.worldobject.angular_rate))
+        self.assertTrue(np.all(test_result == expected_result),
+                                                  "Incorrect function result.")
+        
