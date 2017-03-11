@@ -40,39 +40,45 @@ class worldobject:
         
     def set_pointing_fcn(self, fcn, mode):
     
-        # Verify input
-        #test_result = fcn(0, np.array([0,0,0,0,0,0,0]))
-        #if ( len(test_result) != 7 ):
-        #    raise ValueError("Invalid pointing function output length.")
-        #if ( type(test_result) is not np.ndarray ):
-        #    raise TypeError("Invalid pointing function output type.")
+        # Verify input mode
         if ( mode.lower() not in ["ode", "explicit"] ):
             raise ValueError("Invalid pointing mode:" + mode)
-    
-        # Update attitude modeling mode
-        self.model_attitude = "on"
-        
-        # Set pointing mode
-        self.pointing_mode = mode.lower()
         
         # Handle ODE option
-        if ( self.pointing_mode == "ode" ):
+        if ( mode.lower() == "ode" ):
             
             # Store ODE for later
             self.pointing_ode = fcn
             
-            # Set up integrator and store
+            # Set up integrator and store ode
             explicit_fcn      = ode(fcn)
             explicit_fcn.set_integrator(self.integrator, verbosity=-1)
             explicit_fcn.set_initial_value(
                             np.hstack((self.quaternion, self.angular_rate)), 0)
-            self.pointing_fcn = lambda t : explicit_fcn.integrate(t)
+            
+            # Set pointing function
+            pointing_fcn = lambda t : explicit_fcn.integrate(t)
         
         # Handle explicit option
-        elif ( self.pointing_mode == "explicit" ):
+        elif ( mode.lower() == "explicit" ):
             
             # Set function
-            self.pointing_fcn = fcn
+            pointing_fcn = fcn
+            
+        # Verify input function
+        # Integrates over a short span because setting to zero yields 
+        # "too small step size" warning..
+        test_result = pointing_fcn(1e-6)
+        if ( len(test_result) != 7 ):
+            raise ValueError("Invalid pointing function output length.")
+        if ( type(test_result) is not np.ndarray ):
+            raise TypeError("Invalid pointing function output type.")
+            
+        # Set internal pointing function and properties
+        self.model_attitude = "on"
+        self.pointing_mode  = mode.lower()
+        self.pointing_fcn   = pointing_fcn
+            
         
     def set_pointing_preset(self, preset):
     
