@@ -10,7 +10,7 @@ class worldobject:
         self.epoch_format    = "seconds"   # Currently unused
         
         # Attitude
-        self.model_attitude  = "on"
+        self.model_pointing  = "on"
         self.quaternion      = np.array([0,0,0,1])
         self.angular_rate    = np.array([0,0,0])
         
@@ -52,7 +52,7 @@ class worldobject:
             
             # Set up integrator and store ode
             explicit_fcn      = ode(fcn)
-            explicit_fcn.set_integrator(self.integrator, verbosity=-1)
+            explicit_fcn.set_integrator(self.integrator)
             explicit_fcn.set_initial_value(
                             np.hstack((self.quaternion, self.angular_rate)), 0)
             
@@ -75,12 +75,17 @@ class worldobject:
             raise TypeError("Invalid pointing function output type.")
             
         # Set internal pointing function and properties
-        self.model_attitude = "on"
+        self.model_pointing = "on"
         self.pointing_mode  = mode.lower()
         self.pointing_fcn   = pointing_fcn
             
         
     def set_pointing_preset(self, preset):
+    
+        # To be implemented...
+        pass
+        
+    def set_pointing(self, q, w=np.array([0,0,0]), t=0):
     
         # To be implemented...
         pass
@@ -129,3 +134,36 @@ class worldobject:
     
         # To be implemented...
         pass
+        
+    def set_integrator(self, integrator, atol=None, rtol=None):
+    
+        # Check integrator input
+        accepted_values = ["vode", "isoda", "dopri5", "dop853"]
+        if ( integrator not in accepted_values ):
+            raise ValueError("Unsupported integrator. Valid options: " 
+                                                        + str(accepted_values))
+            
+        # Set integrator
+        self.integrator = integrator
+        
+        # Set absolute tolerance
+        if ( atol is not None ):
+            if ( atol <= 0 ):
+                raise ValueError("Integrator tolerances must be >= 0.")
+            else:
+                self.integrator_atol = atol
+                
+        # Set relative tolerance
+        if ( rtol is not None ):
+            if ( rtol <= 0 ):
+                raise ValueError("Integrator tolerances must be >= 0.")
+            else:
+                self.integrator_rtol = rtol
+        
+        # Update pointing function if necessary
+        if ( self.pointing_ode is not None ):
+            self.set_pointing_fcn( self.pointing_ode, "ode" )
+        
+        # Update position function if necessary
+        if ( self.position_ode is not None ):
+            self.set_position_fcn( self.position_ode, "ode" )

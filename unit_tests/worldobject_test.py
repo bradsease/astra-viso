@@ -58,7 +58,7 @@ class test_set_pointing_fcn(worldobjecttests):
         self.worldobject.set_pointing_fcn(f, "ode")
         
         # Check properties
-        self.assertEqual(self.worldobject.model_attitude, "on", 
+        self.assertEqual(self.worldobject.model_pointing, "on", 
                                                   "Incorrect modeling option.")
         self.assertEqual(self.worldobject.pointing_mode, "ode", 
                                                     "Incorrect pointing mode.")
@@ -80,7 +80,7 @@ class test_set_pointing_fcn(worldobjecttests):
         self.worldobject.set_pointing_fcn(f, "explicit")
         
         # Check properties
-        self.assertEqual(self.worldobject.model_attitude, "on", 
+        self.assertEqual(self.worldobject.model_pointing, "on", 
                                                   "Incorrect modeling option.")
         self.assertEqual(self.worldobject.pointing_mode, "explicit", 
                                                     "Incorrect pointing mode.")
@@ -91,4 +91,32 @@ class test_set_pointing_fcn(worldobjecttests):
                                                 self.worldobject.angular_rate))
         self.assertTrue(np.all(test_result == expected_result),
                                                   "Incorrect function result.")
+
+class test_set_integrator(worldobjecttests):
+
+    def test_set(self):
+        
+        # Set integrator
+        self.worldobject.set_integrator("vode", 1e-8, 1e-9)
+        
+        # Check properties
+        self.assertEqual(self.worldobject.integrator, "vode", 
+                                                       "Incorrect integrator.")
+        self.assertEqual(self.worldobject.integrator_atol, 1e-8, 
+                                               "Incorrect absolute tolerance.")
+        self.assertEqual(self.worldobject.integrator_rtol, 1e-9, 
+                                               "Incorrect relative tolerance.")
+        
+    def test_set_with_pointing_ode(self):
+    
+        # Create "state" function
+        f = lambda t,state : [0,0,0,0,0,0,0]
+        
+        # Set function
+        self.worldobject.set_pointing_fcn(f, "ode")
+        
+        # Set integrator
+        self.worldobject.set_integrator("vode", 1e-8, 1e-9)
+        
+        
         
