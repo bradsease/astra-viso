@@ -10,6 +10,26 @@ class pointingutilstests(unittest.TestCase):
     def tearDown(self):
         pass
 
+class test_rigid_body_kinematics(pointingutilstests):
+
+	def test_output(self):
+	
+		# Set up inputs
+		quaternion   = np.array([0,0,0,1])
+		angular_rate = np.array([0,0,0])
+		
+		# Call method
+		deriv = point.rigid_body_kinematic(quaternion, angular_rate)
+		   
+		# Check dimensions and type
+		self.assertEqual(len(deriv), 7, 
+												 "Incorrect output dimension.")
+		self.assertTrue(type(deriv) is np.ndarray, "Incorrect output type.")
+													  
+		# Check values
+		self.assertTrue( np.array_equal(deriv, np.array([0,0,0,0,0,0,0])), 
+													 "Incorrect output value.")
+        
 class test_quaternion2dcm(pointingutilstests):
 
     def test_types(self):
