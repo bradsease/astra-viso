@@ -81,4 +81,3 @@ class test_quaternion2dcm(pointingutilstests):
         for row in dcm_single:
             self.assertTrue(np.isclose(np.linalg.norm(row),1),
                                                 "Incorrect dcm row magnitude.")
-        

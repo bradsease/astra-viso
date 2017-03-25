@@ -109,6 +109,3 @@ class test_set_integrator(worldobjecttests):
         
         # Set integrator
         self.worldobject.set_integrator("vode", 1e-8, 1e-9)
-        
-        
-        
