@@ -70,6 +70,20 @@ class test_set_pointing_fcn(worldobjecttests):
         self.assertTrue(np.all(test_result == expected_result),
                                                   "Incorrect function result.")
 
+class test_set_pointing_preset(worldobjecttests):
+
+    def test_kinematic_preset(self):
+    
+        # Set preset
+        self.worldobject.set_pointing_preset("kinematic")
+        
+        # Check function output
+        test_result     = self.worldobject.pointing_fcn(1)
+        expected_result = np.hstack((self.worldobject.quaternion,
+                                                self.worldobject.angular_rate))
+        self.assertTrue(np.all(test_result == expected_result),
+                                                  "Incorrect function result.")
+                                                  
 class test_set_integrator(worldobjecttests):
 
     def test_set(self):

@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.integrate import ode
 
+import pointingutils
+
 class worldobject:
     
     def __init__(self, name=None):
@@ -81,16 +83,27 @@ class worldobject:
             
         
     def set_pointing_preset(self, preset):
-    
-        # To be implemented...
-        pass
-        
+            
+        # Rigid body kinematic option
+        if (preset == "kinematic"):
+            
+            # Build lambda function
+            function = lambda t, state :                                      \
+                      pointingutils.rigid_body_kinematic(state[0:4], state[4:])
+            
+            # Set function
+            self.set_pointing_fcn(function, "ode")
+            
+        else:
+            raise NotImplementedError("Invalid preset option.")
+
+
     def set_pointing(self, q, w=np.array([0,0,0]), t=0):
     
         # To be implemented...
         pass
         
-    def get_pointing(self, t):
+    def get_pointing(self, t, format="quaternion"):
     
         # To be implemented...
         pass
