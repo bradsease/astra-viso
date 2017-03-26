@@ -6,7 +6,7 @@ import numpy as np
 class worldobjecttests(unittest.TestCase):
     
     def setUp(self):
-        self.worldobject = obj.worldobject()
+        self.worldobject = obj.WorldObject()
         
     def tearDown(self):
         del self.worldobject

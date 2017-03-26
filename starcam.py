@@ -1,5 +1,5 @@
 """
-Astra-Viso star camera package.
+Astra-Viso star camera module.
 """
 import numpy as np
 from numba import jit
@@ -8,7 +8,6 @@ class StarCam:
     """
     Star camera class.
     """
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         """

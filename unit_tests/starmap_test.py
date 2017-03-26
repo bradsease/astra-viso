@@ -6,7 +6,7 @@ import numpy as np
 class starmaptests(unittest.TestCase):
     
     def setUp(self):
-        self.starmap = map.starmap()
+        self.starmap = map.StarMap()
         
     def tearDown(self):
         del self.starmap
