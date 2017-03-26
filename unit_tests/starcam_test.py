@@ -6,14 +6,14 @@ import numpy as np
 class starcamtests(unittest.TestCase):
     
     def setUp(self):
-        self.starcam = cam.starcam()
+        self.starcam = cam.StarCam()
         
     def tearDown(self):
         del self.starcam
         
 class default_tests(starcamtests):
     def test_focal_length(self):
-        self.assertEqual( self.starcam.f, 93, 
+        self.assertEqual( self.starcam.focal_len, 93, 
                                             "Default focal length incorrect." )
 
 class test_body2plane(starcamtests):
@@ -49,9 +49,9 @@ class test_integrate(starcamtests):
         
         # Generate empty image
         image = self.starcam.integrate(0)
-        self.assertEqual( image.shape[0], self.starcam.r,
+        self.assertEqual( image.shape[0], self.starcam.resolution,
                                                     "X Resolution incorrect." )
-        self.assertEqual( image.shape[1], self.starcam.r,
+        self.assertEqual( image.shape[1], self.starcam.resolution,
                                                     "Y Resolution incorrect." )
         self.assertEqual( np.sum(image), 0, "Image not strictly positive." )
         
@@ -59,9 +59,9 @@ class test_integrate(starcamtests):
     
         # Generate image
         image = self.starcam.integrate(1)
-        self.assertEqual( image.shape[0], self.starcam.r,
+        self.assertEqual( image.shape[0], self.starcam.resolution,
                                                     "X Resolution incorrect." )
-        self.assertEqual( image.shape[1], self.starcam.r,
+        self.assertEqual( image.shape[1], self.starcam.resolution,
                                                     "Y Resolution incorrect." )
         self.assertTrue( (image >= 0).all(), "Image not strictly positive." )
         
@@ -90,33 +90,49 @@ class test_set(starcamtests):
     def test_identical_set(self):
         
         # Store current values
-        f = self.starcam.f
-        s = self.starcam.s
-        r = self.starcam.r
+        f = self.starcam.focal_len
+        s = self.starcam.pixel_size
+        r = self.starcam.resolution
 		
         # Update values
-        self.starcam.set(f = f, r = r, s = s)
+        self.starcam.set(focal_len = f, resolution = r, pixel_size = s)
         
         # Check result
-        self.assertEqual( f, self.starcam.f, "Focal length not preserved." )
-        self.assertEqual( s, self.starcam.s, "Pixel size not preserved."   )
-        self.assertEqual( r, self.starcam.r, "Resolution not preserved."   )
-        self.assertTrue( type(self.starcam.r) is int, 
+        self.assertEqual( f, self.starcam.focal_len, "Focal length not preserved." )
+        self.assertEqual( s, self.starcam.pixel_size, "Pixel size not preserved."   )
+        self.assertEqual( r, self.starcam.resolution, "Resolution not preserved."   )
+        self.assertTrue( type(self.starcam.resolution) is int, 
                                               "Resolution not integer-valued" )
 		
     def test_fov_set(self):
 		
 		# Test values
-        f   = self.starcam.f
-        s   = self.starcam.s
+        f   = self.starcam.focal_len
+        s   = self.starcam.pixel_size
         fov = 10.0679286799
         
         # Update
-        self.starcam.set(f = f, s = s, fov = fov)
+        self.starcam.set(focal_len = f, pixel_size = s, fov = fov)
         
         # Check result
-        self.assertEqual( f, self.starcam.f, "Focal length not preserved." )
-        self.assertEqual( s, self.starcam.s, "Pixel size not preserved." )
-        self.assertTrue( np.isclose(self.starcam.r, 1024) )
-        self.assertTrue( type(self.starcam.r) is int, 
+        self.assertEqual( f, self.starcam.focal_len, "Focal length not preserved." )
+        self.assertEqual( s, self.starcam.pixel_size, "Pixel size not preserved." )
+        self.assertTrue( np.isclose(self.starcam.resolution, 1024) )
+        self.assertTrue( type(self.starcam.resolution) is int, 
                                               "Resolution not integer-valued" )
+
+    def test_focal_len_set(self):
+		
+		# Test values
+        r   = 1024
+        s   = self.starcam.pixel_size
+        fov = 10.0679286799
+        
+        # Update
+        self.starcam.set(resolution = r, pixel_size = s, fov = fov)
+        
+        # Check result
+        self.assertEqual( r, self.starcam.resolution, "Focal length not preserved." )
+        self.assertEqual( s, self.starcam.pixel_size, "Pixel size not preserved." )
+        self.assertTrue( np.isclose(self.starcam.focal_len, 93), 
+                                              "Incorrect focal length calculated." )
