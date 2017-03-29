@@ -99,6 +99,84 @@ class test_set_pointing_preset(worldobjecttests):
         expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
+class test_get_pointing(worldobjecttests):
+    """
+    Test get_pointing method.
+    """
+
+    def test_single_quaternion(self):
+        """
+        Test single quaternion output.
+        """
+
+        # Set pointing to kinematic
+        self.worldobject.set_pointing_preset("kinematic")
+
+        # Get pointing
+        quaternion = self.worldobject.get_pointing(1)
+
+        # Check type, size, and value
+        self.assertIsInstance(quaternion, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(quaternion), 4, "Incorrect output size.")
+        self.assertTrue(np.all(quaternion == self.worldobject.quaternion), "Incorrect result.")
+
+    def test_multi_quaternion(self):
+        """
+        Test single quaternion output.
+        """
+
+        # Number of test cases
+        num = 9
+
+        # Set pointing to kinematic
+        self.worldobject.set_pointing_preset("kinematic")
+
+        # Get pointing
+        quaternion = self.worldobject.get_pointing(np.arange(num)+1)
+
+        # Check type, size, and value
+        self.assertIsInstance(quaternion, np.ndarray, "Incorrect output type.")
+        self.assertTrue(quaternion.shape == (num, 4), "Incorrect output size.")
+        for idx in range(num):
+            self.assertTrue(np.all(quaternion[idx, :] == self.worldobject.quaternion),             \
+                                                                                "Incorrect result.")
+
+    def test_single_dcm(self):
+        """
+        Test single dcm output.
+        """
+
+        # Set pointing to kinematic
+        self.worldobject.set_pointing_preset("kinematic")
+
+        # Get pointing
+        dcm = self.worldobject.get_pointing(1, mode="dcm")
+
+        # Check type and value
+        self.assertIsInstance(dcm, np.ndarray, "Incorrect output type.")
+        self.assertTrue(dcm.shape == (3, 3), "Incorrect output size.")
+        self.assertTrue(np.all(dcm == np.eye(3)), "Incorrect result.")
+
+    def test_multi_dcm(self):
+        """
+        Test single quaternion output.
+        """
+
+        # Number of test cases
+        num = 9
+
+        # Set pointing to kinematic
+        self.worldobject.set_pointing_preset("kinematic")
+
+        # Get pointing
+        dcm = self.worldobject.get_pointing(np.arange(num)+1, mode="dcm")
+
+        # Check type, size, and value
+        self.assertIsInstance(dcm, np.ndarray, "Incorrect output type.")
+        self.assertTrue(dcm.shape == (num, 3, 3), "Incorrect output size.")
+        for idx in range(num):
+            self.assertTrue(np.all(dcm[idx, :, :] == np.eye(3)), "Incorrect result.")
+
 class test_set_integrator(worldobjecttests):
     """
     Test set_integrator method.

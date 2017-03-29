@@ -108,7 +108,7 @@ class WorldObject:
             self.set_pointing_fcn(function, "ode")
 
         else:
-            raise NotImplementedError("Invalid preset option.")
+            raise NotImplementedError("Selected preset not supported.")
 
     def set_pointing(self, quaternion, angular_rate=np.array([0, 0, 0]), time=0):
         """
@@ -124,8 +124,41 @@ class WorldObject:
         Get pointing direction at a particular time.
         """
 
-        # To be implemented...
-        pass
+        # Ensure that time is a list
+        if not isinstance(time, list) and not isinstance(time, np.ndarray):
+            time = [time]
+        num = len(time)
+
+        # Collect pointing values for quaternion mode
+        if mode == "quaternion":
+
+            # Allocate
+            output = np.zeros((num, 4))
+
+            # Iterate
+            for idx in range(num):
+                output[idx, :] = self.pointing_fcn(time[idx])[0:4]
+
+        # Collect pointing values for dcm mode
+        elif mode == "dcm":
+
+            # Allocate
+            output = np.zeros((num, 3, 3))
+
+            # Iterate
+            for idx in range(num):
+                output[idx, :, :] = pointingutils.quaternion2dcm(self.pointing_fcn(time[idx])[0:4])
+
+        # Handle invalid mode
+        else:
+            raise NotImplementedError("Unsupported pointing type. Options: quaternion, dcm.")
+
+        # Remove unnecessary dimension
+        if num == 1:
+            output = np.squeeze(output)
+
+        # Return values
+        return output
 
     def set_position_fcn(self, fcn, mode):
         """
@@ -159,7 +192,7 @@ class WorldObject:
         # Check integrator input
         accepted_values = ["vode", "isoda", "dopri5", "dop853"]
         if integrator not in accepted_values:
-            raise ValueError("Unsupported integrator. Valid options: " + str(accepted_values))
+            raise NotImplementedError("Unsupported integrator. Options: " + str(accepted_values))
 
         # Set integrator
         self.integrator = integrator

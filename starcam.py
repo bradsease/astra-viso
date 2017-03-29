@@ -17,9 +17,9 @@ class StarCam:
         # Set default camera parameters
         # **** Should model this after real camera
         # Need to change convention on these variables
-        self.focal_len = 93                       # Focal length      (mm)
-        self.pixel_size = 0.016                    # Pixel size        (mm)
-        self.resolution = 1024                     # Resolution        (px)
+        self.focal_len = 93               # Focal length      (mm)
+        self.pixel_size = 0.016           # Pixel size        (mm)
+        self.resolution = 1024            # Resolution        (px)
         self.aperture = 1087              # Aperture          (mm^2)
         self.mv0_flux = 19000             # Mv=0 photon flux  (photons/s/mm^2)
         self.psf = None
@@ -28,10 +28,10 @@ class StarCam:
         self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
 
         # Set default noise
-        self.photon2elec = 0.22      # photon / e^-
-        self.read_noise = 200        # e^-
-        self.dark_current = 1200     # e^- / s
-        self.noise_model = "poisson" # Poisson or Gaussian
+        self.photon2elec = 0.22           # photon / e^-
+        self.read_noise = 200             # e^-
+        self.dark_current = 1200          # e^- / s
+        self.noise_model = "poisson"      # Poisson or Gaussian
 
         # Set default star catalog
         self.stars = None
