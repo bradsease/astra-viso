@@ -2,7 +2,7 @@
 StarCam unit tests.
 """
 import unittest
-import starcam as cam
+from astraviso import starcam as cam
 import numpy as np
 
 class starcamtests(unittest.TestCase):

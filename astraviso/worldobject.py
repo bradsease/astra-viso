@@ -3,7 +3,7 @@ Astra-Viso world object module.
 """
 import numpy as np
 from scipy.integrate import ode
-import pointingutils
+from astraviso import pointingutils
 
 class WorldObject:
     """

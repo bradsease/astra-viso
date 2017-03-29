@@ -2,7 +2,7 @@
 Pointingutils unit tests.
 """
 import unittest
-import pointingutils as point
+from astraviso import pointingutils as point
 import numpy as np
 
 class pointingutilstests(unittest.TestCase):

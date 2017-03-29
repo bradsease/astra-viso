@@ -2,7 +2,7 @@
 WorldObject unit tests.
 """
 import unittest
-import worldobject as obj
+from astraviso import worldobject as obj
 import numpy as np
 
 class worldobjecttests(unittest.TestCase):

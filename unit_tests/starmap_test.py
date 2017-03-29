@@ -2,7 +2,7 @@
 StarMap unit tests.
 """
 import unittest
-import starmap as sm
+from astraviso import starmap as sm
 import numpy as np
 
 class starmaptests(unittest.TestCase):
