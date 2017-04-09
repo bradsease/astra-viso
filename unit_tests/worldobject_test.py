@@ -46,8 +46,10 @@ class test_set_pointing_fcn(worldobjecttests):
         self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check properties
-        self.assertEqual(self.worldobject.model_pointing, "on", "Incorrect modeling option.")
-        self.assertEqual(self.worldobject.pointing_mode, "ode", "Incorrect pointing mode.")
+        self.assertEqual(self.worldobject._WorldObject__settings["model_pointing"], "on",          \
+                                                     "Modeling option for pointing should be 'on'.")
+        self.assertEqual(self.worldobject._WorldObject__settings["pointing_mode"], "ode",          \
+                                                                   "Pointing mode should be 'ode'.")
 
         # Check function output
         test_result = self.worldobject.pointing_fcn.integrate(1)
@@ -66,8 +68,10 @@ class test_set_pointing_fcn(worldobjecttests):
         self.worldobject.set_pointing_fcn(fcn, "explicit")
 
         # Check properties
-        self.assertEqual(self.worldobject.model_pointing, "on", "Incorrect modeling option.")
-        self.assertEqual(self.worldobject.pointing_mode, "explicit", "Incorrect pointing mode.")
+        self.assertEqual(self.worldobject._WorldObject__settings["model_pointing"], "on",          \
+                                                     "Modeling option for pointing should be 'on'.")
+        self.assertEqual(self.worldobject._WorldObject__settings["pointing_mode"], "explicit",     \
+                                                              "Pointing mode should be 'explicit'.")
 
         # Check function output
         test_result = self.worldobject.pointing_fcn(1)
@@ -197,6 +201,9 @@ class test_set_integrator(worldobjecttests):
         self.worldobject.set_integrator("vode", 1e-8, 1e-9)
 
         # Check properties
-        self.assertEqual(self.worldobject.integrator, "vode", "Incorrect integrator.")
-        self.assertEqual(self.worldobject.integrator_atol, 1e-8, "Incorrect absolute tolerance.")
-        self.assertEqual(self.worldobject.integrator_rtol, 1e-9, "Incorrect relative tolerance.")
+        self.assertEqual(self.worldobject._WorldObject__settings["integrator"], "vode",            \
+                                                                      "Incorrect should be 'vode'.")
+        self.assertEqual(self.worldobject._WorldObject__settings["integrator_atol"], 1e-8,         \
+                                                               "Absolute tolerance should be 1e-8.")
+        self.assertEqual(self.worldobject._WorldObject__settings["integrator_rtol"], 1e-9,         \
+                                                               "Relative tolerance should be 1e-9.")
