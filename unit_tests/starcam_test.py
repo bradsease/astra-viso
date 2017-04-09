@@ -39,12 +39,13 @@ class test_body2plane(starcamtests):
         """
 
         #  Convert vector and check dimensions
-        output = self.starcam.body2plane([0, 0, 1])
-        self.assertEqual(len(output), 2, "Incorrect coordinate dimensions.")
-        self.assertEqual(len(output[0]), 1, "Incorrect number of dimensions.")
-        self.assertEqual(len(output[0]), len(output[1]), "Mis-matched x and y coordinates.")
-        self.assertEqual(output[0], output[1], "Incorrect projection.")
-        self.assertEqual(output[0], 512.5, "Incorrect projection.")
+        img_x, img_y = self.starcam.body2plane(np.array([0, 0, 1]))
+        self.assertIsInstance(img_x, np.ndarray, "X coordinate output should be ndarray.")
+        self.assertIsInstance(img_y, np.ndarray, "X coordinate output should be ndarray.")
+        self.assertEqual(len(img_x), 1, "Output dimension should equal input dimension")
+        self.assertEqual(len(img_x), len(img_y), "Number of x and y coordinates should be equal.")
+        self.assertEqual(img_x[0], img_y[0], "For this case, coordinates should be equal.")
+        self.assertEqual(img_x[0], 512.5, "For this case, coordinate value should be 512.5.")
 
     def test_multiple_pinhole(self):
         """
@@ -52,11 +53,12 @@ class test_body2plane(starcamtests):
         """
 
         #  Convert vector and check dimensions
-        output = self.starcam.body2plane([[0, 0, 1], [0, 0, -1]])
-        self.assertEqual(len(output), 2, "Incorrect coordinate dimensions.")
-        self.assertEqual(len(output[0]), 2, "Incorrect number of dimensions.")
-        self.assertEqual(len(output[0]), len(output[1]), "Mis-matched x and y coordinates.")
-        self.assertTrue(all(output[0] == output[1]), "Incorrect projection.")
+        img_x, img_y = self.starcam.body2plane(np.array([[0, 0, 1], [0, 0, -1]]))
+        self.assertIsInstance(img_x, np.ndarray, "X coordinate output should be ndarray.")
+        self.assertIsInstance(img_y, np.ndarray, "X coordinate output should be ndarray.")
+        self.assertEqual(len(img_x), 2, "Output dimension should equal input dimension")
+        self.assertEqual(len(img_x), len(img_y), "Number of x and y coordinates should be equal.")
+        self.assertTrue(all(img_x == img_y), "For this case, coordinates should be equal.")
 
 class test_integrate(starcamtests):
     """
@@ -72,7 +74,7 @@ class test_integrate(starcamtests):
         image = self.starcam.integrate(0)
         self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
-        self.assertEqual(np.sum(image), 0, "Image not strictly positive.")
+        self.assertEqual(np.sum(image), 0, "Images must be strictly positive.")
 
     def test_nonempty_star_image(self):
         """
@@ -83,7 +85,7 @@ class test_integrate(starcamtests):
         image = self.starcam.integrate(1)
         self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
-        self.assertTrue((image >= 0).all(), "Image not strictly positive.")
+        self.assertTrue((image >= 0).all(), "Images must be strictly positive.")
 
 class test_setpsf(starcamtests):
     """

@@ -27,14 +27,7 @@ class test_initialization(worldobjecttests):
         """
 
         # Check types
-        self.assertTrue(isinstance(self.worldobject.quaternion, np.ndarray),                      \
-                                                                 "Incorrect quaternion data type.")
-        self.assertTrue(isinstance(self.worldobject.angular_rate, np.ndarray),                    \
-                                                               "Incorrect angular rate data type.")
-        self.assertTrue(isinstance(self.worldobject.position, np.ndarray),                        \
-                                                                   "Incorrect position data type.")
-        self.assertTrue(isinstance(self.worldobject.velocity, np.ndarray),                        \
-                                                                   "Incorrect velocity data type.")
+        pass
 
 class test_set_pointing_fcn(worldobjecttests):
     """
@@ -50,7 +43,7 @@ class test_set_pointing_fcn(worldobjecttests):
         fcn = lambda t, state: [0, 0, 0, 0, 0, 0, 0]
 
         # Set function
-        self.worldobject.set_pointing_fcn(fcn, "ode")
+        self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check properties
         self.assertEqual(self.worldobject.model_pointing, "on", "Incorrect modeling option.")
@@ -58,7 +51,7 @@ class test_set_pointing_fcn(worldobjecttests):
 
         # Check function output
         test_result = self.worldobject.pointing_fcn(1)
-        expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
     def test_explicit(self):
@@ -67,7 +60,7 @@ class test_set_pointing_fcn(worldobjecttests):
         """
 
         # Create "state" function
-        fcn = lambda t: np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        fcn = lambda t: np.array([0, 0, 0, 1, 0, 0, 0])
 
         # Set function
         self.worldobject.set_pointing_fcn(fcn, "explicit")
@@ -78,7 +71,7 @@ class test_set_pointing_fcn(worldobjecttests):
 
         # Check function output
         test_result = self.worldobject.pointing_fcn(1)
-        expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
 class test_set_pointing_preset(worldobjecttests):
@@ -92,21 +85,21 @@ class test_set_pointing_preset(worldobjecttests):
         """
 
         # Set preset
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function static output
         test_result = self.worldobject.pointing_fcn(1)
-        expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result),                                   \
                                                  "For zero angular rate, result should be static.")
 
         # Set preset
         self.worldobject.angular_rate = np.array([2*np.pi, 0, 0])
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function single rotation output
         test_result = self.worldobject.pointing_fcn(2)
-        expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(np.isclose(test_result, expected_result)),              \
                                                    "Quaternion should return after two rotations.")
 
@@ -121,7 +114,7 @@ class test_get_pointing(worldobjecttests):
         """
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Get pointing
         quaternion = self.worldobject.get_pointing(1)
@@ -129,7 +122,7 @@ class test_get_pointing(worldobjecttests):
         # Check type, size, and value
         self.assertIsInstance(quaternion, np.ndarray, "Output type should be ndarray.")
         self.assertEqual(len(quaternion), 4, "Output size should be 4.")
-        self.assertTrue(np.all(quaternion == self.worldobject.quaternion),                        \
+        self.assertTrue(np.all(quaternion == np.array([0, 0, 0, 1])),                             \
                                                                     "Quaternion should be static.")
 
     def test_multi_quaternion(self):
@@ -141,7 +134,7 @@ class test_get_pointing(worldobjecttests):
         num = 9
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Get pointing
         quaternion = self.worldobject.get_pointing(np.arange(num)+1)
@@ -150,7 +143,7 @@ class test_get_pointing(worldobjecttests):
         self.assertIsInstance(quaternion, np.ndarray, "Output type should be ndarray.")
         self.assertTrue(quaternion.shape == (num, 4), "Output size should be 4.")
         for idx in range(num):
-            self.assertTrue(np.all(quaternion[idx, :] == self.worldobject.quaternion),             \
+            self.assertTrue(np.all(quaternion[idx, :] == np.array([0, 0, 0, 1])),                  \
                                                                                 "Incorrect result.")
 
     def test_single_dcm(self):
@@ -159,7 +152,7 @@ class test_get_pointing(worldobjecttests):
         """
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Get pointing
         dcm = self.worldobject.get_pointing(1, mode="dcm")
@@ -178,7 +171,7 @@ class test_get_pointing(worldobjecttests):
         num = 9
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic")
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Get pointing
         dcm = self.worldobject.get_pointing(np.arange(num)+1, mode="dcm")
@@ -215,7 +208,7 @@ class test_set_integrator(worldobjecttests):
         fcn = lambda t, state: [0, 0, 0, 0, 0, 0, 0]
 
         # Set function
-        self.worldobject.set_pointing_fcn(fcn, "ode")
+        self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Set integrator
         self.worldobject.set_integrator("vode", 1e-8, 1e-9)

@@ -24,8 +24,8 @@ class WorldObject:
 
         # Attitude
         self.model_pointing = "on"
-        self.quaternion = np.array([0, 0, 0, 1])
-        self.angular_rate = np.array([0, 0, 0])
+        #self.quaternion = np.array([0, 0, 0, 1])
+        #self.angular_rate = np.array([0, 0, 0])
 
         # Attitude dynamics
         self.pointing_mode = "ode"       # "ode", "explicit", or "sampled"
@@ -34,8 +34,8 @@ class WorldObject:
 
         # Position
         self.model_position = "off"
-        self.position = np.array([0, 0, 0])
-        self.velocity = np.array([0, 0, 0])
+        #self.position = np.array([0, 0, 0])
+        #self.velocity = np.array([0, 0, 0])
 
         # Position dynamics
         self.position_mode = "ode"       # "ode", "explicit", or "sampled"
@@ -50,7 +50,7 @@ class WorldObject:
         # Interpolation properties
         self.interp_order = 5            # Currently unused
 
-    def set_pointing_fcn(self, fcn, mode):
+    def set_pointing_fcn(self, fcn, mode, initial_state=None):
         """
         Set internal pointing dynamics.
         """
@@ -69,7 +69,8 @@ class WorldObject:
             explicit_fcn = ode(fcn)
             explicit_fcn.set_integrator(self.integrator, atol=self.integrator_atol,                \
                                                                           rtol=self.integrator_rtol)
-            explicit_fcn.set_initial_value(np.hstack((self.quaternion, self.angular_rate)), 0)
+            #explicit_fcn.set_initial_value(np.hstack((self.quaternion, self.angular_rate)), 0)
+            explicit_fcn.set_initial_value(initial_state, 0)
 
             # Set pointing function
             pointing_fcn = explicit_fcn.integrate
@@ -94,7 +95,7 @@ class WorldObject:
         self.pointing_mode = mode.lower()
         self.pointing_fcn = pointing_fcn
 
-    def set_pointing_preset(self, preset):
+    def set_pointing_preset(self, preset, initial_state=None):
         """
         Set internal pointing dynamics to preset function.
         """
@@ -106,7 +107,7 @@ class WorldObject:
             function = lambda t, state: pointingutils.rigid_body_kinematic(state[0:4], state[4:])
 
             # Set function
-            self.set_pointing_fcn(function, "ode")
+            self.set_pointing_fcn(function, "ode", initial_state)
 
         else:
             raise NotImplementedError("Selected preset not supported.")
@@ -213,9 +214,9 @@ class WorldObject:
                 self.integrator_rtol = rtol
 
         # Update pointing function if necessary
-        if self.pointing_ode is not None:
-            self.set_pointing_fcn(self.pointing_ode, "ode")
+        #if self.pointing_ode is not None:
+        #    self.set_pointing_fcn(self.pointing_ode, "ode")
 
         # Update position function if necessary
-        if self.position_ode is not None:
-            self.set_position_fcn(self.position_ode, "ode")
+        #if self.position_ode is not None:
+        #    self.set_position_fcn(self.position_ode, "ode")

@@ -3,8 +3,9 @@ Astra-Viso star camera module.
 """
 import numpy as np
 from numba import jit
+from astraviso import worldobject
 
-class StarCam:
+class StarCam(worldobject.WorldObject):
     """
     Star camera class.
     """
@@ -34,13 +35,16 @@ class StarCam:
         self.noise_model = "poisson"      # Poisson or Gaussian
 
         # Set default star catalog
-        self.stars = None
-        self.mags = None
-        self.setcat("test")
+        self.stars = None                 # TEMPORARY
+        self.mags = None                  # TEMPORARY
+        self.setcat("test")               # TEMPORARY
+
+        # Internal settings
+        self.max_angle_step = 1e-3
 
         # Set default attitude properties
-        self.dcm = np.eye(3)
-        self.omega = np.zeros((3, 1))
+        worldobject.WorldObject.__init__(self)
+        self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
     def set(self, focal_len=None, resolution=None, fov=None, pixel_size=None):
         """
@@ -106,8 +110,8 @@ class StarCam:
         """
 
         # Check input
-        if not isinstance(vectors, np.ndarray):
-            vectors = np.array(vectors)
+        #if not isinstance(vectors, np.ndarray):
+        #    vectors = np.array(vectors)
         if len(vectors.shape) == 1:
             vectors = vectors.reshape(1, 3)
 
@@ -127,6 +131,7 @@ class StarCam:
 
         # Return coordinates
         return np.array([img_x, img_y])
+        return img_x, img_y
 
     def plane2body(self, image_coord):
         """
@@ -136,42 +141,60 @@ class StarCam:
         # To be implemented...
         pass
 
+    def mag2photon(self, magnitudes):
+        """
+        Convert vector of visible magnitudes to photoelectrons/second.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
     def integrate(self, delta_t):
         """
         Compute pixel values after set exposure time.
         """
 
-        # Rotate star catalog
-        vis = np.dot(self.stars, self.dcm)
-        visinds = [i for i in range(len(vis[:, -1])) if vis[i, -1] > 0]
-        vis = vis[:, visinds]
+        # Determine step size
+        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(0, mode="dcm"),                      \
+                                                         self.get_pointing(delta_t, mode="dcm").T))-1))
+        steps = int(np.ceil(max(1.0 + angle/self.max_angle_step, 1.0)))
+        step_size = delta_t / steps
 
-        # Extract and scale magnitudes
-        mag = self.mv0_flux * (1 / (2.5**self.mags[visinds])) * delta_t * self.aperture
-
-        # Project remaining stars
-        f_over_s = (self.focal_len/self.pixel_size)
-        half_res = (self.resolution+1)/2
-        img_x = f_over_s * np.divide(vis[:, 0], vis[:, 2]) + half_res
-        img_y = f_over_s * np.divide(vis[:, 1], vis[:, 2]) + half_res
-
-        # Check for stars in image bounds
-        in_img = [idx for idx in range(len(img_x)) if (img_x[idx] > 0                 and
-                                                       img_x[idx] < self.resolution-1 and
-                                                       img_y[idx] > 0                 and
-                                                       img_y[idx] < self.resolution-1)]
-
-        # Create image
+        # Allocate image
         img = np.zeros((self.resolution, self.resolution))
-        for idx in in_img:
-            xidx = img_x[idx] - np.floor(img_x[idx])
-            yidx = img_y[idx] - np.floor(img_y[idx])
-            img[int(np.ceil(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*yidx
-            img[int(np.floor(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*(1-yidx)
-            img[int(np.ceil(img_y[idx])), int(np.floor(img_x[idx]))] += mag[idx]*(1-xidx)*yidx
-            img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] += mag[idx]*(1-xidx)*(1-yidx)
 
-        return img
+        # Integrate
+        for step in range(steps):
+
+            # Rotate star catalog
+            dcm = self.get_pointing(step_size*step, mode="dcm")
+            vis = np.dot(self.stars, dcm)
+            visinds = [i for i in range(len(vis[:, -1])) if vis[i, -1] > 0]
+            vis = vis[:, visinds]
+
+            # Extract and scale magnitudes
+            mag = self.mv0_flux * (1 / (2.5**self.mags[visinds])) * delta_t * self.aperture / steps
+
+            # Project remaining stars
+            img_x, img_y = self.body2plane(vis)
+
+            # Check for stars in image bounds
+            in_img = [idx for idx in range(len(img_x)) if (img_x[idx] > 0                 and
+                                                           img_x[idx] < self.resolution-1 and
+                                                           img_y[idx] > 0                 and
+                                                           img_y[idx] < self.resolution-1)]
+
+            # Create image
+            for idx in in_img:
+                xidx = img_x[idx] - np.floor(img_x[idx])
+                yidx = img_y[idx] - np.floor(img_y[idx])
+                img[int(np.ceil(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*yidx
+                img[int(np.floor(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*(1-yidx)
+                img[int(np.ceil(img_y[idx])), int(np.floor(img_x[idx]))] += mag[idx]*(1-xidx)*yidx
+                img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] +=                       \
+                                                                          mag[idx]*(1-xidx)*(1-yidx)
+
+            return img
 
     # Create finished image
     def snap(self, delta_t):
