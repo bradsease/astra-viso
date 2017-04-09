@@ -89,15 +89,6 @@ class WorldObject:
         else:
             raise NotImplementedError("Selected preset not supported.")
 
-    def set_pointing(self, quaternion, angular_rate=np.array([0, 0, 0]), time=0):
-        """
-        Set initial pointing state.
-            >>> MAYBE UNNECESSARY
-        """
-
-        # To be implemented...
-        pass
-
     def get_pointing(self, time, mode="quaternion"):
         """
         Get pointing direction at a particular time.

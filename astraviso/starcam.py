@@ -4,6 +4,7 @@ Astra-Viso star camera module.
 import numpy as np
 from numba import jit
 from astraviso import worldobject
+from astraviso import starmap
 
 class StarCam(worldobject.WorldObject):
     """
@@ -35,6 +36,8 @@ class StarCam(worldobject.WorldObject):
         self.noise_model = "poisson"      # Poisson or Gaussian
 
         # Set default star catalog
+        self.star_catalog = starmap.StarMap()
+        self.star_catalog.loadpreset("random", 1000)
         self.stars = None                 # TEMPORARY
         self.mags = None                  # TEMPORARY
         self.setcat("test")               # TEMPORARY
@@ -45,6 +48,9 @@ class StarCam(worldobject.WorldObject):
         # Set default attitude properties
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+
+        # External objects
+        self.external_objects = []
 
     def set(self, focal_len=None, resolution=None, fov=None, pixel_size=None):
         """
@@ -103,6 +109,12 @@ class StarCam(worldobject.WorldObject):
 
         self.stars = np.array([[0, 0.004, 0], [0, 0, 0.004], [1, 1, 1]]).T
         self.mags = np.array([3, 4, 5])
+
+    def add_worldobject(self, name):
+        """
+        Add new world object to catalog
+        """
+        raise NotImplementedError("Not yet implemented!")
 
     def body2plane(self, vectors):
         """
