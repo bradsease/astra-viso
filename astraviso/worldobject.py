@@ -44,8 +44,8 @@ class WorldObject:
 
         # Integrator properties
         self.integrator = "dopri5"
-        self.integrator_atol = 1e-6      # Currently unused
-        self.integrator_rtol = 1e-6      # Currently unused
+        self.integrator_atol = 1e-9
+        self.integrator_rtol = 1e-9
 
         # Interpolation properties
         self.interp_order = 5            # Currently unused
@@ -67,7 +67,8 @@ class WorldObject:
 
             # Set up integrator and store ode
             explicit_fcn = ode(fcn)
-            explicit_fcn.set_integrator(self.integrator)
+            explicit_fcn.set_integrator(self.integrator, atol=self.integrator_atol,                \
+                                                                          rtol=self.integrator_rtol)
             explicit_fcn.set_initial_value(np.hstack((self.quaternion, self.angular_rate)), 0)
 
             # Set pointing function

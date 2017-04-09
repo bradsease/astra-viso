@@ -94,10 +94,21 @@ class test_set_pointing_preset(worldobjecttests):
         # Set preset
         self.worldobject.set_pointing_preset("kinematic")
 
-        # Check function output
+        # Check function static output
         test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
-        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+        self.assertTrue(np.all(test_result == expected_result),                                   \
+                                                 "For zero angular rate, result should be static.")
+
+        # Set preset
+        self.worldobject.angular_rate = np.array([2*np.pi, 0, 0])
+        self.worldobject.set_pointing_preset("kinematic")
+
+        # Check function single rotation output
+        test_result = self.worldobject.pointing_fcn(2)
+        expected_result = np.hstack((self.worldobject.quaternion, self.worldobject.angular_rate))
+        self.assertTrue(np.all(np.isclose(test_result, expected_result)),              \
+                                                   "Quaternion should return after two rotations.")
 
 class test_get_pointing(worldobjecttests):
     """
@@ -116,9 +127,10 @@ class test_get_pointing(worldobjecttests):
         quaternion = self.worldobject.get_pointing(1)
 
         # Check type, size, and value
-        self.assertIsInstance(quaternion, np.ndarray, "Incorrect output type.")
-        self.assertEqual(len(quaternion), 4, "Incorrect output size.")
-        self.assertTrue(np.all(quaternion == self.worldobject.quaternion), "Incorrect result.")
+        self.assertIsInstance(quaternion, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(len(quaternion), 4, "Output size should be 4.")
+        self.assertTrue(np.all(quaternion == self.worldobject.quaternion),                        \
+                                                                    "Quaternion should be static.")
 
     def test_multi_quaternion(self):
         """
@@ -135,8 +147,8 @@ class test_get_pointing(worldobjecttests):
         quaternion = self.worldobject.get_pointing(np.arange(num)+1)
 
         # Check type, size, and value
-        self.assertIsInstance(quaternion, np.ndarray, "Incorrect output type.")
-        self.assertTrue(quaternion.shape == (num, 4), "Incorrect output size.")
+        self.assertIsInstance(quaternion, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(quaternion.shape == (num, 4), "Output size should be 4.")
         for idx in range(num):
             self.assertTrue(np.all(quaternion[idx, :] == self.worldobject.quaternion),             \
                                                                                 "Incorrect result.")
