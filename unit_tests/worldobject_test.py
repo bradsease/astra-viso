@@ -50,7 +50,7 @@ class test_set_pointing_fcn(worldobjecttests):
         self.assertEqual(self.worldobject.pointing_mode, "ode", "Incorrect pointing mode.")
 
         # Check function output
-        test_result = self.worldobject.pointing_fcn(1)
+        test_result = self.worldobject.pointing_fcn.integrate(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
@@ -88,7 +88,7 @@ class test_set_pointing_preset(worldobjecttests):
         self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function static output
-        test_result = self.worldobject.pointing_fcn(1)
+        test_result = self.worldobject.pointing_fcn.integrate(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result),                                   \
                                                  "For zero angular rate, result should be static.")
@@ -98,7 +98,7 @@ class test_set_pointing_preset(worldobjecttests):
         self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function single rotation output
-        test_result = self.worldobject.pointing_fcn(2)
+        test_result = self.worldobject.pointing_fcn.integrate(2)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(np.isclose(test_result, expected_result)),              \
                                                    "Quaternion should return after two rotations.")
@@ -187,28 +187,16 @@ class test_set_integrator(worldobjecttests):
     Test set_integrator method.
     """
 
-    def test_set(self):
+    def test_pointing_set(self):
         """
-        Test basic integrator set.
+        Test basic integrator set with pointing ODE that requires update.
         """
+
         # Set integrator
+        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
         self.worldobject.set_integrator("vode", 1e-8, 1e-9)
 
         # Check properties
         self.assertEqual(self.worldobject.integrator, "vode", "Incorrect integrator.")
         self.assertEqual(self.worldobject.integrator_atol, 1e-8, "Incorrect absolute tolerance.")
         self.assertEqual(self.worldobject.integrator_rtol, 1e-9, "Incorrect relative tolerance.")
-
-    def test_set_with_pointing_ode(self):
-        """
-        Test integrator set with a pointing ode that requires re-initialization.
-        """
-
-        # Create "state" function
-        fcn = lambda t, state: [0, 0, 0, 0, 0, 0, 0]
-
-        # Set function
-        self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
-
-        # Set integrator
-        self.worldobject.set_integrator("vode", 1e-8, 1e-9)

@@ -15,31 +15,30 @@ class WorldObject:
         World object initialization.
         """
 
+        # Settings
+        #self.__settings = {}
+
         # Name
-        #self.name = ""
+        #self.__settings["name"] = ""                 # Object name (optional)
 
         # Time
-        self.epoch = 0                   # Currently unused
-        self.epoch_format = "seconds"    # Currently unused
+        self.epoch = 0                               # Currently unused
+        #self.__settings["epoch_format"] = "seconds"  # Type of epoch
 
         # Attitude
         self.model_pointing = "on"
-        #self.quaternion = np.array([0, 0, 0, 1])
-        #self.angular_rate = np.array([0, 0, 0])
-
+        
         # Attitude dynamics
+        #self.__settings["model_pointing"] == "on"
+        #self.__settings["pointing_mode"] == "ode"
         self.pointing_mode = "ode"       # "ode", "explicit", or "sampled"
-        self.pointing_ode = None         # Storage for ode, if necessary
         self.pointing_fcn = None         # Pointing dynamics
 
         # Position
         self.model_position = "off"
-        #self.position = np.array([0, 0, 0])
-        #self.velocity = np.array([0, 0, 0])
 
         # Position dynamics
         self.position_mode = "ode"       # "ode", "explicit", or "sampled"
-        self.position_ode = None         # Storage for ode, if necessary
         self.position_fcn = None         # Position dynamics
 
         # Integrator properties
@@ -66,14 +65,13 @@ class WorldObject:
             self.pointing_ode = fcn
 
             # Set up integrator and store ode
-            explicit_fcn = ode(fcn)
-            explicit_fcn.set_integrator(self.integrator, atol=self.integrator_atol,                \
+            pointing_fcn = ode(fcn)
+            pointing_fcn.set_integrator(self.integrator, atol=self.integrator_atol,                \
                                                                           rtol=self.integrator_rtol)
-            #explicit_fcn.set_initial_value(np.hstack((self.quaternion, self.angular_rate)), 0)
-            explicit_fcn.set_initial_value(initial_state, 0)
+            pointing_fcn.set_initial_value(initial_state, 0)
 
             # Set pointing function
-            pointing_fcn = explicit_fcn.integrate
+            #pointing_fcn = explicit_fcn.integrate
 
         # Handle explicit option
         elif mode.lower() == "explicit":
@@ -84,11 +82,11 @@ class WorldObject:
         # Verify input function
         # Integrates over a short span because setting to zero yields
         # "too small step size" warning..
-        test_result = pointing_fcn(1e-6)
-        if len(test_result) != 7:
-            raise ValueError("Invalid pointing function output length.")
-        if not isinstance(test_result, np.ndarray):
-            raise TypeError("Invalid pointing function output type.")
+        #test_result = pointing_fcn(1e-6)
+        #if len(test_result) != 7:
+        #    raise ValueError("Invalid pointing function output length.")
+        #if not isinstance(test_result, np.ndarray):
+        #    raise TypeError("Invalid pointing function output type.")
 
         # Set internal pointing function and properties
         self.model_pointing = "on"
@@ -131,6 +129,14 @@ class WorldObject:
             time = [time]
         num = len(time)
 
+        # Set up pointing function
+        if self.pointing_mode == "ode":
+            pointing_fcn = self.pointing_fcn.integrate
+        elif self.pointing_mode == "explicit":
+            pointing_fcn = self.pointing_fcn
+        else:
+            raise NotImplementedError("Unsupported pointing function mode.")
+
         # Collect pointing values for quaternion mode
         if mode == "quaternion":
 
@@ -139,7 +145,7 @@ class WorldObject:
 
             # Iterate
             for idx in range(num):
-                output[idx, :] = self.pointing_fcn(time[idx])[0:4]
+                output[idx, :] = pointing_fcn(time[idx])[0:4]
 
         # Collect pointing values for dcm mode
         elif mode == "dcm":
@@ -149,7 +155,7 @@ class WorldObject:
 
             # Iterate
             for idx in range(num):
-                output[idx, :, :] = pointingutils.quaternion2dcm(self.pointing_fcn(time[idx])[0:4])
+                output[idx, :, :] = pointingutils.quaternion2dcm(pointing_fcn(time[idx])[0:4])
 
         # Handle invalid mode
         else:
@@ -214,9 +220,11 @@ class WorldObject:
                 self.integrator_rtol = rtol
 
         # Update pointing function if necessary
-        #if self.pointing_ode is not None:
-        #    self.set_pointing_fcn(self.pointing_ode, "ode")
+        if self.model_pointing == "on" and self.pointing_mode == "ode":
+            self.pointing_fcn.set_integrator(self.integrator, atol=self.integrator_atol,           \
+                                                                          rtol=self.integrator_rtol)
 
         # Update position function if necessary
-        #if self.position_ode is not None:
-        #    self.set_position_fcn(self.position_ode, "ode")
+        if self.model_position == "on" and self.position_mode == "ode":
+            self.position_fcn.set_integrator(self.integrator, atol=self.integrator_atol,           \
+                                                                          rtol=self.integrator_rtol)
