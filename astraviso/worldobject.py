@@ -35,15 +35,10 @@ class WorldObject:
         self.__settings["position_mode"] = "ode"     # "ode", "explicit", or "sampled"
         self.position_fcn = None                     # Position dynamics
 
-        # Integrator properties
-        self.__settings["integrator"] = "dopri5"     #
-        self.__settings["integrator_atol"] = 1e-9
-        self.__settings["integrator_rtol"] = 1e-9
-
         # Interpolation properties
-        self.__settings["interpolant_order"] = 5     # Currently unused
+        #self.__settings["interpolant_order"] = 5     # Currently unused
 
-    def set_pointing_fcn(self, fcn, mode, initial_state=None):
+    def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
         Set internal pointing dynamics.
         """
@@ -55,12 +50,18 @@ class WorldObject:
         # Handle ODE option
         if mode.lower() == "ode":
 
+            # Define defaults, import user settings
+            kwargs = {"atol" : 1e-9,           \
+                      "rtol" : 1e-9,           \
+                      "max_step" : 1e-3,       \
+                      "nsteps" : 1e8}
+            kwargs.update(ode_args)
+
             # Set up integrator and store ode
-            pointing_fcn = ode(fcn)
-            pointing_fcn.set_integrator(self.__settings["integrator"],                             \
-                   atol=self.__settings["integrator_atol"], rtol=self.__settings["integrator_rtol"],
-                                                                          max_step=1e-3, nsteps=1e8)
-            pointing_fcn.set_initial_value(initial_state, 0)
+            ode_fcn = ode(fcn)
+            ode_fcn.set_integrator(integrator, **kwargs)
+            ode_fcn.set_initial_value(initial_state, 0)
+            pointing_fcn = ode_fcn.integrate
 
         # Handle explicit option
         elif mode.lower() == "explicit":
@@ -100,14 +101,6 @@ class WorldObject:
             time = [time]
         num = len(time)
 
-        # Set up pointing function
-        if self.__settings["pointing_mode"] == "ode":
-            pointing_fcn = self.pointing_fcn.integrate
-        elif self.__settings["pointing_mode"] == "explicit":
-            pointing_fcn = self.pointing_fcn
-        else:
-            raise NotImplementedError("Unsupported pointing function mode.")
-
         # Collect pointing values for quaternion mode
         if mode == "quaternion":
 
@@ -116,7 +109,7 @@ class WorldObject:
 
             # Iterate
             for idx in range(num):
-                output[idx, :] = pointing_fcn(time[idx])[0:4]
+                output[idx, :] = self.pointing_fcn(time[idx])[0:4]
 
         # Collect pointing values for dcm mode
         elif mode == "dcm":
@@ -126,7 +119,7 @@ class WorldObject:
 
             # Iterate
             for idx in range(num):
-                output[idx, :, :] = pointingutils.quaternion2dcm(pointing_fcn(time[idx])[0:4])
+                output[idx, :, :] = pointingutils.quaternion2dcm(self.pointing_fcn(time[idx])[0:4])
 
         # Handle invalid mode
         else:
@@ -162,40 +155,3 @@ class WorldObject:
 
         # To be implemented
         pass
-
-    def set_integrator(self, integrator, atol=None, rtol=None):
-        """
-        Set internal integrator.
-        """
-
-        # Check integrator input
-        accepted_values = ["vode", "isoda", "dopri5", "dop853"]
-        if integrator not in accepted_values:
-            raise NotImplementedError("Unsupported integrator. Options: " + str(accepted_values))
-
-        # Set integrator
-        self.__settings["integrator"] = integrator
-
-        # Set absolute tolerance
-        if atol is not None:
-            if atol <= 0:
-                raise ValueError("Integrator tolerances must be >= 0.")
-            else:
-                self.__settings["integrator_atol"] = atol
-
-        # Set relative tolerance
-        if rtol is not None:
-            if rtol <= 0:
-                raise ValueError("Integrator tolerances must be >= 0.")
-            else:
-                self.__settings["integrator_rtol"] = rtol
-
-        # Update pointing function if necessary
-        if self.__settings["model_pointing"] == "on" and self.__settings["pointing_mode"] == "ode":
-            self.pointing_fcn.set_integrator(self.__settings["integrator"],                        \
-                   atol=self.__settings["integrator_atol"], rtol=self.__settings["integrator_rtol"])
-
-        # Update position function if necessary
-        if self.__settings["model_position"] == "on" and self.__settings["position_mode"] == "ode":
-            self.position_fcn.set_integrator(self.__settings["integrator"],                        \
-                   atol=self.__settings["integrator_atol"], rtol=self.__settings["integrator_rtol"])

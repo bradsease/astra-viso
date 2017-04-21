@@ -52,7 +52,7 @@ class test_set_pointing_fcn(worldobjecttests):
                                                                    "Pointing mode should be 'ode'.")
 
         # Check function output
-        test_result = self.worldobject.pointing_fcn.integrate(1)
+        test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
@@ -92,7 +92,7 @@ class test_set_pointing_preset(worldobjecttests):
         self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function static output
-        test_result = self.worldobject.pointing_fcn.integrate(1)
+        test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(test_result == expected_result),                                   \
                                                  "For zero angular rate, result should be static.")
@@ -102,7 +102,7 @@ class test_set_pointing_preset(worldobjecttests):
         self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Check function single rotation output
-        test_result = self.worldobject.pointing_fcn.integrate(2)
+        test_result = self.worldobject.pointing_fcn(2)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
         self.assertTrue(np.all(np.isclose(test_result, expected_result)),              \
                                                    "Quaternion should return after two rotations.")
@@ -185,25 +185,3 @@ class test_get_pointing(worldobjecttests):
         self.assertTrue(dcm.shape == (num, 3, 3), "Incorrect output size.")
         for idx in range(num):
             self.assertTrue(np.all(dcm[idx, :, :] == np.eye(3)), "Incorrect result.")
-
-class test_set_integrator(worldobjecttests):
-    """
-    Test set_integrator method.
-    """
-
-    def test_pointing_set(self):
-        """
-        Test basic integrator set with pointing ODE that requires update.
-        """
-
-        # Set integrator
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
-        self.worldobject.set_integrator("vode", 1e-8, 1e-9)
-
-        # Check properties
-        self.assertEqual(self.worldobject._WorldObject__settings["integrator"], "vode",            \
-                                                                      "Incorrect should be 'vode'.")
-        self.assertEqual(self.worldobject._WorldObject__settings["integrator_atol"], 1e-8,         \
-                                                               "Absolute tolerance should be 1e-8.")
-        self.assertEqual(self.worldobject._WorldObject__settings["integrator_rtol"], 1e-9,         \
-                                                               "Relative tolerance should be 1e-9.")
