@@ -58,7 +58,8 @@ class WorldObject:
             # Set up integrator and store ode
             pointing_fcn = ode(fcn)
             pointing_fcn.set_integrator(self.__settings["integrator"],                             \
-                   atol=self.__settings["integrator_atol"], rtol=self.__settings["integrator_rtol"])
+                   atol=self.__settings["integrator_atol"], rtol=self.__settings["integrator_rtol"],
+                                                                          max_step=1e-3, nsteps=1e8)
             pointing_fcn.set_initial_value(initial_state, 0)
 
         # Handle explicit option

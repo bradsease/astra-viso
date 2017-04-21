@@ -43,7 +43,7 @@ class StarCam(worldobject.WorldObject):
         self.setcat("test")               # TEMPORARY
 
         # Internal settings
-        self.max_angle_step = 1e-3
+        self.max_angle_step = 1e-4
 
         # Set default attitude properties
         worldobject.WorldObject.__init__(self)
@@ -110,9 +110,9 @@ class StarCam(worldobject.WorldObject):
         self.stars = np.array([[0, 0.004, 0], [0, 0, 0.004], [1, 1, 1]]).T
         self.mags = np.array([3, 4, 5])
 
-    def add_worldobject(self, name):
+    def add_worldobject(self, object=None):
         """
-        Add new world object to catalog
+        Add new or existing world object to catalog.
         """
         raise NotImplementedError("Not yet implemented!")
 
@@ -206,7 +206,7 @@ class StarCam(worldobject.WorldObject):
                 img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] +=                       \
                                                                           mag[idx]*(1-xidx)*(1-yidx)
 
-            return img
+        return img
 
     # Create finished image
     def snap(self, delta_t):
