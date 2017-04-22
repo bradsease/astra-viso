@@ -45,12 +45,6 @@ class test_set_pointing_fcn(worldobjecttests):
         # Set function
         self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
 
-        # Check properties
-        self.assertEqual(self.worldobject._WorldObject__settings["model_pointing"], "on",          \
-                                                     "Modeling option for pointing should be 'on'.")
-        self.assertEqual(self.worldobject._WorldObject__settings["pointing_mode"], "ode",          \
-                                                                   "Pointing mode should be 'ode'.")
-
         # Check function output
         test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
@@ -66,12 +60,6 @@ class test_set_pointing_fcn(worldobjecttests):
 
         # Set function
         self.worldobject.set_pointing_fcn(fcn, "explicit")
-
-        # Check properties
-        self.assertEqual(self.worldobject._WorldObject__settings["model_pointing"], "on",          \
-                                                     "Modeling option for pointing should be 'on'.")
-        self.assertEqual(self.worldobject._WorldObject__settings["pointing_mode"], "explicit",     \
-                                                              "Pointing mode should be 'explicit'.")
 
         # Check function output
         test_result = self.worldobject.pointing_fcn(1)

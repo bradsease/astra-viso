@@ -26,17 +26,14 @@ class WorldObject:
         self.__settings["epoch_format"] = "seconds"  # Type of epoch
 
         # Attitude dynamics
-        self.__settings["model_pointing"] = "on"
-        self.__settings["pointing_mode"] = "ode"     # "ode", "explicit", or "sampled"
-        self.pointing_fcn = None                     # Pointing dynamics
+        self.pointing_fcn = None
 
         # Position dynamics
-        self.__settings["model_position"] = "off"
-        self.__settings["position_mode"] = "ode"     # "ode", "explicit", or "sampled"
-        self.position_fcn = None                     # Position dynamics
+        self.position_fcn = None
 
-        # Interpolation properties
-        #self.__settings["interpolant_order"] = 5     # Currently unused
+        # Visible intensity function
+        # f(t, position, observer position)
+        self.vismag_fcn = None
 
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
@@ -69,9 +66,7 @@ class WorldObject:
             # Set function
             pointing_fcn = fcn
 
-        # Set internal pointing function and properties
-        self.__settings["model_pointing"] = "on"
-        self.__settings["pointing_mode"] = mode.lower()
+        # Set internal pointing function
         self.pointing_fcn = pointing_fcn
 
     def set_pointing_preset(self, preset, initial_state=None):
@@ -134,11 +129,11 @@ class WorldObject:
 
     def set_position_fcn(self, fcn, mode):
         """
-        Set interal position dynamics.
+        Set internal position dynamics.
         """
 
         # To be implemented...
-        pass
+        raise NotImplementedError("Method not yet implemented!")
 
     def get_position(self, time):
         """
@@ -146,7 +141,7 @@ class WorldObject:
         """
 
         # To be implemented...
-        pass
+        raise NotImplementedError("Method not yet implemented!")
 
     def set_position_preset(self, preset):
         """
@@ -154,4 +149,28 @@ class WorldObject:
         """
 
         # To be implemented
-        pass
+        raise NotImplementedError("Method not yet implemented!")
+
+    def set_vismag_fcn(self, fcn, mode):
+        """
+        Set internal visual magnitude function.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Method not yet implemented!")
+
+    def set_vismag_preset(self, preset):
+        """
+        Set internal position dynamics to preset function.
+        """
+
+        # To be implemented
+        raise NotImplementedError("Method not yet implemented!")
+
+    def get_vismag(self, time, observer_position):
+        """
+        Get visible magnitude at a particular time.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Method not yet implemented!")

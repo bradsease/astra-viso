@@ -5,6 +5,7 @@ import numpy as np
 from numba import jit
 from astraviso import worldobject
 from astraviso import starmap
+from astraviso import imageutils
 
 class StarCam(worldobject.WorldObject):
     """
@@ -14,6 +15,15 @@ class StarCam(worldobject.WorldObject):
     def __init__(self):
         """
         StarCam initialization.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        starcam : StarCam
+            Default StarCam object.
         """
 
         # Set default camera parameters
@@ -27,6 +37,11 @@ class StarCam(worldobject.WorldObject):
         self.psf_model = "blur"           # Blur or explicit(not supported, yet)
         self.setpsf(7, 1)
         self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
+
+        # Scaffolding for future code
+        self.photon_fcn = None
+        self.noise_fcn = None
+        self.projection_fcn = None
 
         # Set default noise
         self.photon2elec = 0.22           # photon / e^-
@@ -239,6 +254,17 @@ class StarCam(worldobject.WorldObject):
         # Return result
         return img
 
+    def set_noise_fcn(self):
+        pass
+
+    def set_noise_preset(self, preset, **kwargs):
+        
+        if preset.lower() == "poisson":
+            if "dark_current" not in kwargs or "read_noise" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for poisson-\
+                                  type noise: 'dark_current', 'read_noise'")
+        pass
+
     def addnoise(self, image, delta_t):
         """
         Add noise to image.
@@ -247,28 +273,12 @@ class StarCam(worldobject.WorldObject):
         # Poisson model
         if self.noise_model.lower() == "poisson":
 
-            # Add shot noise
-            image = np.random.poisson(image)
-
-            # Add dark current
-            image += np.random.poisson(self.dark_current*delta_t, image.shape)
-
-            # Add read noise
-            image += np.random.poisson(self.read_noise, image.shape)
+            image = imageutils.poisson_noise(image, delta_t, self.dark_current, self.read_noise)
 
         # Gaussian approximate model
         elif self.noise_model.lower() == "gaussian":
 
-            # Add shot noise
-            image += np.round(np.sqrt(image) * np.random.randn(*image.shape))
-
-            # Add dark current
-            image += np.round(self.dark_current*delta_t + np.sqrt(self.dark_current*delta_t) *    \
-                                                                     np.random.randn(*image.shape))
-
-            # Add read noise
-            image += np.round(self.read_noise + np.sqrt(self.read_noise) *                        \
-                                                                     np.random.randn(*image.shape))
+            image = imageutils.gaussian_noise(image, delta_t, self.dark_current, self.read_noise)
 
         # Return
         return image

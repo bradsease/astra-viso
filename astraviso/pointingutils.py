@@ -1,6 +1,5 @@
 """
 Pointing utilities for astra-viso.
-
 """
 import numpy as np
 
