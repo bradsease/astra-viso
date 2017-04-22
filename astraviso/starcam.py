@@ -24,7 +24,6 @@ class StarCam(worldobject.WorldObject):
         self.resolution = 1024            # Resolution        (px)
         self.aperture = 1087              # Aperture          (mm^2)
         self.mv0_flux = 19000             # Mv=0 photon flux  (photons/s/mm^2)
-        self.psf = None
         self.psf_model = "blur"           # Blur or explicit(not supported, yet)
         self.setpsf(7, 1)
         self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
@@ -37,10 +36,7 @@ class StarCam(worldobject.WorldObject):
 
         # Set default star catalog
         self.star_catalog = starmap.StarMap()
-        self.star_catalog.loadpreset("random", 1000)
-        self.stars = None                 # TEMPORARY
-        self.mags = None                  # TEMPORARY
-        self.setcat("test")               # TEMPORARY
+        self.star_catalog.loadpreset("random", 50000)
 
         # Internal settings
         self.max_angle_step = 1e-4
@@ -102,14 +98,6 @@ class StarCam(worldobject.WorldObject):
         # Normalize and return
         self.psf = kernel / np.sum(kernel)
 
-    def setcat(self, name):
-        """
-        Choose built-in star catalog by name (TEMPORARY).
-        """
-
-        self.stars = np.array([[0, 0.004, 0], [0, 0, 0.004], [1, 1, 1]]).T
-        self.mags = np.array([3, 4, 5])
-
     def add_worldobject(self, object=None):
         """
         Add new or existing world object to catalog.
@@ -122,8 +110,6 @@ class StarCam(worldobject.WorldObject):
         """
 
         # Check input
-        #if not isinstance(vectors, np.ndarray):
-        #    vectors = np.array(vectors)
         if len(vectors.shape) == 1:
             vectors = vectors.reshape(1, 3)
 
@@ -142,7 +128,6 @@ class StarCam(worldobject.WorldObject):
             pass
 
         # Return coordinates
-        return np.array([img_x, img_y])
         return img_x, img_y
 
     def plane2body(self, image_coord):
@@ -167,27 +152,30 @@ class StarCam(worldobject.WorldObject):
         """
 
         # Determine step size
-        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(0, mode="dcm"),                      \
-                                                         self.get_pointing(delta_t, mode="dcm").T))-1))
+        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(0, mode="dcm"),                   \
+                                                      self.get_pointing(delta_t, mode="dcm").T))-1))
         steps = int(np.ceil(max(1.0 + angle/self.max_angle_step, 1.0)))
         step_size = delta_t / steps
 
         # Allocate image
         img = np.zeros((self.resolution, self.resolution))
 
-        # Integrate
+        # Extract subset of stars from catalog
+        field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
+        boresight = np.dot([0, 0, 1], self.get_pointing(0, mode="dcm"))
+        stars = self.star_catalog.getregion(boresight, np.rad2deg(angle)+field_of_view/2)
+
+        # Extract and scale magnitudes
+        mag = self.mv0_flux*(1/(2.5**stars["magnitude"]))*delta_t*self.aperture/steps
+
+        # Integrate star signals
         for step in range(steps):
 
-            # Rotate star catalog
+            # Rotate stars
             dcm = self.get_pointing(step_size*step, mode="dcm")
-            vis = np.dot(self.stars, dcm)
-            visinds = [i for i in range(len(vis[:, -1])) if vis[i, -1] > 0]
-            vis = vis[:, visinds]
+            vis = np.dot(stars["catalog"], dcm)
 
-            # Extract and scale magnitudes
-            mag = self.mv0_flux * (1 / (2.5**self.mags[visinds])) * delta_t * self.aperture / steps
-
-            # Project remaining stars
+            # Project stars
             img_x, img_y = self.body2plane(vis)
 
             # Check for stars in image bounds

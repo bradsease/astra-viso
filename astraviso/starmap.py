@@ -73,6 +73,14 @@ class StarMap:
         # Set size variable
         self.size = len(self.catalog)
 
+    def get_all(self):
+        """
+        Extract all catalog elements
+        """
+
+        return {"catalog"   : self.catalog,
+                "magnitude" : self.magnitude}
+
     def getregion(self, vector, angle):
         """
         Extract catalog region with direction vector and angle.
