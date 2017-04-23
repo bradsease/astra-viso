@@ -37,7 +37,42 @@ class WorldObject:
 
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
-        Set internal pointing dynamics.
+        Set internal pointing dynamics. Accepts both ODEs and explicit
+        functions of time.
+
+        Parameters
+        ----------
+        fcn : function
+            Input pointing function.
+        mode : str
+            String descripting the type of function input. Options are "ode"
+            and "explicit".
+        initial_state : ndarray, optional
+            Optional describing the pointing state. Required for "ode" mode
+            only.
+        integrator : str, optional
+            Integrator to use for "ode" mode. Default is "dopri5". See 
+            documentation for scipy.integrate.ode for valid settings.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_pointing_preset, WorldObject.get_pointing
+
+        Notes
+        -----
+        For "ode" mode, any keyword arguments after "integrator" will pass
+        directly into the ode.set_integrator. See scipy.integrate.ode for
+        valid settings.
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> fcn = lambda t, state: [0, 0, 0, 0, 0, 0, 0]
+        >>> obj.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
         """
 
         # Verify input mode

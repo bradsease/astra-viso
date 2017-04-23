@@ -20,6 +20,20 @@ def rigid_body_kinematic(quaternion, angular_rate):
     state_deriv : ndarray
         Derivative with respect to time of the combined state. Quaternion
         occupies first 4 elements of the state followed by the angular rate.
+
+    See Also
+    --------
+
+    Notes
+    -----
+    Uses the quaternion convention where quaternion[3] is the scalar component.
+
+    Examples
+    --------
+    >>> quaternion = np.array([0, 0, 0, 1])
+    >>> angular_rate = np.array([0.1, 0.1, 0.1])
+    >>> rigid_body_kinematic(quaternion, angular_rate)
+    array([ 0.05,  0.05,  0.05,  0.  ,  0.  ,  0.  ,  0.  ])
     """
 
     # Normalize quaternion
