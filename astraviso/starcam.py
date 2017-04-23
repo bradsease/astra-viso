@@ -45,13 +45,11 @@ class StarCam(worldobject.WorldObject):
 
         # Set default noise
         self.photon2elec = 0.22           # photon / e^-
-        self.read_noise = 200             # e^-
-        self.dark_current = 1200          # e^- / s
-        self.noise_model = "poisson"      # Poisson or Gaussian
+        self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
 
         # Set default star catalog
         self.star_catalog = starmap.StarMap()
-        self.star_catalog.loadpreset("random", 50000)
+        self.star_catalog.loadpreset("random", 1000)
 
         # Internal settings
         self.max_angle_step = 1e-4
@@ -153,14 +151,6 @@ class StarCam(worldobject.WorldObject):
         # To be implemented...
         pass
 
-    def mag2photon(self, magnitudes):
-        """
-        Convert vector of visible magnitudes to photoelectrons/second.
-        """
-
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
-
     def integrate(self, delta_t):
         """
         Compute pixel values after set exposure time.
@@ -227,7 +217,7 @@ class StarCam(worldobject.WorldObject):
         image = np.floor(image * self.photon2elec)
 
         # Add noise
-        image = self.addnoise(image, delta_t)
+        image = self.add_noise(image, delta_t)
 
         # Return
         return image
@@ -254,31 +244,75 @@ class StarCam(worldobject.WorldObject):
         # Return result
         return img
 
-    def set_noise_fcn(self):
-        pass
+    def set_noise_fcn(self, fcn):
+        """
+        Set internal noise model.
+        """
+
+        self.noise_fcn = fcn
 
     def set_noise_preset(self, preset, **kwargs):
-        
-        if preset.lower() == "poisson":
-            if "dark_current" not in kwargs or "read_noise" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for poisson-\
-                                  type noise: 'dark_current', 'read_noise'")
-        pass
+        """
+        Choose preset noise model & assign noise values.
+        """
 
-    def addnoise(self, image, delta_t):
+        # Poisson model
+        if preset.lower() == "poisson":
+
+            # Check input
+            if "dark_current" not in kwargs or "read_noise" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for poisson-        \
+                                                          type noise: 'dark_current', 'read_noise'")
+
+            # Set function
+            noise_fcn = lambda image, delta_t: imageutils.poisson_noise(image, delta_t,            \
+                                                       kwargs["dark_current"], kwargs["read_noise"])
+            self.set_noise_fcn(noise_fcn)
+
+        # Gaussian model
+        elif preset.lower() == "gaussian":
+            if "dark_current" not in kwargs or "read_noise" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for poisson-        \
+                                                          type noise: 'dark_current', 'read_noise'")
+
+            # Set function
+            noise_fcn = lambda image, delta_t: imageutils.gaussian_noise(image, delta_t,           \
+                                                       kwargs["dark_current"], kwargs["read_noise"])
+            self.set_noise_fcn(noise_fcn)
+
+        # Invalid input
+        else:
+            raise NotImplementedError("Invalid noise preset. Available options are: poisson,       \
+                                                                                         gaussian.")
+
+    def add_noise(self, image, delta_t):
         """
         Add noise to image.
         """
 
-        # Poisson model
-        if self.noise_model.lower() == "poisson":
+        if self.noise_fcn is not None:
+            return self.noise_fcn(image, delta_t)
+        else:
+            return image
 
-            image = imageutils.poisson_noise(image, delta_t, self.dark_current, self.read_noise)
+    def set_photon_fcn(self):
+        """
+        """
 
-        # Gaussian approximate model
-        elif self.noise_model.lower() == "gaussian":
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
 
-            image = imageutils.gaussian_noise(image, delta_t, self.dark_current, self.read_noise)
+    def set_photon_preset(self):
+        """
+        """
 
-        # Return
-        return image
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def get_photons(self, magnitudes):
+        """
+        Convert vector of visible magnitudes to photoelectrons/second.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")

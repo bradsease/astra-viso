@@ -194,3 +194,118 @@ class test_set(starcamtests):
         self.assertEqual(resolution, self.starcam.resolution, "Resolution is not preserved.")
         self.assertTrue(np.isclose(self.starcam.focal_len, 93), "Incorrect focal length.")
         self.assertTrue(isinstance(self.starcam.resolution, int), "Resolution not integer-valued")
+
+class test_set_noise_fcn(starcamtests):
+    """
+    Test set_noise_fcn method.
+    """
+
+    def test_constant_set(self):
+        """
+        Test constant value function.
+        """
+
+        # Set up environment
+        noise_fcn = lambda image, delta_t: image + 2
+        test_image = np.zeros((256,256))
+
+        # Set noise function and 
+        self.starcam.set_noise_fcn(noise_fcn)
+        noisy_image = self.starcam.noise_fcn(test_image, 0)
+
+        # Check internal noise function
+        self.assertIs(noise_fcn, self.starcam.noise_fcn, "Function set failed.")
+        self.assertTrue(np.all(noisy_image == 2), "Incorrect internal noise function.")
+
+class test_set_noise_preset(starcamtests):
+    """
+    Test set_noise_preset method.
+    """
+
+    def test_poisson(self):
+        """
+        Test poisson noise model.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set poisson preset
+        self.starcam.set_noise_preset("poisson", dark_current=1200, read_noise=200)
+        noisy_image = self.starcam.noise_fcn(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
+        self.assertTrue(np.all(noisy_image >= 0), "Image with noise should be strictly positive.")
+
+    def test_gaussian(self):
+        """
+        Test poisson noise model.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set poisson preset
+        self.starcam.set_noise_preset("gaussian", dark_current=1200, read_noise=200)
+        noisy_image = self.starcam.noise_fcn(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
+
+class test_add_noise(starcamtests):
+    """
+    Test set_noise_preset method.
+    """
+
+    def test_none(self):
+        """
+        Test add_noise with no noise function set.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set noise_fcn to None
+        self.starcam.noise_fcn = None
+        noisy_image = self.starcam.add_noise(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
+        self.assertTrue(np.all(noisy_image == test_image), "Should contents should be unchanged.")
+
+    def test_poisson(self):
+        """
+        Test poisson noise model.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set poisson preset
+        self.starcam.set_noise_preset("poisson", dark_current=1200, read_noise=200)
+        noisy_image = self.starcam.add_noise(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
+        self.assertTrue(np.all(noisy_image >= 0), "Image with noise should be strictly positive.")
+
+    def test_gaussian(self):
+        """
+        Test poisson noise model.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set poisson preset
+        self.starcam.set_noise_preset("gaussian", dark_current=1200, read_noise=200)
+        noisy_image = self.starcam.add_noise(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
