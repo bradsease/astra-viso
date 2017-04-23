@@ -12,7 +12,21 @@ class WorldObject:
 
     def __init__(self, name="Object1"):
         """
-        World object initialization.
+        WorldObject class initialization.
+
+        Parameters
+        ----------
+        name : str, optional
+            User-defined object name.
+
+        Returns
+        -------
+        object : WorldObject()
+            Default WorldObject instance.
+
+        Examples
+        --------
+        >>> obj = WorldObject()
         """
 
         # Allocate settings variable
@@ -38,7 +52,10 @@ class WorldObject:
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
         Set internal pointing dynamics. Accepts both ODEs and explicit
-        functions of time.
+        functions of time. Any number of states are allowed as long as the
+        first four elements correspond to the quaternion attitude
+        parameterization. The scalar component of the quaternion should be the
+        fourth element.
 
         Parameters
         ----------
@@ -48,10 +65,10 @@ class WorldObject:
             String descripting the type of function input. Options are "ode"
             and "explicit".
         initial_state : ndarray, optional
-            Optional describing the pointing state. Required for "ode" mode
-            only.
+            Optional array describing the initialpointing state. Required for
+            "ode" mode only.
         integrator : str, optional
-            Integrator to use for "ode" mode. Default is "dopri5". See 
+            Integrator to use for "ode" mode. Default is "dopri5". See
             documentation for scipy.integrate.ode for valid settings.
 
         Returns
@@ -73,6 +90,8 @@ class WorldObject:
         >>> obj = WorldObject()
         >>> fcn = lambda t, state: [0, 0, 0, 0, 0, 0, 0]
         >>> obj.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
+        >>> obj.get_pointing(1)
+        array([ 0.,  0.,  0.,  1.])
         """
 
         # Verify input mode
@@ -106,11 +125,45 @@ class WorldObject:
 
     def set_pointing_preset(self, preset, initial_state=None):
         """
-        Set internal pointing dynamics to preset function.
+        Set internal pointing dynamics to pre-defined attitude function.
+        Current options are:
+
+        "kinematic" -- rigidy-body kinematic motion with a constant angular
+                       rate.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        initial_state : ndarray, optional
+            Optional array describing the initialpointing state. Required for
+            "kinematic" preset.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_pointing_fcn, WorldObject.get_pointing
+
+        Notes
+        -----
+        Uses default integrator values. For more fine-grained control, use
+        WorldObject.set_pointing_fcn.
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_pointing_preset("kinematic", np.array([0,0,0,1,0,0,0]))
         """
 
         # Rigid body kinematic option
         if preset == "kinematic":
+
+            # Check for missing input
+            if initial_state is None:
+                raise ValueError("For 'kinematic' preset, initial_state must be defined.")
 
             # Build lambda function
             function = lambda t, state: pointingutils.rigid_body_kinematic(state[0:4], state[4:])
@@ -118,12 +171,40 @@ class WorldObject:
             # Set function
             self.set_pointing_fcn(function, "ode", initial_state)
 
+        # Handle invalid preset
         else:
             raise NotImplementedError("Selected preset not supported.")
 
     def get_pointing(self, time, mode="quaternion"):
         """
-        Get pointing direction at a particular time.
+        Get pointing parameters at a given time. Supports both quaternion and
+        direction-cosine-matrix parameterizations.
+
+        Parameters
+        ----------
+        time : float or ndarray
+            Desired time(s) to extract pointing information.
+        mode : str, optional
+            Desired output parameterization. Supports "quaternion" and "dcm".
+            Default is "dcm".
+
+        Returns
+        -------
+        pointing : ndarray
+            Array containing pointing data corresponding to each input time. For
+            quaternion output, the array is Nx4 where N is the number of times
+            requested. For DCM output, the array is Nx3x3.
+
+        See Also
+        --------
+        WorldObject.set_pointing_fcn, WorldObject.set_pointing_preset
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_pointing_preset("kinematic", np.array([0,0,0,1,0,0,0]))
+        >>> obj.get_pointing(1)
+        array([ 0.,  0.,  0.,  1.])
         """
 
         # Ensure that time is a list
@@ -162,17 +243,48 @@ class WorldObject:
         # Return values
         return output
 
-    def set_position_fcn(self, fcn, mode):
+    def set_position_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **odeargs):
         """
-        Set internal position dynamics.
-        """
+        Set internal position dynamics. Accepts both ODEs and explicit
+        functions of time. Any number of states are allowed as long as the
+        first three elements correspond to the intertial position.
 
-        # To be implemented...
-        raise NotImplementedError("Method not yet implemented!")
+        Parameters
+        ----------
+        fcn : function
+            Input pointing function. Function must be of the form f(t, state)
+            where "state" is a vector.
+        mode : str
+            String descripting the type of function input. Options are "ode"
+            and "explicit".
+        initial_state : ndarray, optional
+            Optional array describing the initialpointing state. Required for
+            "ode" mode only.
+        integrator : str, optional
+            Integrator to use for "ode" mode. Default is "dopri5". See
+            documentation for scipy.integrate.ode for valid settings.
 
-    def get_position(self, time):
-        """
-        Get position at a particular time.
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_position_preset, WorldObject.get_position
+
+        Notes
+        -----
+        For "ode" mode, any keyword arguments after "integrator" will pass
+        directly into the ode.set_integrator. See scipy.integrate.ode for
+        valid settings.
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> fcn = lambda t, state: [1, 0, 0]
+        >>> obj.set_position_fcn(fcn, "ode", np.array([0, 0, 0]))
+        >>> obj.get_position(1)
+        array([ 1.,  0.,  0.])
         """
 
         # To be implemented...
@@ -186,9 +298,19 @@ class WorldObject:
         # To be implemented
         raise NotImplementedError("Method not yet implemented!")
 
-    def set_vismag_fcn(self, fcn, mode):
+    def get_position(self, time):
+        """
+        Get position at a particular time.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Method not yet implemented!")
+
+    def set_vismag_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **odeargs):
         """
         Set internal visual magnitude function.
+
+        f(t, observer_position, object_position)
         """
 
         # To be implemented...

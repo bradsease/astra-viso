@@ -111,7 +111,7 @@ class StarCam(worldobject.WorldObject):
         # Normalize and return
         self.psf = kernel / np.sum(kernel)
 
-    def add_worldobject(self, object=None):
+    def add_worldobject(self, obj=None):
         """
         Add new or existing world object to catalog.
         """
@@ -312,6 +312,27 @@ class StarCam(worldobject.WorldObject):
     def get_photons(self, magnitudes):
         """
         Convert vector of visible magnitudes to photoelectrons/second.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def set_projection_fcn(self):
+        """
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def set_projection_preset(self):
+        """
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def get_projection(self, magnitudes):
+        """
         """
 
         # To be implemented...
