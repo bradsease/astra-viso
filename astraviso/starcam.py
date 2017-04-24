@@ -246,14 +246,71 @@ class StarCam(worldobject.WorldObject):
 
     def set_noise_fcn(self, fcn):
         """
-        Set internal noise model.
+        Set internal noise function.
+
+        Parameters
+        ----------
+        fcn : function
+            Input noise function. Must be of the form f(image, delta_t). Output
+            image must be the same size as input.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_noise_preset, StarCam.add_noise
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> fcn = lambda image, delta_t: image+np.random.rand(*image.shape)
+        >>> cam.set_noise_fcn(fcn)
         """
 
+        # Validate input
+        if fcn(np.zeros(16), 0).shape != (16,):
+            raise ValueError("Function output must be the same size as input.")
+
+        # Set function
         self.noise_fcn = fcn
 
     def set_noise_preset(self, preset, **kwargs):
         """
-        Choose preset noise model & assign noise values.
+        Choose preset noise model & assign noise values. Current options are:
+
+        "poisson" -- Poisson-distributed noise.
+        "gaussian" -- Gaussian approximation to poisson noise.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        dark_current : float, optional
+            Sensor dark current noise level. Measured in photoelectrons per
+            second. Required for "gaussian" and "poisson" presets.
+        read_noise : float, optional
+            Sensor read noise. Measured in photoelectrons.  Required for
+            "gaussian" and "poisson" presets.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_noise_fcn, StarCam.add_noise
+
+        Notes
+        -----
+        The default noise for the StarCam object is poisson noise with
+        dark_current=1200 and read_noise=200.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_noise_preset("poisson", dark_current=1200, read_noise=200)
         """
 
         # Poisson model
