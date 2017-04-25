@@ -352,27 +352,97 @@ class StarCam(worldobject.WorldObject):
         else:
             return image
 
-    def set_photon_fcn(self):
+    def set_photon_fcn(self, fcn):
         """
+        Set internal conversion between visible magnitudes and photon counts.
+
+        Parameters
+        ----------
+        fcn : function
+            Input photon function. Must be of the form f(magnitude, delta_t).
+            Output must be the same size as input.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_photon_preset, StarCam.get_photons
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> fcn = lambda vismags, delta_t: 100*vismags
+        >>> cam.set_photon_fcn(fcn)
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Check that input function supports multiple inputs
+        if len(fcn([1,2], 1)) != 2:
+            raise ValueError("Input function must support multiple inputs and return an equivalent \
+                                                                                 number of values.")
 
-    def set_photon_preset(self):
+        # Set function
+        self.photon_fcn = fcn
+
+    def set_photon_preset(self, preset, **kwargs):
         """
+        Choose preset photon model & assign values. Current options are:
+
+        "default" -- A default log-scale magnitude to photon conversion.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        aperture : float, optional
+            Aperture area in mm^2. Required for "default" preset.
+        mv0_flux : float, optional
+            Photoelectrons per second per mm^2 of aperture area. Required for
+            "default" preset.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_photon_fcn, StarCam.get_photons
+
+        Notes
+        -----
+        The default values for the StarCam object are 1087 mm^2 aperture area
+        and 19,000 photons per mm^2 of aperture area per second.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_photon_preset("default", aperture=1087, mv0_flux=19000)
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Set default option
+        if preset == "default":
 
-    def get_photons(self, magnitudes):
+            # Set up default values
+            fcn_args = {"aperture" : 1087, "mv0_flux" : 19000}
+            fcn_args.update(kwargs)
+
+            # Build function & set
+            photon_fcn = lambda vismags, delta_t : imageutils.vismag2photon(vismags, delta_t,      \
+                                                         fcn_args["aperture"], fcn_args["mv0_flux"])
+            self.set_photon_fcn(photon_fcn)
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
+
+    def get_photons(self, magnitudes, delta_t):
         """
         Convert vector of visible magnitudes to photoelectrons/second.
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Compute photon count
+        return self.photon_fcn(magnitudes, delta_t)
 
     def set_projection_fcn(self):
         """

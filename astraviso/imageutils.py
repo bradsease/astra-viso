@@ -98,7 +98,7 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
     delta_t : float
         Sensor exposure time in seconds.
     aperture : float
-        Aperture size in mm^2.
+        Aperture area in mm^2.
     mv0_flux : float
         Photoelectrons per second per mm^2 of aperture area.
 
@@ -126,4 +126,4 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
         raise ValueError("Input value for delta_t, aperture, and mv0_flux cannot be negative.")
 
     # Return total photon count
-    return mv0_flux * (1 / (2.5**vismags)) * delta_t * aperture
+    return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
