@@ -32,8 +32,6 @@ class StarCam(worldobject.WorldObject):
         self.focal_len = 93               # Focal length      (mm)
         self.pixel_size = 0.016           # Pixel size        (mm)
         self.resolution = 1024            # Resolution        (px)
-        self.aperture = 1087              # Aperture          (mm^2)
-        self.mv0_flux = 19000             # Mv=0 photon flux  (photons/s/mm^2)
         self.psf_model = "blur"           # Blur or explicit(not supported, yet)
         self.setpsf(7, 1)
         self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
@@ -42,21 +40,26 @@ class StarCam(worldobject.WorldObject):
         self.photon_fcn = None
         self.noise_fcn = None
         self.projection_fcn = None
+        self.digitize_fcn = None
 
         # Set default noise
-        self.photon2elec = 0.22           # photon / e^-
         self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
+
+        # Set default photon function
+        self.set_photon_preset("default", aperture=1087, mv0_flux=19000)
 
         # Set default star catalog
         self.star_catalog = starmap.StarMap()
         self.star_catalog.loadpreset("random", 1000)
 
-        # Internal settings
-        self.max_angle_step = 1e-4
-
         # Set default attitude properties
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+
+        # Internal settings
+        self.max_angle_step = 1e-4
+        self.photon2elec = 0.22           # photon / e^-
+        self.bit_depth = 16               # 
 
         # External objects
         self.external_objects = []
@@ -171,7 +174,7 @@ class StarCam(worldobject.WorldObject):
         stars = self.star_catalog.getregion(boresight, np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
-        mag = self.mv0_flux*(1/(2.5**stars["magnitude"]))*delta_t*self.aperture/steps
+        mag = self.get_photons(stars["magnitude"], delta_t) /  steps
 
         # Integrate star signals
         for step in range(steps):
@@ -423,13 +426,14 @@ class StarCam(worldobject.WorldObject):
         # Set default option
         if preset == "default":
 
-            # Set up default values
-            fcn_args = {"aperture" : 1087, "mv0_flux" : 19000}
-            fcn_args.update(kwargs)
+            # Check input
+            if "aperture" not in kwargs or "mv0_flux" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                            'aperture', 'mv0_flux'")
 
             # Build function & set
             photon_fcn = lambda vismags, delta_t : imageutils.vismag2photon(vismags, delta_t,      \
-                                                         fcn_args["aperture"], fcn_args["mv0_flux"])
+                                                             kwargs["aperture"], kwargs["mv0_flux"])
             self.set_photon_fcn(photon_fcn)
 
         # Handle invalid option
@@ -459,6 +463,28 @@ class StarCam(worldobject.WorldObject):
         raise NotImplementedError("Not yet implemented!")
 
     def get_projection(self, magnitudes):
+        """
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def set_digitize_fcn(self, fcn):
+        """
+        Set function to convert from continuous image values to discrete.
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def set_digitize_preset(self, preset):
+        """
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def get_digitized(self, image):
         """
         """
 

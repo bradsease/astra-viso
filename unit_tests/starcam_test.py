@@ -335,18 +335,6 @@ class test_set_photon_preset(starcamtests):
     Test set_photon_preset method.
     """
 
-    def test_default_no_options(self):
-        """
-        Test default photon model.
-        """
-
-        # Set default preset with default options
-        self.starcam.set_photon_preset("default")
-
-        # Check function
-        self.assertTrue(callable(self.starcam.photon_fcn), "Function not callable.")
-        self.assertEqual(self.starcam.photon_fcn(0,0), 0, "Incorrect result.")
-
     def test_default_options(self):
         """
         Test default photon model with input options.
