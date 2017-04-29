@@ -2,6 +2,8 @@
 Image utilities for astra-viso.
 """
 import numpy as np
+from numba import jit
+import matplotlib.pyplot as plt
 
 def poisson_noise(image, delta_t, dark_current, read_noise):
     """
@@ -47,7 +49,8 @@ def poisson_noise(image, delta_t, dark_current, read_noise):
 
 def gaussian_noise(image, delta_t, dark_current, read_noise):
     """
-    Add gaussian-distributed noise to an image. Approximates poisson-distributed noise.
+    Add gaussian-distributed noise to an image. Approximates poisson-
+    distributed noise.
 
     Parameters
     ----------
@@ -109,8 +112,9 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
 
     Notes
     -----
-    Based on: Liebe, Carl Christian. "Accuracy performance of star trackers-a tutorial."
-              IEEE Transactions on aerospace and electronic systems 38.2 (2002): 587-599.
+    Based on: Liebe, Carl Christian. "Accuracy performance of star trackers-a
+              tutorial." IEEE Transactions on aerospace and electronic systems
+              38.2 (2002): 587-599.
 
     Examples
     --------
@@ -127,3 +131,85 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
 
     # Return total photon count
     return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
+
+@jit
+def conv2(img_in, kernel):
+    """
+    Convolve image with input kernel.
+
+    Parameters
+    ----------
+    img_in : ndarray
+        Input image.
+    kernel : ndarray
+        Input kernel. Must be square and have an odd number of rows.
+
+    Returns
+    -------
+    img : ndarray
+        Convolved image.
+
+    Examples
+    --------
+    >>> image = np.random.rand(512,512)
+    >>> kernel = np.ones((7,7))
+    >>> image_conv = conv2(image, kernel)
+    """
+
+    # Check for valid kernel
+    if kernel.shape[0] % 2 != 1:
+        raise ValueError("Kernel size must be odd.")
+    if kernel.shape[0] != kernel.shape[1]:
+        raise NotImplementedError("Non-square kernels not currently supported.")
+
+    # Allocate variables
+    size = kernel.shape[0]
+    size_half = int(np.floor(kernel.shape[0]/2))
+    rows, cols = img_in.shape
+    img = np.copy(img_in)
+    img_pad = np.zeros((rows+2*size_half, cols+2*size_half))
+    img_pad[size_half:-(size_half), size_half:-(size_half)] = img
+
+    # Convolve image with kernel
+    for row in range(rows):
+        for col in range(cols):
+            img[row, col] = np.sum(img_pad[row:size+row, col:size+col]*kernel)
+
+    # Return result
+    return img
+
+def imshow(img, scale=[]):
+    """
+    MATLAB-like imshow function.
+
+    Parameters
+    ----------
+    image : ndarray
+        Input image.
+    scale : ndarray, optional
+        Minimum and maximum scale. Defaults to the minimum and maximum values
+        in the image.
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    Will halt script until user exits the image window.
+
+    Examples
+    --------
+    >>> imshow(np.random.rand((512,512))
+    """
+
+    # Assign default scale
+    if not scale:
+        scale = [np.min(img), np.max(img)]
+
+    # Set up image plot
+    plt.imshow(img, cmap='gray', vmin=scale[0], vmax=scale[1])
+    plt.xticks([]), plt.yticks([])
+
+    # Show
+    plt.show()

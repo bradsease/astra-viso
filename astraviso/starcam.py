@@ -214,7 +214,8 @@ class StarCam(worldobject.WorldObject):
         image = self.integrate(delta_t)
 
         # Defocus image
-        image = self.defocus(image, self.psf)
+        image = imageutils.conv2(image, self.psf)
+        #image = self.defocus(image, self.psf)
 
         # Convert to photoelectrons
         image = np.floor(image * self.photon2elec)
@@ -224,28 +225,6 @@ class StarCam(worldobject.WorldObject):
 
         # Return
         return image
-
-    @jit
-    def defocus(self, img_in, psf):
-        """
-        Defocus image.
-        """
-
-        # Allocate variables
-        size = psf.shape[0]
-        size_half = int(np.floor(psf.shape[0]/2))
-        rows, cols = img_in.shape
-        img = np.copy(img_in)
-        img_pad = np.zeros((rows+2*size_half, cols+2*size_half))
-        img_pad[size_half:-(size_half), size_half:-(size_half)] = img
-
-        # Convolve image with kernel
-        for row in range(rows):
-            for col in range(cols):
-                img[row, col] = np.sum(img_pad[row:size+row, col:size+col]*psf)
-
-        # Return result
-        return img
 
     def set_noise_fcn(self, fcn):
         """
