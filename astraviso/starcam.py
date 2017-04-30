@@ -40,7 +40,7 @@ class StarCam(worldobject.WorldObject):
         self.photon_fcn = None
         self.noise_fcn = None
         self.projection_fcn = None
-        self.digitize_fcn = None
+        self.digitization_fcn = None
 
         # Set default noise
         self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
@@ -56,10 +56,12 @@ class StarCam(worldobject.WorldObject):
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
+        # Set saturation model default
+        self.set_saturation_preset("no_bleed", bit_depth=16)
+
         # Internal settings
         self.max_angle_step = 1e-4
-        self.photon2elec = 0.22           # photon / e^-
-        self.bit_depth = 16               # 
+        self.photon2elec = 0.22
 
         # External objects
         self.external_objects = []
@@ -146,14 +148,6 @@ class StarCam(worldobject.WorldObject):
         # Return coordinates
         return img_x, img_y
 
-    def plane2body(self, image_coord):
-        """
-        Convert image-plane coordinates to body fixed unit vector.
-        """
-
-        # To be implemented...
-        pass
-
     def integrate(self, delta_t):
         """
         Compute pixel values after set exposure time.
@@ -215,13 +209,16 @@ class StarCam(worldobject.WorldObject):
 
         # Defocus image
         image = imageutils.conv2(image, self.psf)
-        #image = self.defocus(image, self.psf)
 
         # Convert to photoelectrons
+        # image = self.get_photoelectrons(image)
         image = np.floor(image * self.photon2elec)
 
         # Add noise
         image = self.add_noise(image, delta_t)
+
+        # Saturate
+        image = self.get_saturation(image)
 
         # Return
         return image
@@ -403,7 +400,7 @@ class StarCam(worldobject.WorldObject):
         """
 
         # Set default option
-        if preset == "default":
+        if preset.lower() == "default":
 
             # Check input
             if "aperture" not in kwargs or "mv0_flux" not in kwargs:
@@ -448,24 +445,138 @@ class StarCam(worldobject.WorldObject):
         # To be implemented...
         raise NotImplementedError("Not yet implemented!")
 
-    def set_digitize_fcn(self, fcn):
-        """
-        Set function to convert from continuous image values to discrete.
-        """
-
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
-
-    def set_digitize_preset(self, preset):
+    def set_quantum_efficiency_fcn(self):
         """
         """
 
         # To be implemented...
         raise NotImplementedError("Not yet implemented!")
 
-    def get_digitized(self, image):
+    def set_quantum_efficiency_preset(self):
         """
         """
 
         # To be implemented...
         raise NotImplementedError("Not yet implemented!")
+
+    def get_photoelectrons(self, magnitudes):
+        """
+        """
+
+        # To be implemented...
+        raise NotImplementedError("Not yet implemented!")
+
+    def set_saturation_fcn(self, fcn):
+        """
+        Set function to simulate sensor-level saturation thresholding.
+
+        Parameters
+        ----------
+        fcn : function
+            Input saturation function. Must be of the form f(image). Output
+            must be the same size as input.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_saturation_preset_preset, StarCam.get_saturation
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> fcn = lambda image: np.floor(image)
+        >>> cam.set_saturation_fcn(fcn)
+        """
+
+        # Check function validity
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
+        if fcn(np.zeros((16,32))).shape != (16,32):
+            raise ValueError("Saturation function output size must be equal to input.")
+
+        # Set function
+        self.saturation_fcn = fcn
+
+    def set_saturation_preset(self, preset, **kwargs):
+        """
+        Choose preset saturation model & assign values. Current options are:
+
+        "no_bleed" -- Saturation with no cross-pixel bleed.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        bit_depth : int, optional
+            Number of bits used to store each pixel. Required for "no_bleed"
+            preset. Maximum value for a pixel is 2**bit_depth - 1.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_saturation_fcn, StarCam.get_saturation
+
+        Notes
+        -----
+        The StarCam object uses the 'no_bleed' preset by default with a bit
+        depth of 16.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_saturation_preset("no_bleed", bit_depth=16)
+        """
+
+        # Set default option
+        if preset.lower() == "no_bleed":
+
+            # Check input
+            if "bit_depth" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                                       'bit_depth'")
+
+            # Build function & set
+            saturation_fcn = lambda image : imageutils.saturate(image, kwargs["bit_depth"])
+            self.set_saturation_fcn(saturation_fcn)
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
+
+    def get_saturation(self, image):
+        """
+        Saturate image input with internal pixel saturation model.
+
+        Parameters
+        ----------
+        image : ndarray
+            Input image where each pixel contains a total photoelectron count.
+
+        Returns
+        -------
+        saturated_image : ndarray
+            Saturated image. Output image is the same size as the input.
+
+        See Also
+        --------
+        StarCam.set_saturation_fcn, StarCam.get_saturation
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_saturation_preset("no_bleed", bit_depth=2)
+        >>> cam.get_saturation(16*np.ones((4,4)))
+        array([[ 3.,  3.,  3.,  3.],
+               [ 3.,  3.,  3.,  3.],
+               [ 3.,  3.,  3.,  3.],
+               [ 3.,  3.,  3.,  3.]])
+        """
+
+        # Digitize image
+        return self.saturation_fcn(image)

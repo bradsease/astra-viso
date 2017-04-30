@@ -93,3 +93,32 @@ class test_vismag2photon(imageutilstests):
         self.assertTrue(np.all(photons>0), "Photon counts must be positive.")
         self.assertGreater(photons[2], photons[0], "Incorrect output values.")
         self.assertEqual(photons[1], 1, "Incorrect output value for input 0.")
+
+class test_saturate(imageutilstests):
+    """
+    Test saturate function.
+    """
+
+    def test_no_clipping(self):
+        """
+        Test output value and type for array input and sufficient bit_depth.
+        """
+
+        # Convert to photons
+        saturated = iu.saturate(16*np.ones((16,16)), 8)
+
+        # Check output
+        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(saturated==16), "Output values should all be equal to 16.")
+
+    def test_clipping(self):
+        """
+        Test output value and type for array input and insufficient bit_depth.
+        """
+
+        # Convert to photons
+        saturated = iu.saturate(16*np.ones((16,16)), 2)
+
+        # Check output
+        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(saturated==3), "Output values should all be equal to 3.")

@@ -132,6 +132,40 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
     # Return total photon count
     return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
 
+def saturate(image, bit_depth):
+    """
+    Apply a saturation threshold to an input image.
+
+    Parameters
+    ----------
+    image : ndarray
+        Input image where each pixel represents a photoelectron count.
+    bit_depth : int
+        Number of bits to store each pixel. Maximum value of a particular pixel
+        is 2**bit_depth - 1.
+
+    Returns
+    -------
+    saturated_image : ndarray
+        Image with no values above the saturation threshold.
+
+    Examples
+    --------
+    >>> saturate(40*np.ones((2,2)), 4)
+    """
+
+    # Check for incorrect input
+    if not isinstance(bit_depth, int):
+        raise ValueError("Bit depth must be an integer value.")
+    if bit_depth < 0:
+        raise ValueError("Bit depth must be positive.")
+
+    # Saturate image
+    image[image > 2**bit_depth-1] = 2**bit_depth-1
+
+    # Return result
+    return image
+
 @jit
 def conv2(img_in, kernel):
     """

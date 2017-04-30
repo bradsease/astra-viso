@@ -335,7 +335,7 @@ class test_set_photon_preset(starcamtests):
     Test set_photon_preset method.
     """
 
-    def test_default_options(self):
+    def test_default(self):
         """
         Test default photon model with input options.
         """
@@ -365,3 +365,44 @@ class test_get_photons(starcamtests):
         # Check function
         self.assertEqual(result, 2, "Incorrect result for single input.")
         self.assertTrue(np.all(result_multi == 2), "Incorrect result for multi-input case.")
+
+class test_saturation_fcn(starcamtests):
+    """
+    Test set_saturation_fcn method.
+    """
+
+    def test_floor_set(self):
+        """
+        Test floor function.
+        """
+
+        # Set up photon function
+        saturation_fcn = np.floor
+
+        # Set function
+        self.starcam.set_saturation_fcn(saturation_fcn)
+
+        # Check function set
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertIs(self.starcam.saturation_fcn, saturation_fcn, "Function set failed.")
+
+class test_set_saturation_preset(starcamtests):
+    """
+    Test set_saturation_preset method.
+    """
+
+    def test_no_bleed(self):
+        """
+        Test no_bleed model with input options.
+        """
+
+        # Test image
+        test_image = 16*np.ones((16,16))
+
+        # Set no_bleed model
+        self.starcam.set_saturation_preset("no_bleed", bit_depth=2)
+        test_result = self.starcam.saturation_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result==3), "Incorrect result.")
