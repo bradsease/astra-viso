@@ -132,6 +132,40 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
     # Return total photon count
     return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
 
+def constant_quantum_efficiency(photon_image, quantum_efficiency):
+    """
+    Apply a constant quantum efficiency to an input image.
+
+    Parameters
+    ----------
+    photon_image : ndarray
+        Input image where each pixel contains a photon count.
+    quantum_efficiency : float
+        Relationship between photons and photoelectrons. Measured as the number
+        of photoelectrons per photon.
+
+    Returns
+    -------
+    photoelectron_image : ndarray
+        Scaled, discrete-valued image where each pixel contains a photo-
+        electron count.
+
+    Examples
+    --------
+    >>> constant_quantum_efficiency(5*np.ones((4,4)), 0.2)
+    array([[ 1.,  1.,  1.,  1.],
+           [ 1.,  1.,  1.,  1.],
+           [ 1.,  1.,  1.,  1.],
+           [ 1.,  1.,  1.,  1.]])
+    """
+
+    # Validate input
+    if quantum_efficiency < 0:
+        raise ValueError("Quantum efficiency parameter must be positive.")
+
+    # Scale image & return result
+    return np.floor(photon_image * quantum_efficiency)
+
 def saturate(image, bit_depth):
     """
     Apply a saturation threshold to an input image.

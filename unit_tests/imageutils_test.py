@@ -94,6 +94,35 @@ class test_vismag2photon(imageutilstests):
         self.assertGreater(photons[2], photons[0], "Incorrect output values.")
         self.assertEqual(photons[1], 1, "Incorrect output value for input 0.")
 
+class test_constant_qe(imageutilstests):
+    """
+    Test constant_quantum_efficiency function.
+    """
+
+    def test_zero(self):
+        """
+        Test output value and type for array input for zero QE.
+        """
+
+        # Convert to photoelectrons
+        saturated = iu.constant_quantum_efficiency(16*np.ones((16,16)), 0)
+
+        # Check output
+        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(saturated==0), "Output values should all be equal to 0.")
+
+    def test_positive(self):
+        """
+        Test output value and type for array input for positive QE.
+        """
+
+        # Convert to photoelectrons
+        saturated = iu.constant_quantum_efficiency(16*np.ones((16,16)), 0.4)
+
+        # Check output
+        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(saturated==6), "Output values should all be equal to 6.")
+
 class test_saturate(imageutilstests):
     """
     Test saturate function.
@@ -104,7 +133,7 @@ class test_saturate(imageutilstests):
         Test output value and type for array input and sufficient bit_depth.
         """
 
-        # Convert to photons
+        # Compute saturated image
         saturated = iu.saturate(16*np.ones((16,16)), 8)
 
         # Check output
@@ -116,7 +145,7 @@ class test_saturate(imageutilstests):
         Test output value and type for array input and insufficient bit_depth.
         """
 
-        # Convert to photons
+        # Compute saturated image
         saturated = iu.saturate(16*np.ones((16,16)), 2)
 
         # Check output

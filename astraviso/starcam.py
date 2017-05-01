@@ -36,32 +36,29 @@ class StarCam(worldobject.WorldObject):
         self.setpsf(7, 1)
         self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
 
-        # Scaffolding for future code
+        # Internal function variables
         self.photon_fcn = None
         self.noise_fcn = None
         self.projection_fcn = None
         self.digitization_fcn = None
+        self.saturation_fcn = None
 
-        # Set default noise
-        self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
-
-        # Set default photon function
-        self.set_photon_preset("default", aperture=1087, mv0_flux=19000)
-
-        # Set default star catalog
+        # Set star catalog defaults
         self.star_catalog = starmap.StarMap()
         self.star_catalog.loadpreset("random", 1000)
 
-        # Set default attitude properties
+        # Set sensor pointing default
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
-        # Set saturation model default
+        # Set CCD defaults
         self.set_saturation_preset("no_bleed", bit_depth=16)
+        self.set_quantum_efficiency_preset("constant", quantum_efficiency=0.22)
+        self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
+        self.set_photon_preset("default", aperture=1087, mv0_flux=19000)
 
         # Internal settings
         self.max_angle_step = 1e-4
-        self.photon2elec = 0.22
 
         # External objects
         self.external_objects = []
@@ -211,8 +208,7 @@ class StarCam(worldobject.WorldObject):
         image = imageutils.conv2(image, self.psf)
 
         # Convert to photoelectrons
-        # image = self.get_photoelectrons(image)
-        image = np.floor(image * self.photon2elec)
+        image = self.get_photoelectrons(image)
 
         # Add noise
         image = self.add_noise(image, delta_t)
@@ -249,6 +245,8 @@ class StarCam(worldobject.WorldObject):
         """
 
         # Validate input
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
         if fcn(np.zeros(16), 0).shape != (16,):
             raise ValueError("Function output must be the same size as input.")
 
@@ -356,6 +354,10 @@ class StarCam(worldobject.WorldObject):
         >>> cam.set_photon_fcn(fcn)
         """
 
+        # Check for valid input
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
+
         # Check that input function supports multiple inputs
         if len(fcn([1,2], 1)) != 2:
             raise ValueError("Input function must support multiple inputs and return an equivalent \
@@ -418,7 +420,30 @@ class StarCam(worldobject.WorldObject):
 
     def get_photons(self, magnitudes, delta_t):
         """
-        Convert vector of visible magnitudes to photoelectrons/second.
+        Convert array of visible magnitudes to photoelectron counts.
+
+        Parameters
+        ----------
+        magnitudes : ndarray
+            Array of visible magnitudes to be converted. 
+        delta_t : float
+            Sensor exposure time in seconds.
+
+        Returns
+        -------
+        photon_count : ndarray
+            Total photon count for each input visible magnitude.
+
+        See Also
+        --------
+        StarCam.set_photon_fcn, StarCam.set_photon_preset
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_photon_preset("default", aperture=1087, mv0_flux=19000)
+        >>> cam.get_photons(7, 0.1)
+        3383.7875200000003
         """
 
         # Compute photon count
@@ -445,26 +470,124 @@ class StarCam(worldobject.WorldObject):
         # To be implemented...
         raise NotImplementedError("Not yet implemented!")
 
-    def set_quantum_efficiency_fcn(self):
+    def set_quantum_efficiency_fcn(self, fcn):
         """
+        Set function to simulate CCD quantum efficiency.
+
+        Parameters
+        ----------
+        fcn : function
+            Input quantum efficiency function. Function should convert from
+            a continous photon count to a discrete photoelectron count. Function
+            must be of the form f(image).
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_quantum_efficiency_preset, StarCam.get_photoelectrons
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> fcn = lambda image: np.floor(image * 0.22)
+        >>> cam.set_quantum_efficiency_fcn(fcn)
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Check function validity
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
+        if fcn(np.zeros((16,32))).shape != (16,32):
+            raise ValueError("Saturation function output size must be equal to input.")
 
-    def set_quantum_efficiency_preset(self):
+        # Set function
+        self.quantum_efficiency_fcn = fcn
+
+    def set_quantum_efficiency_preset(self, preset, **kwargs):
         """
+        Choose preset quantum efficiency model & assign values. Current options are:
+
+        "constant" -- Equal quantum efficiency for every pixel.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        quantum_efficiency : float, optional
+            Relationship between photons and photoelectrons. Measured as the
+            number of photoelectrons per photon. Required for "constant" preset.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_quantum_efficiency_fcn, StarCam.get_photoelectrons
+
+        Notes
+        -----
+        The StarCam object uses the 'constant' preset by default with a quantum
+        efficiency parameter of 0.22.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_quantum_efficiency_preset("constant", 0.22)
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Set default option
+        if preset.lower() == "constant":
 
-    def get_photoelectrons(self, magnitudes):
+            # Check input
+            if "quantum_efficiency" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                              'quantum_efficiency'")
+
+            # Build function & set
+            qe_fcn = lambda image : imageutils.constant_quantum_efficiency(image,                  \
+                                                                       kwargs["quantum_efficiency"])
+            self.set_quantum_efficiency_fcn(qe_fcn)
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
+
+    def get_photoelectrons(self, photon_image):
         """
+        Get photoelectron count from photon count with internal quantum
+        efficiency model.
+
+        Parameters
+        ----------
+        photon_image : ndarray
+            Input image where each pixel contains a total photon count.
+
+        Returns
+        -------
+        photoelectron_image : ndarray
+            Scaled, discrete-valued image where each pixel contains a photo-
+            electron count.
+
+        See Also
+        --------
+        StarCam.set_quantum_efficiency_fcn, StarCam.set_quantum_efficiency_preset
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_quantum_efficiency_preset("constant", quantum_efficiency=0.2)
+        >>> cam.get_saturation(5*np.ones((4,4)))
+        array([[ 1.,  1.,  1.,  1.],
+               [ 1.,  1.,  1.,  1.],
+               [ 1.,  1.,  1.,  1.],
+               [ 1.,  1.,  1.,  1.]])
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Compute photoelectron count
+        return self.quantum_efficiency_fcn(photon_image)
 
     def set_saturation_fcn(self, fcn):
         """
@@ -482,7 +605,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_saturation_preset_preset, StarCam.get_saturation
+        StarCam.set_saturation_preset, StarCam.get_saturation
 
         Examples
         --------
@@ -565,7 +688,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_saturation_fcn, StarCam.get_saturation
+        StarCam.set_saturation_fcn, StarCam.set_saturation_preset
 
         Examples
         --------
@@ -578,5 +701,5 @@ class StarCam(worldobject.WorldObject):
                [ 3.,  3.,  3.,  3.]])
         """
 
-        # Digitize image
+        # Saturate image
         return self.saturation_fcn(image)

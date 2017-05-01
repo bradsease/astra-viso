@@ -366,7 +366,69 @@ class test_get_photons(starcamtests):
         self.assertEqual(result, 2, "Incorrect result for single input.")
         self.assertTrue(np.all(result_multi == 2), "Incorrect result for multi-input case.")
 
-class test_saturation_fcn(starcamtests):
+class test_set_quantum_efficiency_fcn(starcamtests):
+    """
+    Test set_quantum_efficiency_fcn method.
+    """
+
+    def test_floor_set(self):
+        """
+        Test floor function.
+        """
+
+        # Set up quantum efficiency function
+        qe_fcn = np.floor
+
+        # Set function
+        self.starcam.set_quantum_efficiency_fcn(qe_fcn)
+
+        # Check function set
+        self.assertTrue(callable(self.starcam.quantum_efficiency_fcn), "Function not callable.")
+        self.assertIs(self.starcam.quantum_efficiency_fcn, qe_fcn, "Function set failed.")
+
+class test_set_quantum_efficiency_preset(starcamtests):
+    """
+    Test set_quantum_efficiency_preset method.
+    """
+
+    def test_constant(self):
+        """
+        Test constant model with input options.
+        """
+
+        # Test image
+        test_image = 5*np.ones((16,16))
+
+        # Set no_bleed model
+        self.starcam.set_quantum_efficiency_preset("constant", quantum_efficiency=0.2)
+        test_result = self.starcam.quantum_efficiency_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result==1), "Incorrect result.")
+
+class test_get_photoelectrons(starcamtests):
+    """
+    Test get_photoelectrons method.
+    """
+
+    def test_constant(self):
+        """
+        Test using constant model.
+        """
+
+        # Test image
+        test_image = 5*np.ones((16,16))
+
+        # Set no_bleed model
+        self.starcam.set_quantum_efficiency_preset("constant", quantum_efficiency=0.2)
+        test_result = self.starcam.get_photoelectrons(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result==1), "Incorrect result.")
+
+class test_set_saturation_fcn(starcamtests):
     """
     Test set_saturation_fcn method.
     """
@@ -376,7 +438,7 @@ class test_saturation_fcn(starcamtests):
         Test floor function.
         """
 
-        # Set up photon function
+        # Set up saturation function
         saturation_fcn = np.floor
 
         # Set function
@@ -402,6 +464,27 @@ class test_set_saturation_preset(starcamtests):
         # Set no_bleed model
         self.starcam.set_saturation_preset("no_bleed", bit_depth=2)
         test_result = self.starcam.saturation_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result==3), "Incorrect result.")
+
+class test_get_saturation(starcamtests):
+    """
+    Test get_saturation method.
+    """
+
+    def test_no_bleed(self):
+        """
+        Test default photon model.
+        """
+
+        # Test image
+        test_image = 16*np.ones((16,16))
+
+        # Set no_bleed model
+        self.starcam.set_saturation_preset("no_bleed", bit_depth=2)
+        test_result = self.starcam.get_saturation(test_image)
 
         # Check function
         self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
