@@ -3,6 +3,7 @@ StarCam unit tests.
 """
 import unittest
 from astraviso import starcam as cam
+from astraviso import worldobject
 import numpy as np
 
 class starcamtests(unittest.TestCase):
@@ -27,6 +28,71 @@ class default_tests(starcamtests):
         """
 
         self.assertEqual(self.starcam.focal_len, 93, "Default focal length incorrect.")
+
+class test_add_worldobject(starcamtests):
+    """
+    Test add_worldobject method.
+    """
+
+    def test_multi(self):
+        """
+        Test multiple input objects
+        """
+
+        # Add object iteratively
+        for idx in range(5):
+
+            # Create object
+            obj = worldobject.WorldObject()
+
+            # Add to cam
+            self.starcam.add_worldobject(obj)
+
+            # Check result
+            self.assertEqual(len(self.starcam.external_objects), idx+1, "Incorrect number of       \
+                                                                                 catalog elements.")
+            self.assertIsInstance(self.starcam.external_objects[-1], worldobject.WorldObject,      \
+                                                                  "Incorrect catalog element type.")
+
+    def test_multi_auto(self):
+        """
+        Test multiple auto-created objects
+        """
+
+        # Add object iteratively
+        for idx in range(5):
+
+            # Add to cam
+            self.starcam.add_worldobject()
+
+            # Check result
+            self.assertEqual(len(self.starcam.external_objects), idx+1, "Incorrect number of       \
+                                                                                 catalog elements.")
+            self.assertIsInstance(self.starcam.external_objects[-1], worldobject.WorldObject,      \
+                                                                  "Incorrect catalog element type.")
+
+class test_delete_worldobject(starcamtests):
+    """
+    Test delete_worldobject method.
+    """
+
+    def test_multi(self):
+        """
+        Test multiple objects
+        """
+
+        # Build object list
+        self.starcam.external_objects = [worldobject.WorldObject for idx in range(5)]
+
+        # Add object iteratively
+        for idx in reversed(range(len(self.starcam.external_objects))):
+
+            # Delete last object
+            self.starcam.delete_worldobject(idx)
+
+            # Check result
+            self.assertEqual(len(self.starcam.external_objects), idx, "Incorrect number of       \
+                                                                                 catalog elements.")
 
 class test_body2plane(starcamtests):
     """

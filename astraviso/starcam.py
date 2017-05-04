@@ -114,9 +114,78 @@ class StarCam(worldobject.WorldObject):
 
     def add_worldobject(self, obj=None):
         """
-        Add new or existing world object to catalog.
+        Add new or existing WorldObject to the external object catalog.
+
+        Parameters
+        ----------
+        obj : WorldObject, optional
+            An existing WorldObject instance. If obj is not defined, a new
+            WorldObject instance will be created.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The user can manage elements in the external object catalog directly
+        through the external_objects property of the StarCam class.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> obj1 = WorldObject()
+        >>> cam.add_worldobject(obj1)
+        >>> cam.external_objects
+        [<astraviso.worldobject.WorldObject object at 0x000001A4C8AA6438>]
+        >>> cam.external_objects[0].set_pointing_preset("kinematic",           \
+                                                      np.array([0,0,0,1,0,0,0]))
         """
-        raise NotImplementedError("Not yet implemented!")
+
+        # Append input WorldObject
+        if isinstance(obj, worldobject.WorldObject):
+            self.external_objects.append(obj)
+
+        # Append new WorldObject
+        elif obj is None:
+            self.external_objects.append(worldobject.WorldObject())
+
+        # Handle invalid input
+        else:
+            raise ValueError("Input must either be an existing WorldObject or None.")
+
+    def delete_worldobject(self, index):
+        """
+        Clear a WorldObject from the external object catalog.
+
+        Parameters
+        ----------
+        index: int
+            Index of the WorldObject catalog element to remove.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The user can manage elements in the external object catalog directly
+        through the external_objects property of the StarCam class.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> obj1 = WorldObject()
+        >>> cam.add_worldobject(obj1)
+        >>> cam.external_objects
+        [<astraviso.worldobject.WorldObject object at 0x000001A4C8AA6438>]
+        >>> cam.delete_worldobject(0)
+        >>> cam.external_objects
+        []
+        """
+
+        # Delete object
+        del self.external_objects[index]
 
     def body2plane(self, vectors):
         """
