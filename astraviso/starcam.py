@@ -2,7 +2,6 @@
 Astra-Viso star camera module.
 """
 import numpy as np
-from numba import jit
 from astraviso import worldobject
 from astraviso import starmap
 from astraviso import imageutils
@@ -40,7 +39,7 @@ class StarCam(worldobject.WorldObject):
         self.photon_fcn = None
         self.noise_fcn = None
         self.projection_fcn = None
-        self.digitization_fcn = None
+        self.quantum_efficiency_fcn = None
         self.saturation_fcn = None
 
         # Set star catalog defaults
@@ -241,7 +240,7 @@ class StarCam(worldobject.WorldObject):
         -----
         Function must be of the form noisy_image = f(image, delta_t).
         Below are two valid function definition templates.
-        
+
         def user_fcn(image, delta_t):
             ...
             return noisy_image
@@ -270,6 +269,7 @@ class StarCam(worldobject.WorldObject):
 
         "poisson" -- Poisson-distributed noise.
         "gaussian" -- Gaussian approximation to poisson noise.
+        "off" -- Turn image noise off.
 
         Parameters
         ----------
@@ -324,6 +324,11 @@ class StarCam(worldobject.WorldObject):
             noise_fcn = lambda image, delta_t: imageutils.gaussian_noise(image, delta_t,           \
                                                        kwargs["dark_current"], kwargs["read_noise"])
             self.set_noise_fcn(noise_fcn)
+
+        elif preset.lower() == "off":
+
+            # Set function
+            self.set_noise_fcn(lambda image, delta_t: image)
 
         # Invalid input
         else:
@@ -381,7 +386,7 @@ class StarCam(worldobject.WorldObject):
             raise ValueError("Must provide callable function.")
 
         # Check that input function supports multiple inputs
-        if len(fcn([1,2], 1)) != 2:
+        if len(fcn([1, 2], 1)) != 2:
             raise ValueError("Input function must support multiple inputs and return an equivalent \
                                                                                  number of values.")
 
@@ -432,7 +437,7 @@ class StarCam(worldobject.WorldObject):
                                                                             'aperture', 'mv0_flux'")
 
             # Build function & set
-            photon_fcn = lambda vismags, delta_t : imageutils.vismag2photon(vismags, delta_t,      \
+            photon_fcn = lambda vismags, delta_t: imageutils.vismag2photon(vismags, delta_t,      \
                                                              kwargs["aperture"], kwargs["mv0_flux"])
             self.set_photon_fcn(photon_fcn)
 
@@ -447,7 +452,7 @@ class StarCam(worldobject.WorldObject):
         Parameters
         ----------
         magnitudes : ndarray
-            Array of visible magnitudes to be converted. 
+            Array of visible magnitudes to be converted.
         delta_t : float
             Sensor exposure time in seconds.
 
@@ -532,7 +537,7 @@ class StarCam(worldobject.WorldObject):
         # Check function validity
         if not callable(fcn):
             raise ValueError("Must provide callable function.")
-        if fcn(np.zeros((16,32))).shape != (16,32):
+        if fcn(np.zeros((16, 32))).shape != (16, 32):
             raise ValueError("Saturation function output size must be equal to input.")
 
         # Set function
@@ -587,7 +592,7 @@ class StarCam(worldobject.WorldObject):
                                                                               'quantum_efficiency'")
 
             # Build function & set
-            qe_fcn = lambda image : imageutils.apply_constant_quantum_efficiency(image,            \
+            qe_fcn = lambda image: imageutils.apply_constant_quantum_efficiency(image,            \
                                                                        kwargs["quantum_efficiency"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
@@ -604,7 +609,7 @@ class StarCam(worldobject.WorldObject):
                 kwargs["seed"] = np.random.rand()
 
             # Build function & set
-            qe_fcn = lambda image : imageutils.apply_gaussian_quantum_efficiency(image,            \
+            qe_fcn = lambda image: imageutils.apply_gaussian_quantum_efficiency(image,             \
                                       kwargs["quantum_efficiency"], kwargs["sigma"], kwargs["seed"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
@@ -685,7 +690,7 @@ class StarCam(worldobject.WorldObject):
         # Check function validity
         if not callable(fcn):
             raise ValueError("Must provide callable function.")
-        if fcn(np.zeros((16,32))).shape != (16,32):
+        if fcn(np.zeros((16, 32))).shape != (16, 32):
             raise ValueError("Saturation function output size must be equal to input.")
 
         # Set function
@@ -693,9 +698,11 @@ class StarCam(worldobject.WorldObject):
 
     def set_saturation_preset(self, preset, **kwargs):
         """
-        Choose preset saturation model & assign values. Current options are:
+        Choose preset pixel saturation model & assign values. Current options
+        are:
 
         "no_bleed" -- Saturation with no cross-pixel bleed.
+        "off"      -- No saturation.
 
         Parameters
         ----------
@@ -733,8 +740,13 @@ class StarCam(worldobject.WorldObject):
                                                                                        'bit_depth'")
 
             # Build function & set
-            saturation_fcn = lambda image : imageutils.saturate(image, kwargs["bit_depth"])
+            saturation_fcn = lambda image: imageutils.saturate(image, kwargs["bit_depth"])
             self.set_saturation_fcn(saturation_fcn)
+
+        elif preset.lower() == "off":
+
+            # Set function
+            self.set_saturation_fcn(lambda image: image)
 
         # Handle invalid option
         else:

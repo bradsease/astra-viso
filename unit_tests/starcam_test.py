@@ -255,6 +255,23 @@ class test_set_noise_preset(starcamtests):
         self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
         self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
 
+    def test_off(self):
+        """
+        Test zero image noise option.
+        """
+
+        # Set up environment
+        test_image = np.zeros((256,256))
+
+        # Set poisson preset
+        self.starcam.set_noise_preset("off")
+        noisy_image = self.starcam.noise_fcn(test_image, 1)
+
+        # Check output
+        self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
+        self.assertTrue(np.all(noisy_image == 0), "All image values should be zero.")
+
 class test_add_noise(starcamtests):
     """
     Test set_noise_preset method.
@@ -484,6 +501,22 @@ class test_set_saturation_preset(starcamtests):
         # Check function
         self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result==3), "Incorrect result.")
+
+    def test_off(self):
+        """
+        Test no saturation model.
+        """
+
+        # Test image
+        test_image = 1e8*np.ones((16,16))
+
+        # Set no_bleed model
+        self.starcam.set_saturation_preset("off")
+        test_result = self.starcam.saturation_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result==1e8), "Incorrect result.")
 
 class test_get_saturation(starcamtests):
     """

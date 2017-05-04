@@ -176,7 +176,7 @@ def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sig
     photon_image : ndarray
         Input image where each pixel contains a photon count.
     mean_quantum_efficiency : float
-        Relationship between photons and photoelectrons (mean value). Measured 
+        Relationship between photons and photoelectrons (mean value). Measured
         as the number of photoelectrons per photon.
     sigma : float
         Desired standard deviation of the resulting random values.
@@ -303,7 +303,7 @@ def conv2(img_in, kernel):
     # Return result
     return img
 
-def imshow(img, scale=[]):
+def imshow(img, scale=None):
     """
     MATLAB-like imshow function.
 
