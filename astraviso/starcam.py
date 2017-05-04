@@ -31,15 +31,13 @@ class StarCam(worldobject.WorldObject):
         self.focal_len = 93               # Focal length      (mm)
         self.pixel_size = 0.016           # Pixel size        (mm)
         self.resolution = 1024            # Resolution        (px)
-        self.psf_model = "blur"           # Blur or explicit(not supported, yet)
-        self.setpsf(7, 1)
-        self.projection_model = "pinhole" # Pinhole or polynomial(not supported)
+        self.setpsf(7, 1)                 # To be removed...
 
         # Internal function variables
-        self.photon_fcn = None
-        self.noise_fcn = None
+        self.sensitivity_fcn = None
         self.projection_fcn = None
         self.quantum_efficiency_fcn = None
+        self.noise_fcn = None
         self.saturation_fcn = None
 
         # Set star catalog defaults
@@ -54,10 +52,12 @@ class StarCam(worldobject.WorldObject):
         self.set_saturation_preset("no_bleed", bit_depth=16)
         self.set_quantum_efficiency_preset("constant", quantum_efficiency=0.22)
         self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
-        self.set_photon_preset("default", aperture=1087, mv0_flux=19000)
+        self.set_sensitivity_preset("default", aperture=1087, mv0_flux=19000)
 
         # Internal settings
-        self.max_angle_step = 1e-4
+        self.__settings = {}
+        self.__settings["max_angle_step"] = 1e-4
+        self.__settings["projection_model"] = "pinhole" # To be removed...
 
         # External objects
         self.external_objects = []
@@ -197,7 +197,7 @@ class StarCam(worldobject.WorldObject):
             vectors = vectors.reshape(1, 3)
 
         # Project input vectors
-        if self.projection_model == "pinhole":
+        if self.__settings["projection_model"] == "pinhole":
 
             # Pinhole projection equations
             f_over_s = (self.focal_len/self.pixel_size)
@@ -205,7 +205,7 @@ class StarCam(worldobject.WorldObject):
             img_x = f_over_s * np.divide(vectors[:, 0], vectors[:, 2]) + half_res
             img_y = f_over_s * np.divide(vectors[:, 1], vectors[:, 2]) + half_res
 
-        elif self.projection_model == "polynomial":
+        elif self.__settings["projection_model"] == "polynomial":
 
             # To be implemented...
             pass
@@ -221,7 +221,7 @@ class StarCam(worldobject.WorldObject):
         # Determine step size
         angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(0, mode="dcm"),                   \
                                                       self.get_pointing(delta_t, mode="dcm").T))-1))
-        steps = int(np.ceil(max(1.0 + angle/self.max_angle_step, 1.0)))
+        steps = int(np.ceil(max(1.0 + angle/self.__settings["max_angle_step"], 1.0)))
         step_size = delta_t / steps
 
         # Allocate image
@@ -414,7 +414,7 @@ class StarCam(worldobject.WorldObject):
         else:
             return image
 
-    def set_photon_fcn(self, fcn):
+    def set_sensitivity_fcn(self, fcn):
         """
         Set internal conversion between visible magnitudes and photon counts.
 
@@ -430,7 +430,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_photon_preset, StarCam.get_photons
+        StarCam.set_sensitivity_preset, StarCam.get_photons
 
         Notes
         -----
@@ -447,7 +447,7 @@ class StarCam(worldobject.WorldObject):
         --------
         >>> cam = StarCam()
         >>> fcn = lambda vismags, delta_t: 100*vismags
-        >>> cam.set_photon_fcn(fcn)
+        >>> cam.set_sensitivity_fcn(fcn)
         """
 
         # Check for valid input
@@ -460,13 +460,15 @@ class StarCam(worldobject.WorldObject):
                                                                                  number of values.")
 
         # Set function
-        self.photon_fcn = fcn
+        self.sensitivity_fcn = fcn
 
-    def set_photon_preset(self, preset, **kwargs):
+    def set_sensitivity_preset(self, preset, **kwargs):
         """
-        Choose preset photon model & assign values. Current options are:
+        Choose preset sensitivity model & assign values. This model defines the
+        internal conversion between visible magnitudes and photon counts Current
+        options are:
 
-        "default" -- A default log-scale magnitude to photon conversion.
+        "default" -- A log-scale magnitude to photon conversion.
 
         Parameters
         ----------
@@ -484,7 +486,8 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_photon_fcn, StarCam.get_photons
+        StarCam.set_sensitivity_fcn, StarCam.get_photons, 
+        imageutils.vismag2photon
 
         Notes
         -----
@@ -494,7 +497,7 @@ class StarCam(worldobject.WorldObject):
         Examples
         --------
         >>> cam = StarCam()
-        >>> cam.set_photon_preset("default", aperture=1087, mv0_flux=19000)
+        >>> cam.set_sensitivity_preset("default", aperture=1087, mv0_flux=19000)
         """
 
         # Set default option
@@ -506,9 +509,9 @@ class StarCam(worldobject.WorldObject):
                                                                             'aperture', 'mv0_flux'")
 
             # Build function & set
-            photon_fcn = lambda vismags, delta_t: imageutils.vismag2photon(vismags, delta_t,      \
+            sensitivity_fcn = lambda vismags, delta_t: imageutils.vismag2photon(vismags, delta_t,  \
                                                              kwargs["aperture"], kwargs["mv0_flux"])
-            self.set_photon_fcn(photon_fcn)
+            self.set_sensitivity_fcn(sensitivity_fcn)
 
         # Handle invalid option
         else:
@@ -516,7 +519,8 @@ class StarCam(worldobject.WorldObject):
 
     def get_photons(self, magnitudes, delta_t):
         """
-        Convert array of visible magnitudes to photoelectron counts.
+        Convert array of visible magnitudes to photoelectron counts using the
+        internally-defined sensitivity model.
 
         Parameters
         ----------
@@ -532,18 +536,18 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_photon_fcn, StarCam.set_photon_preset
+        StarCam.set_sensitivity_fcn, StarCam.set_sensitivity_preset
 
         Examples
         --------
         >>> cam = StarCam()
-        >>> cam.set_photon_preset("default", aperture=1087, mv0_flux=19000)
+        >>> cam.set_sensitivity_preset("default", aperture=1087, mv0_flux=19000)
         >>> cam.get_photons(7, 0.1)
         3383.7875200000003
         """
 
         # Compute photon count
-        return self.photon_fcn(magnitudes, delta_t)
+        return self.sensitivity_fcn(magnitudes, delta_t)
 
     def set_projection_fcn(self):
         """

@@ -393,9 +393,9 @@ class test_add_noise(starcamtests):
         self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
         self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
 
-class test_set_photon_fcn(starcamtests):
+class test_set_sensitivity_fcn(starcamtests):
     """
-    Test set_photon_fcn method.
+    Test set_sensitivity_fcn method.
     """
 
     def test_constant_set(self):
@@ -404,18 +404,18 @@ class test_set_photon_fcn(starcamtests):
         """
 
         # Set up photon function
-        photon_fcn = lambda vismags, delta_t : vismags
+        sensitivity_fcn = lambda vismags, delta_t : vismags
 
         # Set function
-        self.starcam.set_photon_fcn(photon_fcn)
+        self.starcam.set_sensitivity_fcn(sensitivity_fcn)
 
         # Check function set
-        self.assertTrue(callable(self.starcam.photon_fcn), "Function not callable.")
-        self.assertIs(self.starcam.photon_fcn, photon_fcn, "Function set failed.")
+        self.assertTrue(callable(self.starcam.sensitivity_fcn), "Function not callable.")
+        self.assertIs(self.starcam.sensitivity_fcn, sensitivity_fcn, "Function set failed.")
 
-class test_set_photon_preset(starcamtests):
+class test_set_sensitivity_preset(starcamtests):
     """
-    Test set_photon_preset method.
+    Test set_sensitivity_preset method.
     """
 
     def test_default(self):
@@ -424,11 +424,11 @@ class test_set_photon_preset(starcamtests):
         """
 
         # Set default preset with default options
-        self.starcam.set_photon_preset("default", aperture=1, mv0_flux=1)
+        self.starcam.set_sensitivity_preset("default", aperture=1, mv0_flux=1)
 
         # Check function
-        self.assertTrue(callable(self.starcam.photon_fcn), "Function not callable.")
-        self.assertEqual(self.starcam.photon_fcn(0,2), 2, "Incorrect result.")
+        self.assertTrue(callable(self.starcam.sensitivity_fcn), "Function not callable.")
+        self.assertEqual(self.starcam.sensitivity_fcn(0,2), 2, "Incorrect result.")
 
 class test_get_photons(starcamtests):
     """
@@ -441,7 +441,7 @@ class test_get_photons(starcamtests):
         """
 
         # Set default preset with default options
-        self.starcam.set_photon_preset("default", aperture=1, mv0_flux=1)
+        self.starcam.set_sensitivity_preset("default", aperture=1, mv0_flux=1)
         result = self.starcam.get_photons(0,2)
         result_multi = self.starcam.get_photons([0,0], 2)
 
