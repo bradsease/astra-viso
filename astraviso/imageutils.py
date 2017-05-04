@@ -1,6 +1,7 @@
 """
 Image utilities for astra-viso.
 """
+import random
 import numpy as np
 from numba import jit
 import matplotlib.pyplot as plt
@@ -132,7 +133,7 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
     # Return total photon count
     return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
 
-def constant_quantum_efficiency(photon_image, quantum_efficiency):
+def apply_constant_quantum_efficiency(photon_image, quantum_efficiency):
     """
     Apply a constant quantum efficiency to an input image.
 
@@ -152,7 +153,7 @@ def constant_quantum_efficiency(photon_image, quantum_efficiency):
 
     Examples
     --------
-    >>> constant_quantum_efficiency(5*np.ones((4,4)), 0.2)
+    >>> apply_constant_quantum_efficiency(5*np.ones((4,4)), 0.2)
     array([[ 1.,  1.,  1.,  1.],
            [ 1.,  1.,  1.,  1.],
            [ 1.,  1.,  1.,  1.],
@@ -165,6 +166,62 @@ def constant_quantum_efficiency(photon_image, quantum_efficiency):
 
     # Scale image & return result
     return np.floor(photon_image * quantum_efficiency)
+
+def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sigma, seed=None):
+    """
+    Apply a spatially gaussian random quantum efficiency to an input image.
+
+    Parameters
+    ----------
+    photon_image : ndarray
+        Input image where each pixel contains a photon count.
+    mean_quantum_efficiency : float
+        Relationship between photons and photoelectrons (mean value). Measured 
+        as the number of photoelectrons per photon.
+    sigma : float
+        Desired standard deviation of the resulting random values.
+    seed : float, optional
+        Random number generator seed.
+
+    Returns
+    -------
+    photoelectron_image : ndarray
+        Scaled, discrete-valued image where each pixel contains a photo-
+        electron count.
+
+    Notes
+    -----
+    Warning: this function may result in negative quantum efficiencies. In that
+    event, the negative entry is replaced with its absolute value. Thus the
+    resulting distribution is only approximately gaussian. For large values of
+    mean_quantum_efficiency/sigma this effect will not be significant.
+
+    Examples
+    --------
+    >>> apply_gaussian_quantum_efficiency(100*np.ones((4,4)), 0.2, 0.01, seed=1)
+    array([[ 22.,  22.,  20.,  18.],
+           [ 17.,  20.,  17.,  17.],
+           [ 20.,  20.,  21.,  18.],
+           [ 20.,  19.,  16.,  21.]])
+    """
+
+    # Validate input
+    if mean_quantum_efficiency < 0 or sigma < 0:
+        raise ValueError("Mean quantum efficiency and sigma parameter must be positive.")
+
+    # Set up RNG
+    rng = random.Random()
+    rng.seed(a=seed)
+    #if seed is not None:
+    #    rng.seed(a=seed)
+
+    # Generate efficiencies
+    rows, cols = photon_image.shape
+    quantum_efficiency = np.array([[rng.gauss(mean_quantum_efficiency, sigma) for col in           \
+                                                               range(cols)] for row in range(rows)])
+
+    # Scale image & return result
+    return np.floor(np.abs(photon_image * quantum_efficiency))
 
 def saturate(image, bit_depth):
     """

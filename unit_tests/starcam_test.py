@@ -399,13 +399,29 @@ class test_set_quantum_efficiency_preset(starcamtests):
         # Test image
         test_image = 5*np.ones((16,16))
 
-        # Set no_bleed model
+        # Set constant model
         self.starcam.set_quantum_efficiency_preset("constant", quantum_efficiency=0.2)
         test_result = self.starcam.quantum_efficiency_fcn(test_image)
 
         # Check function
         self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result==1), "Incorrect result.")
+
+    def test_gaussian(self):
+        """
+        Test gaussian model with input options.
+        """
+
+        # Test image
+        test_image = 5*np.ones((16,16))
+
+        # Set gaussian model
+        self.starcam.set_quantum_efficiency_preset("gaussian", quantum_efficiency=0.2, sigma=0.01)
+        test_result = self.starcam.quantum_efficiency_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result >= 0), "Image should be strictly positive.")
 
 class test_get_photoelectrons(starcamtests):
     """

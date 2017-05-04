@@ -94,34 +94,87 @@ class test_vismag2photon(imageutilstests):
         self.assertGreater(photons[2], photons[0], "Incorrect output values.")
         self.assertEqual(photons[1], 1, "Incorrect output value for input 0.")
 
-class test_constant_qe(imageutilstests):
+class test_apply_constant_qe(imageutilstests):
     """
-    Test constant_quantum_efficiency function.
+    Test apply_constant_quantum_efficiency function.
     """
 
     def test_zero(self):
         """
-        Test output value and type for array input for zero QE.
+        Test output value and type for zero QE.
         """
 
         # Convert to photoelectrons
-        saturated = iu.constant_quantum_efficiency(16*np.ones((16,16)), 0)
+        photo_electrons = iu.apply_constant_quantum_efficiency(16*np.ones((16,16)), 0)
 
         # Check output
-        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
-        self.assertTrue(np.all(saturated==0), "Output values should all be equal to 0.")
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons==0), "Output values should all be equal to 0.")
 
     def test_positive(self):
         """
-        Test output value and type for array input for positive QE.
+        Test output value and type for positive QE.
         """
 
         # Convert to photoelectrons
-        saturated = iu.constant_quantum_efficiency(16*np.ones((16,16)), 0.4)
+        photo_electrons = iu.apply_constant_quantum_efficiency(16*np.ones((16,16)), 0.4)
 
         # Check output
-        self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
-        self.assertTrue(np.all(saturated==6), "Output values should all be equal to 6.")
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons==6), "Output values should all be equal to 6.")
+
+class test_apply_gaussian_qe(imageutilstests):
+    """
+    Test apply_gaussian_quantum_efficiency function.
+    """
+
+    def test_zero(self):
+        """
+        Test output value and type for zero QE.
+        """
+
+        # Create test image
+        test_image = 16*np.ones((16,16))
+
+        # Convert to photoelectrons
+        photo_electrons = iu.apply_gaussian_quantum_efficiency(test_image, 0, 0)
+
+        # Check output
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons==0), "Output values should all be equal to 0.")
+
+    def test_seed(self):
+        """
+        Test RNG seed capability.
+        """
+
+        # Create test image
+        test_image = 16*np.ones((16,16))
+
+        # Convert to photoelectrons
+        photo_electrons_1 = iu.apply_gaussian_quantum_efficiency(test_image, 0.2, 0.01, seed=1)
+        photo_electrons_2 = iu.apply_gaussian_quantum_efficiency(test_image, 0.2, 0.01, seed=1)
+
+        # Check output
+        self.assertIsInstance(photo_electrons_1, np.ndarray, "Output type should be ndarray.")
+        self.assertIsInstance(photo_electrons_2, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons_1==photo_electrons_2),                              \
+                                                        "Seed does not lead to consistent results.")
+
+    def test_positive(self):
+        """
+        Test RNG seed capability.
+        """
+
+        # Create test image
+        test_image = 16*np.ones((128,128))
+
+        # Convert to photoelectrons
+        photo_electrons = iu.apply_gaussian_quantum_efficiency(test_image, 0, 1, seed=1)
+
+        # Check output
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons>=0), "Quantum efficiency must be strictly positive.")
 
 class test_saturate(imageutilstests):
     """

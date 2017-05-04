@@ -226,8 +226,8 @@ class StarCam(worldobject.WorldObject):
         Parameters
         ----------
         fcn : function
-            Input noise function. Must be of the form f(image, delta_t). Output
-            image must be the same size as input.
+            Input noise function. Output image must be the same size as input.
+            See notes for details about the required function format.
 
         Returns
         -------
@@ -236,6 +236,17 @@ class StarCam(worldobject.WorldObject):
         See Also
         --------
         StarCam.set_noise_preset, StarCam.add_noise
+
+        Notes
+        -----
+        Function must be of the form noisy_image = f(image, delta_t).
+        Below are two valid function definition templates.
+        
+        def user_fcn(image, delta_t):
+            ...
+            return noisy_image
+
+        user_fcn = lambda image, delta_t: ...
 
         Examples
         --------
@@ -336,8 +347,8 @@ class StarCam(worldobject.WorldObject):
         Parameters
         ----------
         fcn : function
-            Input photon function. Must be of the form f(magnitude, delta_t).
-            Output must be the same size as input.
+            Input photon function. Output must be the same size as input. See
+            notes for details about the required function format.
 
         Returns
         -------
@@ -346,6 +357,17 @@ class StarCam(worldobject.WorldObject):
         See Also
         --------
         StarCam.set_photon_preset, StarCam.get_photons
+
+        Notes
+        -----
+        Function must be of the form photon_count = f(magnitude, delta_t).
+        Below are two valid function definition templates.
+
+        def user_fcn(magnitude, delta_t):
+            ...
+            return photon_count
+
+        user_fcn = lambda magnitude, delta_t: ...
 
         Examples
         --------
@@ -478,8 +500,8 @@ class StarCam(worldobject.WorldObject):
         ----------
         fcn : function
             Input quantum efficiency function. Function should convert from
-            a continous photon count to a discrete photoelectron count. Function
-            must be of the form f(image).
+            a continous photon count to a discrete photoelectron count. See
+            notes for details about the required function format.
 
         Returns
         -------
@@ -488,6 +510,17 @@ class StarCam(worldobject.WorldObject):
         See Also
         --------
         StarCam.set_quantum_efficiency_preset, StarCam.get_photoelectrons
+
+        Notes
+        -----
+        Function must be of the form photoelectron_count = f(image).
+        Below are two valid function definition templates.
+
+        def user_fcn(image):
+            ...
+            return photoelectron_count
+
+        user_fcn = lambda image: ...
 
         Examples
         --------
@@ -510,6 +543,8 @@ class StarCam(worldobject.WorldObject):
         Choose preset quantum efficiency model & assign values. Current options are:
 
         "constant" -- Equal quantum efficiency for every pixel.
+        "gaussian" -- Gaussian-distributed quantum efficiency values for each
+                      pixel.
 
         Parameters
         ----------
@@ -518,6 +553,11 @@ class StarCam(worldobject.WorldObject):
         quantum_efficiency : float, optional
             Relationship between photons and photoelectrons. Measured as the
             number of photoelectrons per photon. Required for "constant" preset.
+        sigma : float, optional
+            Desired standard deviation of random values. Required for "gaussian"
+            preset.
+        seed : float, optional
+            Random number generator seed. Optional for "gaussian" preset.
 
         Returns
         -------
@@ -547,8 +587,25 @@ class StarCam(worldobject.WorldObject):
                                                                               'quantum_efficiency'")
 
             # Build function & set
-            qe_fcn = lambda image : imageutils.constant_quantum_efficiency(image,                  \
+            qe_fcn = lambda image : imageutils.apply_constant_quantum_efficiency(image,            \
                                                                        kwargs["quantum_efficiency"])
+            self.set_quantum_efficiency_fcn(qe_fcn)
+
+        # Set gaussian option
+        elif preset.lower() == "gaussian":
+
+            # Check input
+            if "quantum_efficiency" not in kwargs or "sigma" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                     'quantum_efficiency', 'sigma'")
+
+            # Set seed, if necessary
+            if "seed" not in kwargs:
+                kwargs["seed"] = np.random.rand()
+
+            # Build function & set
+            qe_fcn = lambda image : imageutils.apply_gaussian_quantum_efficiency(image,            \
+                                      kwargs["quantum_efficiency"], kwargs["sigma"], kwargs["seed"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
         # Handle invalid option
@@ -606,6 +663,17 @@ class StarCam(worldobject.WorldObject):
         See Also
         --------
         StarCam.set_saturation_preset, StarCam.get_saturation
+
+        Notes
+        -----
+        Function must be of the form saturated_image = f(image).
+        Below are two valid function definition templates.
+
+        def user_fcn(image):
+            ...
+            return saturated_image
+
+        user_fcn = lambda image: ...
 
         Examples
         --------
