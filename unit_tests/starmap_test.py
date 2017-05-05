@@ -14,6 +14,8 @@ class starmaptests(unittest.TestCase):
         self.starmap = sm.StarMap()
 
     def tearDown(self):
+        self.assertEqual(self.starmap.size, len(self.starmap.catalog), "Internal catalog size      \
+                                                         property not consistent with actual size.")
         del self.starmap
 
 class test_selectrange(starmaptests):
@@ -166,9 +168,9 @@ class test_selectbrighter(starmaptests):
         self.assertEqual(self.starmap.size, 2)
         self.assertTrue(np.array_equal(self.starmap.catalog, np.array([[1, 0, 0], [-1, 0, 0]])))
 
-class test_getregion(starmaptests):
+class test_get_region(starmaptests):
     """
-    Test getregion method.
+    Test get_region method.
     """
 
     def test_dimensions(self):
@@ -180,21 +182,21 @@ class test_getregion(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Check single star along boresight
-        region = self.starmap.getregion([0, 0, 1], 0)
+        region = self.starmap.get_region([0, 0, 1], 0)
         self.assertTrue(isinstance(region["catalog"], np.ndarray), "Incorrect type.")
         self.assertTrue(isinstance(region["magnitude"], np.ndarray), "Incorrect type.")
         self.assertEqual(len(region["catalog"]), 1, "Incorrect region extract.")
         self.assertEqual(len(region["magnitude"]), 1, "Incorrect region extract.")
 
         # Check 90 degree angle along y-axis
-        region = self.starmap.getregion([0, 1, 0], 90)
+        region = self.starmap.get_region([0, 1, 0], 90)
         self.assertTrue(isinstance(region["catalog"], np.ndarray), "Incorrect type.")
         self.assertTrue(isinstance(region["magnitude"], np.ndarray), "Incorrect type.")
         self.assertEqual(len(region["catalog"]), 5, "Incorrect region extract.")
         self.assertEqual(len(region["magnitude"]), 5, "Incorrect region extract.")
 
         # Check 180 degree angle along negative x-axis
-        region = self.starmap.getregion([-1, -1, -1], 55)
+        region = self.starmap.get_region([-1, -1, -1], 55)
         self.assertTrue(isinstance(region["catalog"], np.ndarray), "Incorrect type.")
         self.assertTrue(isinstance(region["magnitude"], np.ndarray), "Incorrect type.")
         self.assertEqual(len(region["catalog"]), 3, "Incorrect region extract.")

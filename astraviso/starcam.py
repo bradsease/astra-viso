@@ -230,7 +230,7 @@ class StarCam(worldobject.WorldObject):
         # Extract subset of stars from catalog
         field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
         boresight = np.dot([0, 0, 1], self.get_pointing(0, mode="dcm"))
-        stars = self.star_catalog.getregion(boresight, np.rad2deg(angle)+field_of_view/2)
+        stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
         mag = self.get_photons(stars["magnitude"], delta_t) /  steps

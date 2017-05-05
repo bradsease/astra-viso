@@ -13,7 +13,26 @@ class StarMap:
 
     def __init__(self, preset=None):
         """
-        Initialize star map.
+        Initialize new star catalog object. Option to load one of several
+        pre-defined catalogs. Options are:
+
+        "singlecenter" -- A single bright star aligned with the z-axis.
+        "sixfaces"     -- Six bright stars oriented along each positive and
+                          negative axis.
+        "random"       -- A randomly generated catalog with a user-defined
+                          number of stars.
+        "hipparcos"    -- The Hipparcos star catalog. 117,955 total stars [1].
+        "tycho"        -- The Tycho-2 star catalog. 1,055,115 total stars [2].
+
+        Parameters
+        ----------
+        preset : str, optional
+            Name of preset star catalog to load.
+
+        Returns
+        -------
+        starmap : StarMap
+            Initialized star catalog object.
         """
 
         # Stars
@@ -117,15 +136,59 @@ class StarMap:
 
     def get_all(self):
         """
-        Extract all catalog elements
+        Export all catalog elements to a dict.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        map : dict
+            Dictionary containing the star catalog in the form of an Nx3 array
+            of unit vectors (key:"catalog") and an array of corresponding
+            visible magnitudes (key:"magnitude").
+
+        Examples
+        --------
+        >>> catalog = StarMap("singlecenter")
+        >>> map = catalog.get_all()
+        >>> map
+        {'catalog': array([[0, 0, 1]]), 'magnitude': array([-1])}
         """
 
         return {"catalog"   : self.catalog,
                 "magnitude" : self.magnitude}
 
-    def getregion(self, vector, angle):
+    def get_region(self, vector, angle):
         """
-        Extract catalog region with direction vector and angle.
+        Extract catalog elements falling within a given angle of a specified
+        unit vector.
+
+        Parameters
+        ----------
+        vector : ndarray
+            Three-element array containing a desired unit vector direction.
+        angle : float
+            Angle about the designated unit vector to accept stars. Measured in
+            degrees.
+
+        Returns
+        -------
+        map : dict
+            Dictionary containing the star catalog region in the form of an Nx3
+            array of unit vectors (key:"catalog") and an array of corresponding
+            visible magnitudes (key:"magnitude").
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> map = catalog.get_region(np.array([0, 0, 1]), 0.001)
+        >>> map
+        {'catalog': array([[ -1.68386803e-06,   4.35351891e-06,   1.00000000e+00],
+        [ -1.83452395e-06,  -3.16303724e-06,   1.00000000e+00],
+        [  1.51683717e-05,   4.10971724e-06,   1.00000000e+00]]), 
+        'magnitude': array([ 9.03,  9.02,  8.69])}
         """
 
         # Enforce normalization of input vector
@@ -137,6 +200,7 @@ class StarMap:
         infield = [i for i in range(self.size) if                                                  \
                                  np.arccos(np.dot(vector, self.catalog[i, :])) <= np.deg2rad(angle)]
 
+        # Return result
         return {"catalog"   : self.catalog[infield],
                 "magnitude" : self.magnitude[infield]}
 
