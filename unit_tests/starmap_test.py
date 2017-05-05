@@ -27,7 +27,7 @@ class test_selectrange(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
         self.starmap.selectrange(-8, 12)
@@ -42,7 +42,7 @@ class test_selectrange(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
         self.starmap.selectrange(13, 17)
@@ -57,7 +57,7 @@ class test_selectrange(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
         self.starmap.selectrange(4, 8)
@@ -77,7 +77,7 @@ class test_selectdimmer(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select brighter than 12
         self.starmap.selectdimmer(12)
@@ -92,7 +92,7 @@ class test_selectdimmer(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select dimmer than -9
         self.starmap.selectdimmer(-9)
@@ -107,7 +107,7 @@ class test_selectdimmer(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select brighter than zero
         self.starmap.selectdimmer(4)
@@ -127,7 +127,7 @@ class test_selectbrighter(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select brighter than -8
         self.starmap.selectbrighter(-8)
@@ -142,7 +142,7 @@ class test_selectbrighter(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select brighter than 13
         self.starmap.selectbrighter(13)
@@ -157,7 +157,7 @@ class test_selectbrighter(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Select brighter than zero
         self.starmap.selectbrighter(0)
@@ -177,7 +177,7 @@ class test_getregion(starmaptests):
         """
 
         # Load six faces catalog
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
 
         # Check single star along boresight
         region = self.starmap.getregion([0, 0, 1], 0)
@@ -200,9 +200,9 @@ class test_getregion(starmaptests):
         self.assertEqual(len(region["catalog"]), 3, "Incorrect region extract.")
         self.assertEqual(len(region["magnitude"]), 3, "Incorrect region extract.")
 
-class test_loadpreset(starmaptests):
+class test_load_preset(starmaptests):
     """
-    Test loadpreset method.
+    Test load_preset method.
     """
 
     def test_singlecenter(self):
@@ -211,7 +211,7 @@ class test_loadpreset(starmaptests):
         """
 
         # Set up catalog and check
-        self.starmap.loadpreset("singlecenter")
+        self.starmap.load_preset("singlecenter")
         self.assertEqual(len(self.starmap.catalog), 1, "Incorrect catalog length")
         self.assertEqual(len(self.starmap.magnitude), 1, "Incorrect magnitude length")
         self.assertEqual(self.starmap.size, 1)
@@ -230,7 +230,7 @@ class test_loadpreset(starmaptests):
         """
 
         # Set up catalog and check
-        self.starmap.loadpreset("sixfaces")
+        self.starmap.load_preset("sixfaces")
         self.assertEqual(len(self.starmap.catalog), 6, "Incorrect catalog length")
         self.assertEqual(len(self.starmap.magnitude), 6, "Incorrect magnitude length")
         self.assertEqual(self.starmap.size, 6)
@@ -249,7 +249,7 @@ class test_loadpreset(starmaptests):
         """
 
         # Set up catalog and check
-        self.starmap.loadpreset("random", 100)
+        self.starmap.load_preset("random", 100)
         self.assertEqual(len(self.starmap.catalog), 100, "Incorrect catalog length")
         self.assertEqual(len(self.starmap.magnitude), 100, "Incorrect magnitude length")
         self.assertEqual(self.starmap.size, 100)
@@ -269,7 +269,7 @@ class test_loadpreset(starmaptests):
         """
 
         # Set up catalog and check
-        self.starmap.loadpreset("hipparcos")
+        self.starmap.load_preset("hipparcos")
         self.assertEqual(len(self.starmap.catalog), 117955, "Incorrect catalog length")
         self.assertEqual(len(self.starmap.magnitude), 117955, "Incorrect magnitude length")
         self.assertEqual(self.starmap.size, 117955)
@@ -289,7 +289,7 @@ class test_loadpreset(starmaptests):
         """
 
         # Set up catalog and check
-        self.starmap.loadpreset("tycho")
+        self.starmap.load_preset("tycho")
         self.assertEqual(len(self.starmap.catalog), 1055115, "Incorrect catalog length")
         self.assertEqual(len(self.starmap.magnitude), 1055115, "Incorrect magnitude length")
         self.assertEqual(self.starmap.size, 1055115)

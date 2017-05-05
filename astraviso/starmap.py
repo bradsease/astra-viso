@@ -11,7 +11,7 @@ class StarMap:
     Star map class.
     """
 
-    def __init__(self, name=None):
+    def __init__(self, preset=None):
         """
         Initialize star map.
         """
@@ -22,31 +22,71 @@ class StarMap:
         self.size = 0
 
         # Load catalog
-        if name:
-            self.loadpreset(name)
+        if preset:
+            self.load_preset(preset)
         else:
-            self.loadpreset("singlecenter")
+            self.load_preset("singlecenter")
 
-    def loadpreset(self, name, *arg):
+    def load_preset(self, preset, *arg):
         """
-        Load preset star catalog.
+        Load a preset star catalog. Current available options are:
+        
+        "singlecenter" -- A single bright star aligned with the z-axis.
+        "sixfaces"     -- Six bright stars oriented along each positive and
+                          negative axis.
+        "random"       -- A randomly generated catalog with a user-defined
+                          number of stars.
+        "hipparcos"    -- The Hipparcos star catalog. 117,955 total stars [1].
+        "tycho"        -- The Tycho-2 star catalog. 1,055,115 total stars [2].
+
+        Parameters
+        ----------
+        preset : str
+            Desired preset option.
+        star_count : int, optional
+            Number of stars desired from the "random" preset. Required for the
+            "random" preset.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        [1] Perryman, Michael AC, et al. "The HIPPARCOS catalogue." Astronomy
+            and Astrophysics 323 (1997).
+        [2] Høg, Erik, et al. "The Tycho-2 catalogue of the 2.5 million
+            brightest stars." Astronomy and Astrophysics 355 (2000): L27-L30.
+
+        Examples
+        --------
+        >>> catalog = StarMap("tycho")
+        >>> catalog.size
+        1055115
+        >>> catalog.load_preset("hipparcos")
+        >>> catalog.size
+        117955
         """
 
         # Single star on boresight
-        if name.lower() == "singlecenter":
+        if preset.lower() == "singlecenter":
             self.catalog = np.array([[0, 0, 1]])
             self.magnitude = np.array([-1])
 
         # Six stars, one on each axis
-        elif name.lower() == "sixfaces":
+        elif preset.lower() == "sixfaces":
             self.catalog = np.array([[0, 0, 1], [0, 0, -1], [0, 1, 0], [0, -1, 0], [1, 0, 0],      \
                                                                                         [-1, 0, 0]])
             self.magnitude = np.array([12, 8, 4, 0, -4, -8])
 
         # Generate a random catalog
-        elif name[0:6].lower() == "random":
+        elif preset[0:6].lower() == "random":
+
+            # Pre-allocate catalog
             self.catalog = np.zeros((arg[0], 3))
             self.magnitude = 8 + 2*np.random.randn(arg[0])
+
+            # Generate random unit vectors
             for i in range(len(self.catalog)):
                 theta = np.arccos(1 - 2 * np.random.rand())
                 phi = 2 * np.pi * np.random.rand()
@@ -59,16 +99,18 @@ class StarMap:
 
             # Open pickle file, if it exists
             try:
+
                 # Load file
-                infile = open("catalogs/" + name.lower() + ".dat", 'rb')
+                infile = open("catalogs/" + preset.lower() + ".dat", 'rb')
                 catalog_file = pickle.load(infile)
                 infile.close()
 
                 # Set catalog
                 self.catalog = catalog_file["catalog"]
                 self.magnitude = catalog_file["magnitude"]
-            except ValueError:
-                print("Unknown preset: %s" % name)
+
+            except FileNotFoundError:
+                print("Unknown preset: %s" % preset)
 
         # Set size variable
         self.size = len(self.catalog)
