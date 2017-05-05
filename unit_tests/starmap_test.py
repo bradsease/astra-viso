@@ -18,9 +18,112 @@ class starmaptests(unittest.TestCase):
                                                          property not consistent with actual size.")
         del self.starmap
 
-class test_selectrange(starmaptests):
+class test_downselect(starmaptests):
     """
-    Test selectrange method.
+    Test downselect method.
+    """
+
+    def test_index(self):
+        """
+        Test index-only select
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+        select_fcn = lambda mag, idx: idx > 2
+
+        # Select range outside of catalog
+        self.starmap.downselect(select_fcn, "magnitude")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 3)
+        self.assertEqual(len(self.starmap.catalog), 3)
+
+    def test_magnitude(self):
+        """
+        Test magnitude-only select
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+        select_fcn = lambda mag, idx: mag > 0
+
+        # Select range outside of catalog
+        self.starmap.downselect(select_fcn, "magnitude")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 3)
+        self.assertEqual(len(self.starmap.catalog), 3)
+
+    def test_vector(self):
+        """
+        Test vector-only select
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+        select_fcn = lambda vector, idx: vector[2] != 0
+
+        # Select range outside of catalog
+        self.starmap.downselect(select_fcn, "catalog")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 2)
+        self.assertEqual(len(self.starmap.catalog), 2)
+
+class test_downsample(starmaptests):
+    """
+    Test downsample method.
+    """
+
+    def test_half(self):
+        """
+        Test downsample by half
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+
+        # Select range outside of catalog
+        self.starmap.downsample(2, mode="interval")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 3)
+        self.assertEqual(len(self.starmap.catalog), 3)
+
+    def test_zero(self):
+        """
+        Test downsample factor of zero
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+
+        # Select range outside of catalog
+        self.starmap.downsample(0, mode="interval")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 6)
+        self.assertEqual(len(self.starmap.catalog), 6)
+
+    def test_negative(self):
+        """
+        Test downsample factor less than zero
+        """
+
+        # Load six faces catalog
+        self.starmap.load_preset("sixfaces")
+
+        # Select range outside of catalog
+        self.starmap.downsample(-1, mode="interval")
+
+        # Check remaining elements
+        self.assertEqual(self.starmap.size, 6)
+        self.assertEqual(len(self.starmap.catalog), 6)
+
+class test_select_range(starmaptests):
+    """
+    Test select_range method.
     """
 
     def test_none(self):
@@ -32,7 +135,7 @@ class test_selectrange(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
-        self.starmap.selectrange(-8, 12)
+        self.starmap.select_range(-8, 12)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 6)
@@ -47,7 +150,7 @@ class test_selectrange(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
-        self.starmap.selectrange(13, 17)
+        self.starmap.select_range(13, 17)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 0)
@@ -62,15 +165,15 @@ class test_selectrange(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select range outside of catalog
-        self.starmap.selectrange(4, 8)
+        self.starmap.select_range(4, 8)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 2)
         self.assertTrue(np.array_equal(self.starmap.catalog, np.array([[0, 0, -1], [0, 1, 0]])))
 
-class test_selectdimmer(starmaptests):
+class test_select_dimmer(starmaptests):
     """
-    Test selectdimmer method.
+    Test select_dimmer method.
     """
 
     def test_none(self):
@@ -82,7 +185,7 @@ class test_selectdimmer(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select brighter than 12
-        self.starmap.selectdimmer(12)
+        self.starmap.select_dimmer(12)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 0)
@@ -97,7 +200,7 @@ class test_selectdimmer(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select dimmer than -9
-        self.starmap.selectdimmer(-9)
+        self.starmap.select_dimmer(-9)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 6)
@@ -112,15 +215,15 @@ class test_selectdimmer(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select brighter than zero
-        self.starmap.selectdimmer(4)
+        self.starmap.select_dimmer(4)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 2)
         self.assertTrue(np.array_equal(self.starmap.catalog, np.array([[0, 0, 1], [0, 0, -1]])))
 
-class test_selectbrighter(starmaptests):
+class test_select_brighter(starmaptests):
     """
-    Test selectbrighter method.
+    Test select_brighter method.
     """
 
     def test_none(self):
@@ -132,7 +235,7 @@ class test_selectbrighter(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select brighter than -8
-        self.starmap.selectbrighter(-8)
+        self.starmap.select_brighter(-8)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 0)
@@ -147,7 +250,7 @@ class test_selectbrighter(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select brighter than 13
-        self.starmap.selectbrighter(13)
+        self.starmap.select_brighter(13)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 6)
@@ -162,7 +265,7 @@ class test_selectbrighter(starmaptests):
         self.starmap.load_preset("sixfaces")
 
         # Select brighter than zero
-        self.starmap.selectbrighter(0)
+        self.starmap.select_brighter(0)
 
         # Check remaining elements
         self.assertEqual(self.starmap.size, 2)

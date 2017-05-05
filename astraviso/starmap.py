@@ -204,43 +204,45 @@ class StarMap:
         return {"catalog"   : self.catalog[infield],
                 "magnitude" : self.magnitude[infield]}
 
-    def selectbrighter(self, limit):
-        """
-        Select only stars brighter than a given magnitude.
-        """
-
-        self.downselect(lambda x: x < limit, "magnitude")
-
-    def selectdimmer(self, limit):
-        """
-        Select only stars dimmer than a given magnitude.
-        """
-
-        self.downselect(lambda x: x > limit, "magnitude")
-
-    def selectrange(self, dimmest, brightest):
-        """
-        Select only stars within a range of magnitudes.
-        """
-
-        self.downselect(lambda x: x <= brightest and x >= dimmest, "magnitude")
-
-    def downsample(self, factor, mode="random"):
-        """
-        Downsample current catalog.
-        """
-
-        # Downsample randomly
-        if mode.lower() == "random":
-            self.downselect(lambda x, idx: np.random.rand() <= 1/factor, "magnitude")
-
-        # Sample at interval
-        if mode.lower() == "interval":
-            self.downselect(lambda x, idx: np.isclose(idx % factor, 0), "magnitude")
-
     def downselect(self, func, mode):
         """
-        Downselect current catalog according to input function.
+        Downselect current catalog according to a boolean-valued input function.
+        Culls the internal catalog.
+
+        Parameters
+        ----------
+        func : function
+            Boolean-valued selection function. Must accept two inputs. See notes
+            for more information on the required input format.
+        mode : str
+            Target values for downselect operation. Options are "magnitude" or
+            "catalog".
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        For the "magnitude" mode option, the input function must be of the form:
+                               bool = f(magnitude, index)
+        where the magnitude value is a scalar float and the index is a scalar
+        int. The index value corresponds to the index of the current element.
+
+        For the "catalog" mode option, the input function must be of the form:
+                               bool = f(vector, index)
+        where the vector value is a 3-element array and the index is a scalar
+        int. The index value corresponds to the index of the current element.
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> catalog.size
+        117955
+        >>> select_fcn = lambda mag, idx: mag < 6 & idx < 100000
+        >>> catalog.downselect(select_fcn, "magnitude")
+        >>> catalog.size
+        1413
         """
 
         # Check function input arguments
@@ -269,9 +271,144 @@ class StarMap:
         self.magnitude = self.magnitude[selected]
         self.size = len(self.catalog)
 
+    def downsample(self, factor, mode="random"):
+        """
+        Downsample current catalog.
+
+        Parameters
+        ----------
+        factor : float
+            Factor to downsample by. Resulting catalog length will be
+            approximately 1/factor.
+        mode : str, optional
+            Downsampling mode. Options are "random" or "interval". Default is
+            "random". 
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> catalog.size
+        117955
+        >>> catalog.downsample(10, mode="interval")
+        >>> catalog.size
+        11796
+        """
+
+        # Check input
+        if factor <= 0:
+            return
+
+        # Downsample randomly
+        if mode.lower() == "random":
+            self.downselect(lambda x, idx: np.random.rand() <= 1/factor, "magnitude")
+
+        # Sample at interval
+        elif mode.lower() == "interval":
+            self.downselect(lambda x, idx: np.isclose(idx % factor, 0), "magnitude")
+
+        # Handle invalid mode
+        else:
+            raise ValueError("Invalid mode type. Options are: 'random' and 'interval'.")
+
+    def select_brighter(self, limit):
+        """
+        Select only stars brighter than a given magnitude. Culls the internal
+        catalog only.
+
+        Parameters
+        ----------
+        limit : float
+            Visible magnitude limit. Stars with magnitude values less than this
+            limit will be selected.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> catalog.size
+        117955
+        >>> catalog.select_brighter(8)
+        >>> catalog.size
+        41057
+        """
+
+        self.downselect(lambda x: x < limit, "magnitude")
+
+    def select_dimmer(self, limit):
+        """
+        Select only stars dimmer than a given magnitude. Culls the internal
+        catalog only.
+
+        Parameters
+        ----------
+        limit : float
+            Visible magnitude limit. Stars with magnitude values greater than
+            this limit will be selected.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> catalog.size
+        117955
+        >>> catalog.select_dimmer(8)
+        >>> catalog.size
+        76561
+        """
+
+        self.downselect(lambda x: x > limit, "magnitude")
+
+    def select_range(self, brightest, dimmest):
+        """
+        Select only stars within a range of magnitudes. Culls the internal
+        catalog only.
+
+        Parameters
+        ----------
+        brightest : float
+            Upper limit on star brightness. Stars with magnitude values greater
+            than this limit will be selected.
+        dimmest : float
+            Lower limit on star brightness. Stars with magnitude values less
+            than this limit will be selected.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> catalog = StarMap("hipparcos")
+        >>> catalog.size
+        117955
+        >>> catalog.select_dimmer(8)
+        >>> catalog.size
+        41393
+        """
+
+        self.downselect(lambda x: x >= brightest and x <= dimmest, "magnitude")
+
     def viewfield(self):
         """
-        Plot entire catalog.
+        Create 3D plot of the entire catalog.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
         """
 
         # Plot data
@@ -288,7 +425,19 @@ class StarMap:
 
     def viewregion(self, vector, angle):
         """
-        Plot region of catalog.
+        Create 3D plot of a region of the catalog.
+
+        Parameters
+        ----------
+        vector : ndarray
+            Three-element array containing a desired unit vector direction.
+        angle : float
+            Angle about the designated unit vector to accept stars. Measured in
+            degrees.
+
+        Returns
+        -------
+        None
         """
 
         # Select region
@@ -308,12 +457,3 @@ class StarMap:
         axis.set_ylim([-1, 1])
         axis.set_zlim([-1, 1])
         plt.show()
-
-    def checkvalidity(self):
-        """
-        Check validity of current catalog.
-        """
-
-        # check for normed vectors, fix if not...
-        # check for types?
-        pass
