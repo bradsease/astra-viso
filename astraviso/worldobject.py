@@ -33,20 +33,21 @@ class WorldObject:
         self.__settings = {}
 
         # Name
-        self.__settings["name"] = name               # Object name (optional)
+        self.__settings["name"] = name                       # Object name
 
         # Time
-        self.epoch = 0                               # Currently unused
-        self.__settings["epoch_format"] = "seconds"  # Type of epoch
+        self.__settings["epoch"] = "1 Jan 2017 00:00:00.000"
+        #self.__settings["epoch_format"] = "seconds"         # Type of epoch
 
         # Attitude dynamics
         self.pointing_fcn = None
 
         # Position dynamics
         self.position_fcn = None
+        self.set_position_preset("kinematic", initial_position=np.ndarray([0, 0, 0]),              \
+                                                             initial_velocity=np.ndarray([0, 0, 0]))
 
         # Visible intensity function
-        # f(t, position, observer position)
         self.vismag_fcn = None
 
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
@@ -243,7 +244,7 @@ class WorldObject:
         # Return values
         return output
 
-    def set_position_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **odeargs):
+    def set_position_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
         Set internal position dynamics. Accepts both ODEs and explicit
         functions of time. Any number of states are allowed as long as the
@@ -252,13 +253,13 @@ class WorldObject:
         Parameters
         ----------
         fcn : function
-            Input pointing function. Function must be of the form f(t, state)
+            Input position function. Function must be of the form f(t, state)
             where "state" is a vector.
         mode : str
             String descripting the type of function input. Options are "ode"
             and "explicit".
         initial_state : ndarray, optional
-            Optional array describing the initialpointing state. Required for
+            Optional array describing the initial state. Required for
             "ode" mode only.
         integrator : str, optional
             Integrator to use for "ode" mode. Default is "dopri5". See
@@ -281,53 +282,274 @@ class WorldObject:
         Examples
         --------
         >>> obj = WorldObject()
-        >>> fcn = lambda t, state: [1, 0, 0]
-        >>> obj.set_position_fcn(fcn, "ode", np.array([0, 0, 0]))
+        >>> fcn = lambda t, state: [0, 0, 0]
+        >>> obj.set_position_fcn(fcn, "ode", np.array([1, 1, 1]))
         >>> obj.get_position(1)
-        array([ 1.,  0.,  0.])
+        array([ 1.,  1.,  1.])
         """
 
-        # To be implemented...
-        raise NotImplementedError("Method not yet implemented!")
+        # Check for valid input
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
 
-    def set_position_preset(self, preset):
+        # Handle ODE option
+        if mode.lower() == "ode":
+
+            # Define defaults, import user settings
+            kwargs = {"atol" : 1e-9,           \
+                      "rtol" : 1e-9,           \
+                      "max_step" : 1e-3,       \
+                      "nsteps" : 1e8}
+            kwargs.update(ode_args)
+
+            # Set up integrator and store ode
+            ode_fcn = ode(fcn)
+            ode_fcn.set_integrator(integrator, **kwargs)
+            ode_fcn.set_initial_value(initial_state, 0)
+            position_fcn = ode_fcn.integrate
+
+        # Handle explicit option
+        elif mode.lower() == "explicit":
+
+            # Set function
+            position_fcn = fcn
+
+        # Handle invalid option
+        else:
+            raise ValueError("Invalid position mode:" + mode)
+
+        # Set internal pointing function
+        self.position_fcn = position_fcn
+
+    def set_position_preset(self, preset, **kwargs):
         """
         Set internal position dynamics to preset function.
+        Current options are:
+
+        "kinematic" -- simple kinematic motion from an initial position and
+                       velocity.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        initial_position : ndarray, optional
+            Initial object position. Required as keyword argument for the
+            "kinematic" preset.
+        initial_velocity : ndarray, optional
+            Initial object position. Required as keyword argument for the
+            "kinematic" preset.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_position_fcn, WorldObject.get_position
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_position_preset("kinematic", 
+        ...                              initial_position=np.ndarray([0, 0, 0]),
+        ...                               initial_velocity=np.ndarray([0, 0, 0])
+        >>> obj.position_fcn(1)
+        array([0, 0, 0])
         """
 
-        # To be implemented
-        raise NotImplementedError("Method not yet implemented!")
+        # Set kinematic option
+        if preset.lower() == "kinematic":
+
+            # Check input
+            if "initial_position" not in kwargs or "initial_velocity" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                            'initial_position', 'initial_velocity'")
+
+            # Build function & set
+            position_fcn = lambda t: kwargs["initial_position"] + kwargs["initial_velocity"]*t
+            self.set_position_fcn(position_fcn, mode="explicit")
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
 
     def get_position(self, time):
         """
-        Get position at a particular time.
+        Get object position at a particular time.
+
+        Parameters
+        ----------
+        time : float or ndarray
+            Desired time to extract position information.
+
+        Returns
+        -------
+        position : ndarray
+            Position vector of the WorldObject at given time in intertial space.
+
+        See Also
+        --------
+        WorldObject.set_position_fcn, WorldObject.set_position_preset
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_position_preset("constant", np.array([0, 0, 0]))
+        >>> obj.get_position(1)
+        array([0, 0, 0])
         """
 
-        # To be implemented...
-        raise NotImplementedError("Method not yet implemented!")
+        # Compute position
+        return self.position_fcn(time)
 
-    def set_vismag_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **odeargs):
+    def set_vismag_fcn(self, fcn):
         """
-        Set internal visual magnitude function.
+        Set internal object visual magnitude model.
 
-        f(t, observer_position, object_position)
+        Parameters
+        ----------
+        fcn : function
+            Input visual magnitude function. Output must be scalar. See notes
+            for details about the required function format.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_vismag_preset, WorldObject.get_vismag
+
+        Notes
+        -----
+        Function must be of the form:
+                   vismag = f(t, observer_position, object_position)
+        Below are two valid function definition templates.
+
+        def user_fcn(t, observer_position, object_position):
+            ...
+            return vismag
+
+        user_fcn = lambda t, observer_position, object_position: ...
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> fcn = lambda t, *_: 7 + 2*np.sin(2*np.pi*t/30) # Ignore args after t
+        >>> obj.set_vismag_fcn(fcn)
+        >>> obj.vismag_fcn(0)
+        7.0
+        >>> obj.vismag_fcn(7.5)
+        9.0
         """
 
-        # To be implemented...
-        raise NotImplementedError("Method not yet implemented!")
+        # Check for valid input
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
 
-    def set_vismag_preset(self, preset):
+        # Set function
+        self.vismag_fcn = fcn
+
+    def set_vismag_preset(self, preset, **kwargs):
         """
-        Set internal position dynamics to preset function.
+        Set internal visual magnitude model to preset function. Available
+        presets are:
+
+        "constant" -- static user-defined visual magnitude.
+        "sine"     -- sinusoidal visual magnitude. Function of the form:
+                      vismag + amplitude*np.sin(2*np.pi*t/frequency)
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        vismag : float, optional
+            Object visual magnitude. Argument required as keyword for "constant"
+            and "sine" preset options.
+        amplitude : float, optional
+            Visual magnitude oscillation amplitude. Argument required as keyword
+            for "sine" preset.
+        frequency : float, optional
+            Visual magnitude oscillation frequency. Measured in seconds.
+            Argument required as keyword for "sine" preset.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_vismag_fcn, WorldObject.get_vismag
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_vismag_preset("sine", vismag=7, amplitude=2, frequency=30)
+        >>> obj.vismag_fcn(0)
+        7.0
+        >>> obj.vismag_fcn(7.5)
+        9.0
         """
 
-        # To be implemented
-        raise NotImplementedError("Method not yet implemented!")
+        # Set constant option
+        if preset.lower() == "constant":
+
+            # Check input
+            if "vismag" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                                          'vismag'")
+
+            # Build function & set
+            vismag_fcn = lambda *_: kwargs["vismag"]
+            self.set_vismag_fcn(vismag_fcn)
+
+        # Set sine option
+        elif preset.lower() == "sine":
+
+            # Check input
+            if any([ele not in kwargs for ele in ["vismag", "amplitude", "frequency"]]):
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                               'vismag', 'amplitude', 'frequency'.")
+
+            # Build function & set
+            vismag_fcn = lambda t, *_: kwargs["vismag"] +                                          \
+                                           kwargs["amplitude"]*np.sin(2*np.pi*t/kwargs["frequency"])
+            self.set_vismag_fcn(vismag_fcn)
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
 
     def get_vismag(self, time, observer_position):
         """
         Get visible magnitude at a particular time.
+
+        Parameters
+        ----------
+        time : float or ndarray
+            Desired time to extract visual magnitude information.
+        observer_position : ndarray
+            Array describing the position of the observer in intertial space.
+
+        Returns
+        -------
+        vismag : float
+            Visual magnitude of the WorldObject at the given time.
+
+        See Also
+        --------
+        WorldObject.set_vismag_fcn, WorldObject.set_vismag_preset
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj.set_vismag_preset("sine", vismag=7, amplitude=2, frequency=30)
+        >>> obj.get_vismag(0)
+        7.0
+        >>> obj.get_vismag(7.5)
+        9.0
         """
 
-        # To be implemented...
-        raise NotImplementedError("Method not yet implemented!")
+        # Compute visual magnitude
+        return self.vismag_fcn(time, observer_position, self.get_position(time))

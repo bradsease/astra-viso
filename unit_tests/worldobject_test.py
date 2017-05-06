@@ -45,9 +45,12 @@ class test_set_pointing_fcn(worldobjecttests):
         # Set function
         self.worldobject.set_pointing_fcn(fcn, "ode", np.array([0, 0, 0, 1, 0, 0, 0]))
 
-        # Check function output
+        # Compute result
         test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
     def test_explicit(self):
@@ -61,9 +64,12 @@ class test_set_pointing_fcn(worldobjecttests):
         # Set function
         self.worldobject.set_pointing_fcn(fcn, "explicit")
 
-        # Check function output
+        # Compute result
         test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
 
 class test_set_pointing_preset(worldobjecttests):
@@ -173,3 +179,224 @@ class test_get_pointing(worldobjecttests):
         self.assertTrue(dcm.shape == (num, 3, 3), "Incorrect output size.")
         for idx in range(num):
             self.assertTrue(np.all(dcm[idx, :, :] == np.eye(3)), "Incorrect result.")
+
+class test_set_position_fcn(worldobjecttests):
+    """
+    Test set_position_fcn method.
+    """
+
+    def test_ode_static(self):
+        """
+        Test ODE input format.
+        """
+
+        # Create static "state" function
+        fcn = lambda t, state: [0, 0, 0]
+
+        # Set function
+        self.worldobject.set_position_fcn(fcn, "ode", np.array([1, 1, 1]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+        expected_result = np.array([1, 1, 1])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+
+    def test_ode_drift(self):
+        """
+        Test ODE input format.
+        """
+
+        # Create static "state" function
+        fcn = lambda t, state: [1, 1, 1]
+
+        # Set function
+        self.worldobject.set_position_fcn(fcn, "ode", np.array([0, 0, 0]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+        expected_result = np.array([1, 1, 1])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.allclose(test_result, expected_result), "Incorrect function result.")
+
+    def test_explicit(self):
+        """
+        Test explicit input format.
+        """
+
+        # Create "state" function
+        fcn = lambda t: np.array([t, t, t])
+
+        # Set function
+        self.worldobject.set_position_fcn(fcn, "explicit")
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+        expected_result = np.array([1, 1, 1])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+
+class test_set_position_preset(worldobjecttests):
+    """
+    Test set_position_preset method.
+    """
+
+    def test_kinematic(self):
+        """
+        Test kinematic preset.
+        """
+
+        # Set function
+        self.worldobject.set_position_preset("kinematic", initial_position=np.array([1, 1, 1]),    \
+                                                               initial_velocity=np.array([1, 1, 1]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+        expected_result = np.array([2, 2, 2])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+
+class test_get_position(worldobjecttests):
+    """
+    Test get_position method.
+    """
+
+    def test_kinematic(self):
+        """
+        Test kinematic preset.
+        """
+
+        # Set function
+        self.worldobject.set_position_preset("kinematic", initial_position=np.array([1, 1, 1]),    \
+                                                               initial_velocity=np.array([1, 1, 1]))
+
+        # Compute result
+        test_result = self.worldobject.get_position(1)
+        expected_result = np.array([2, 2, 2])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+
+class test_set_vismag_fcn(worldobjecttests):
+    """
+    Test set_vismag_fcn method.
+    """
+
+    def test_constant(self):
+        """
+        Test static input function
+        """
+
+        # Create static "state" function
+        fcn = lambda t, *_: 5.0
+
+        # Set function
+        self.worldobject.set_vismag_fcn(fcn)
+
+        # Compute result
+        test_result = self.worldobject.vismag_fcn(1)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 5.0, "Incorrect function result.")
+
+    def test_sine(self):
+        """
+        Test sinusoidal input function
+        """
+
+        # Create static "state" function
+        fcn = lambda t, *_: 7 + 2*np.sin(2*np.pi*t/30)
+
+        # Set function
+        self.worldobject.set_vismag_fcn(fcn)
+
+        # Compute result
+        test_result = self.worldobject.vismag_fcn(0)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 7.0, "Incorrect function result.")
+
+class test_set_vismag_preset(worldobjecttests):
+    """
+    Test set_vismag_preset method.
+    """
+
+    def test_constant(self):
+        """
+        Test static preset.
+        """
+
+        # Set function
+        self.worldobject.set_vismag_preset("constant", vismag=5.0)
+
+        # Compute result
+        test_result = self.worldobject.vismag_fcn(1)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 5.0, "Incorrect function result.")
+
+    def test_sine(self):
+        """
+        Test sine preset.
+        """
+
+        # Set function
+        self.worldobject.set_vismag_preset("sine", vismag=7, amplitude=2, frequency=30)
+
+        # Compute result
+        test_result = self.worldobject.vismag_fcn(0)
+        test_result2 = self.worldobject.vismag_fcn(7.5)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 7.0, "Incorrect function result.")
+        self.assertEqual(test_result2, 9.0, "Incorrect function result.")
+
+class test_get_vismag(worldobjecttests):
+    """
+    Test get_vismag method.
+    """
+
+    def test_constant(self):
+        """
+        Test static preset.
+        """
+
+        # Set function
+        self.worldobject.set_vismag_preset("constant", vismag=5.0)
+
+        # Compute result
+        test_result = self.worldobject.get_vismag(1, None)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 5.0, "Incorrect function result.")
+
+    def test_sine(self):
+        """
+        Test sine preset.
+        """
+
+        # Set function
+        self.worldobject.set_vismag_preset("sine", vismag=7, amplitude=2, frequency=30)
+
+        # Compute result
+        test_result = self.worldobject.get_vismag(0, None)
+        test_result2 = self.worldobject.vismag_fcn(7.5)
+
+        # Check function output
+        self.assertIsInstance(test_result, float, "Incorrect output type.")
+        self.assertEqual(test_result, 7.0, "Incorrect function result.")
+        self.assertEqual(test_result2, 9.0, "Incorrect function result.")
