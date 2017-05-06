@@ -160,7 +160,7 @@ class StarCam(worldobject.WorldObject):
 
         Parameters
         ----------
-        index: int
+        index : int
             Index of the WorldObject catalog element to remove.
 
         Returns
@@ -189,7 +189,27 @@ class StarCam(worldobject.WorldObject):
 
     def body2plane(self, vectors):
         """
-        Convert body-fixed position vector to image-plane coordinates.
+        Convert body-fixed position vector to image-plane coordinates. Uses the
+        internally-set projection model.
+
+        Parameters
+        ----------
+        vectors : ndarray
+            Body vectors to be projected into the image plane. Array should be
+            Nx3 where N is the number of vectors.
+
+        Returns
+        -------
+        img_x : ndarray
+            Array of x-coordinates (N elements).
+        img_y : ndarray
+            Array of y-coordinates (N elements).
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.body2plane(np.array([0, 0, 1]))
+        (array([ 512.5]), array([ 512.5]))
         """
 
         # Check input
@@ -213,14 +233,38 @@ class StarCam(worldobject.WorldObject):
         # Return coordinates
         return img_x, img_y
 
-    def integrate(self, delta_t):
+    def integrate(self, time, delta_t):
         """
-        Compute pixel values after set exposure time.
+        Compute CCD pixel values after set exposure time.
+
+        Parameters
+        ----------
+        time : float
+            Time to begin exposure. Measured in seconds from epoch.
+        delta_t : float
+            Desired exposure time. Measured in seconds.
+
+        Returns
+        -------
+        img : ndarray
+            Resulting CCD array values. Each element contains a photon count.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.integrate(1)
+        array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               ...,
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+               [ 0.,  0.,  0., ...,  0.,  0.,  0.]])
         """
 
         # Determine step size
-        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(0, mode="dcm"),                   \
-                                                      self.get_pointing(delta_t, mode="dcm").T))-1))
+        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(time, mode="dcm"),                \
+                                                 self.get_pointing(time+delta_t, mode="dcm").T))-1))
         steps = int(np.ceil(max(1.0 + angle/self.__settings["max_angle_step"], 1.0)))
         step_size = delta_t / steps
 
@@ -229,7 +273,7 @@ class StarCam(worldobject.WorldObject):
 
         # Extract subset of stars from catalog
         field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
-        boresight = np.dot([0, 0, 1], self.get_pointing(0, mode="dcm"))
+        boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
         stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
@@ -239,7 +283,7 @@ class StarCam(worldobject.WorldObject):
         for step in range(steps):
 
             # Rotate stars
-            dcm = self.get_pointing(step_size*step, mode="dcm")
+            dcm = self.get_pointing(time+step_size*step, mode="dcm")
             vis = np.dot(stars["catalog"], dcm)
 
             # Project stars
@@ -252,6 +296,7 @@ class StarCam(worldobject.WorldObject):
                                                            img_y[idx] < self.resolution-1)]
 
             # Create image
+            # *** This will eventually be replaced by self.psf_fcn
             for idx in in_img:
                 xidx = img_x[idx] - np.floor(img_x[idx])
                 yidx = img_y[idx] - np.floor(img_y[idx])
@@ -263,14 +308,37 @@ class StarCam(worldobject.WorldObject):
 
         return img
 
-    # Create finished image
-    def snap(self, delta_t):
+    def snap(self, time, delta_t):
         """
         Create finished image with specified exposure time.
+
+        Parameters
+        ----------
+        time : float
+            Time to begin exposure. Measured in seconds from epoch.
+        delta_t : float
+            Desired exposure time. Measured in seconds.
+
+        Returns
+        -------
+        image : ndarray
+            Resulting image array. Each pixel contains an integer value.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.snap(1)
+        array([[1427, 1408, 1429, ..., 1381, 1414, 1404],
+               [1418, 1370, 1400, ..., 1389, 1395, 1445],
+               [1390, 1445, 1323, ..., 1369, 1408, 1417],
+               ...,
+               [1372, 1469, 1393, ..., 1356, 1468, 1412],
+               [1324, 1437, 1496, ..., 1419, 1399, 1360],
+               [1412, 1450, 1371, ..., 1376, 1367, 1421]])
         """
 
         # Integrate photons
-        image = self.integrate(delta_t)
+        image = self.integrate(time, delta_t)
 
         # Defocus image
         image = imageutils.conv2(image, self.psf)

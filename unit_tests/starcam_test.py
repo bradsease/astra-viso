@@ -137,7 +137,7 @@ class test_integrate(starcamtests):
         """
 
         # Generate empty image
-        image = self.starcam.integrate(0)
+        image = self.starcam.integrate(0, 0)
         self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
         self.assertEqual(np.sum(image), 0, "Images must be strictly positive.")
@@ -148,7 +148,7 @@ class test_integrate(starcamtests):
         """
 
         # Generate image
-        image = self.starcam.integrate(1)
+        image = self.starcam.integrate(0, 1)
         self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
         self.assertTrue((image >= 0).all(), "Images must be strictly positive.")
