@@ -15,7 +15,7 @@ def print_header(segment):
     print("----------------------------------------------------------------------")
 
 # Check input
-available_tests = ["starcam", "starmap", "worldobject", "imageutils", "pointingutils"]
+available_tests = ["starcam", "starmap", "worldobject", "imageutils", "pointingutils", "projectionutils"]
 if len(sys.argv) > 1:
     tests = sys.argv[1:]
 else:

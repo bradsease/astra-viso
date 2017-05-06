@@ -17,18 +17,6 @@ class starcamtests(unittest.TestCase):
     def tearDown(self):
         del self.starcam
 
-class default_tests(starcamtests):
-    """
-    Test default parameters.
-    """
-
-    def test_focal_length(self):
-        """
-        Test default focal length.
-        """
-
-        self.assertEqual(self.starcam.focal_len, 93, "Default focal length incorrect.")
-
 class test_add_worldobject(starcamtests):
     """
     Test add_worldobject method.
@@ -94,38 +82,6 @@ class test_delete_worldobject(starcamtests):
             self.assertEqual(len(self.starcam.external_objects), idx, "Incorrect number of       \
                                                                                  catalog elements.")
 
-class test_body2plane(starcamtests):
-    """
-    Test body2plane method.
-    """
-
-    def test_single_pinhole(self):
-        """
-        Test single point projection.
-        """
-
-        #  Convert vector and check dimensions
-        img_x, img_y = self.starcam.body2plane(np.array([0, 0, 1]))
-        self.assertIsInstance(img_x, np.ndarray, "X coordinate output should be ndarray.")
-        self.assertIsInstance(img_y, np.ndarray, "X coordinate output should be ndarray.")
-        self.assertEqual(len(img_x), 1, "Output dimension should equal input dimension")
-        self.assertEqual(len(img_x), len(img_y), "Number of x and y coordinates should be equal.")
-        self.assertEqual(img_x[0], img_y[0], "For this case, coordinates should be equal.")
-        self.assertEqual(img_x[0], 512.5, "For this case, coordinate value should be 512.5.")
-
-    def test_multiple_pinhole(self):
-        """
-        Test multiple point projection.
-        """
-
-        #  Convert vector and check dimensions
-        img_x, img_y = self.starcam.body2plane(np.array([[0, 0, 1], [0, 0, -1]]))
-        self.assertIsInstance(img_x, np.ndarray, "X coordinate output should be ndarray.")
-        self.assertIsInstance(img_y, np.ndarray, "X coordinate output should be ndarray.")
-        self.assertEqual(len(img_x), 2, "Output dimension should equal input dimension")
-        self.assertEqual(len(img_x), len(img_y), "Number of x and y coordinates should be equal.")
-        self.assertTrue(all(img_x == img_y), "For this case, coordinates should be equal.")
-
 class test_integrate(starcamtests):
     """
     Test integrate method.
@@ -138,8 +94,8 @@ class test_integrate(starcamtests):
 
         # Generate empty image
         image = self.starcam.integrate(0, 0)
-        self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
-        self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
+        self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
+        self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
         self.assertEqual(np.sum(image), 0, "Images must be strictly positive.")
 
     def test_nonempty_star_image(self):
@@ -149,8 +105,8 @@ class test_integrate(starcamtests):
 
         # Generate image
         image = self.starcam.integrate(0, 1)
-        self.assertEqual(image.shape[0], self.starcam.resolution, "X Resolution incorrect.")
-        self.assertEqual(image.shape[1], self.starcam.resolution, "Y Resolution incorrect.")
+        self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
+        self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
         self.assertTrue((image >= 0).all(), "Images must be strictly positive.")
 
 class test_setpsf(starcamtests):
@@ -179,87 +135,6 @@ class test_setpsf(starcamtests):
         self.assertEqual(self.starcam.psf.shape[0], 11, "PSF size incorrect.")
         self.assertEqual(self.starcam.psf.shape[1], 11, "PSF size incorrect.")
         self.assertEqual(np.sum(self.starcam.psf), 1, "PSF sum incorrect.")
-
-class test_set(starcamtests):
-    """
-    Test set method.
-    """
-
-    def test_identical_set(self):
-        """
-        Test identical overwrite scenario.
-        """
-
-        # Store current values
-        focal_len = self.starcam.focal_len
-        pixel_size = self.starcam.pixel_size
-        resolution = self.starcam.resolution
-
-        # Update values
-        self.starcam.set(focal_len=focal_len, resolution=resolution, pixel_size=pixel_size)
-
-        # Check result
-        self.assertEqual(focal_len, self.starcam.focal_len, "Focal length not preserved.")
-        self.assertEqual(pixel_size, self.starcam.pixel_size, "Pixel size not preserved.")
-        self.assertEqual(resolution, self.starcam.resolution, "Resolution not preserved.")
-        self.assertTrue(isinstance(self.starcam.resolution, int), "Resolution not integer-valued")
-
-    def test_resolution_calc(self):
-        """
-        Test set without resolution.
-        """
-
-		# Test values
-        focal_len = self.starcam.focal_len
-        pixel_size = self.starcam.pixel_size
-        fov = 10.0679286799
-
-        # Update
-        self.starcam.set(focal_len=focal_len, pixel_size=pixel_size, fov=fov)
-
-        # Check result
-        self.assertEqual(focal_len, self.starcam.focal_len, "Focal length not preserved.")
-        self.assertEqual(pixel_size, self.starcam.pixel_size, "Pixel size not preserved.")
-        self.assertTrue(np.isclose(self.starcam.resolution, 1024))
-        self.assertTrue(isinstance(self.starcam.resolution, int), "Resolution not integer-valued")
-
-    def test_pixel_size_calc(self):
-        """
-        Test set without pixel_size.
-        """
-
-		# Test values
-        focal_len = self.starcam.focal_len
-        resolution = 1024
-        fov = 10.0679286799
-
-        # Update
-        self.starcam.set(focal_len=focal_len, resolution=resolution, fov=fov)
-
-        # Check result
-        self.assertEqual(focal_len, self.starcam.focal_len, "Focal length not preserved.")
-        self.assertEqual(resolution, self.starcam.resolution, "Resolution is not preserved.")
-        self.assertTrue(np.isclose(self.starcam.pixel_size, 0.016))
-        self.assertTrue(isinstance(self.starcam.resolution, int), "Resolution not integer-valued")
-
-    def test_focal_len_calc(self):
-        """
-        Test set without focal length.
-        """
-
-		# Test values
-        resolution = 1024
-        pixel_size = self.starcam.pixel_size
-        fov = 10.0679286799
-
-        # Update
-        self.starcam.set(resolution=resolution, pixel_size=pixel_size, fov=fov)
-
-        # Check result
-        self.assertEqual(pixel_size, self.starcam.pixel_size, "Pixel size not preserved.")
-        self.assertEqual(resolution, self.starcam.resolution, "Resolution is not preserved.")
-        self.assertTrue(np.isclose(self.starcam.focal_len, 93), "Incorrect focal length.")
-        self.assertTrue(isinstance(self.starcam.resolution, int), "Resolution not integer-valued")
 
 class test_set_noise_fcn(starcamtests):
     """
@@ -345,20 +220,20 @@ class test_add_noise(starcamtests):
 
     def test_none(self):
         """
-        Test add_noise with no noise function set.
+        Test add_noise with "off" preset.
         """
 
         # Set up environment
         test_image = np.zeros((256,256))
 
         # Set noise_fcn to None
-        self.starcam.noise_fcn = None
+        self.starcam.set_noise_preset("off")
         noisy_image = self.starcam.add_noise(test_image, 1)
 
         # Check output
         self.assertIsInstance(noisy_image, np.ndarray, "Output type should be ndarray.")
         self.assertEqual(noisy_image.shape, test_image.shape, "Image shape should be preserved.")
-        self.assertTrue(np.all(noisy_image == test_image), "Should contents should be unchanged.")
+        self.assertTrue(np.all(noisy_image == test_image), "Image contents should be unchanged.")
 
     def test_poisson(self):
         """
@@ -448,6 +323,75 @@ class test_get_photons(starcamtests):
         # Check function
         self.assertEqual(result, 2, "Incorrect result for single input.")
         self.assertTrue(np.all(result_multi == 2), "Incorrect result for multi-input case.")
+
+class test_set_projection_fcn(starcamtests):
+    """
+    Test set_projection_fcn method.
+    """
+
+    def test_simple_set(self):
+        """
+        Test simple projection function.
+        """
+
+        # Set up projection function
+        def proj_fcn(vectors):
+            img_x = np.divide(vectors[:, 0], vectors[:, 2])
+            img_y = np.divide(vectors[:, 1], vectors[:, 2])
+            return img_x, img_y
+
+        # Set function
+        self.starcam.set_projection_fcn(proj_fcn, 1024)
+
+        # Check function set
+        self.assertTrue(callable(self.starcam.projection_fcn), "Function not callable.")
+        self.assertIs(self.starcam.projection_fcn, proj_fcn, "Function set failed.")
+
+class test_set_projection_preset(starcamtests):
+    """
+    Test set_projection_preset method.
+    """
+
+    def test_pinhole(self):
+        """
+        Test pinhole preset.
+        """
+
+        # Set function
+        self.starcam.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016)
+
+        # Compute result
+        img_x, img_y = self.starcam.projection_fcn(np.array([[0, 0, 1]]))
+        true_img_x = np.array([512.5])
+        true_img_y = np.array([512.5])
+
+        # Check function set
+        self.assertTrue(callable(self.starcam.projection_fcn), "Function not callable.")
+        self.assertTrue(np.all(img_x == true_img_x), "Incorrect x coordinate.")
+        self.assertTrue(np.all(img_y == true_img_y), "Incorrect x coordinate.")
+
+class test_get_projection(starcamtests):
+    """
+    Test get_projection method.
+    """
+
+    def test_pinhole(self):
+        """
+        Test pinhole model.
+        """
+
+        # Set function
+        self.starcam.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016)
+
+        # Compute result
+        img_x, img_y = self.starcam.get_projection(np.array([[0, 0, 1]]))
+        true_img_x = np.array([512.5])
+        true_img_y = np.array([512.5])
+
+        # Check function set
+        self.assertTrue(callable(self.starcam.projection_fcn), "Function not callable.")
+        self.assertTrue(np.all(img_x == true_img_x), "Incorrect x coordinate.")
+        self.assertTrue(np.all(img_y == true_img_y), "Incorrect x coordinate.")
 
 class test_set_quantum_efficiency_fcn(starcamtests):
     """

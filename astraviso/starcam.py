@@ -5,6 +5,7 @@ import numpy as np
 from astraviso import worldobject
 from astraviso import starmap
 from astraviso import imageutils
+from astraviso import projectionutils
 
 class StarCam(worldobject.WorldObject):
     """
@@ -25,13 +26,13 @@ class StarCam(worldobject.WorldObject):
             Default StarCam object.
         """
 
-        # Set default camera parameters
-        # **** Should model this after real camera
-        # Need to change convention on these variables
-        self.focal_len = 93               # Focal length      (mm)
-        self.pixel_size = 0.016           # Pixel size        (mm)
-        self.resolution = 1024            # Resolution        (px)
-        self.setpsf(7, 1)                 # To be removed...
+        # Internal settings
+        self.__settings = {}
+        self.__settings["resolution"] = 1024
+        self.__settings["max_angle_step"] = 1e-4
+
+        # Set psf size
+        self.setpsf(7, 1) # To be removed...
 
         # Internal function variables
         self.sensitivity_fcn = None
@@ -48,44 +49,17 @@ class StarCam(worldobject.WorldObject):
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
+        # Projection model defaults
+        self.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016, resolution=1024)
+
         # Set CCD defaults
         self.set_saturation_preset("no_bleed", bit_depth=16)
         self.set_quantum_efficiency_preset("constant", quantum_efficiency=0.22)
         self.set_noise_preset("poisson", dark_current=1200, read_noise=200)
         self.set_sensitivity_preset("default", aperture=1087, mv0_flux=19000)
 
-        # Internal settings
-        self.__settings = {}
-        self.__settings["max_angle_step"] = 1e-4
-        self.__settings["projection_model"] = "pinhole" # To be removed...
-
         # External objects
         self.external_objects = []
-
-    def set(self, focal_len=None, resolution=None, fov=None, pixel_size=None):
-        """
-        Set camera parameters.
-        """
-
-        # Check input arguments
-        argnone = (focal_len is None) + (resolution is None) + (fov is None) + (pixel_size is None)
-        if argnone > 1 or argnone == 0:
-            print("Incorrect number of arguments for set()! \n"
-                  "Must define three variables of (f, res, fov, s).")
-            return -1
-
-        # Solve for remaining variable
-        if focal_len is None:
-            focal_len = pixel_size * resolution / (2 * np.tan(np.deg2rad(fov/2)))
-        elif resolution is None:
-            resolution = int(focal_len * (2 * np.tan(np.deg2rad(fov/2))) / pixel_size)
-        elif pixel_size is None:
-            pixel_size = focal_len * (2 * np.tan(np.deg2rad(fov/2))) / resolution
-
-        # Set object values
-        self.focal_len = focal_len
-        self.pixel_size = pixel_size
-        self.resolution = resolution
 
     def setpsf(self, size, sigma):
         """
@@ -187,52 +161,6 @@ class StarCam(worldobject.WorldObject):
         # Delete object
         del self.external_objects[index]
 
-    def body2plane(self, vectors):
-        """
-        Convert body-fixed position vector to image-plane coordinates. Uses the
-        internally-set projection model.
-
-        Parameters
-        ----------
-        vectors : ndarray
-            Body vectors to be projected into the image plane. Array should be
-            Nx3 where N is the number of vectors.
-
-        Returns
-        -------
-        img_x : ndarray
-            Array of x-coordinates (N elements).
-        img_y : ndarray
-            Array of y-coordinates (N elements).
-
-        Examples
-        --------
-        >>> cam = StarCam()
-        >>> cam.body2plane(np.array([0, 0, 1]))
-        (array([ 512.5]), array([ 512.5]))
-        """
-
-        # Check input
-        if len(vectors.shape) == 1:
-            vectors = vectors.reshape(1, 3)
-
-        # Project input vectors
-        if self.__settings["projection_model"] == "pinhole":
-
-            # Pinhole projection equations
-            f_over_s = (self.focal_len/self.pixel_size)
-            half_res = (self.resolution+1)/2
-            img_x = f_over_s * np.divide(vectors[:, 0], vectors[:, 2]) + half_res
-            img_y = f_over_s * np.divide(vectors[:, 1], vectors[:, 2]) + half_res
-
-        elif self.__settings["projection_model"] == "polynomial":
-
-            # To be implemented...
-            pass
-
-        # Return coordinates
-        return img_x, img_y
-
     def integrate(self, time, delta_t):
         """
         Compute CCD pixel values after set exposure time.
@@ -269,10 +197,11 @@ class StarCam(worldobject.WorldObject):
         step_size = delta_t / steps
 
         # Allocate image
-        img = np.zeros((self.resolution, self.resolution))
+        img = np.zeros((self.__settings["resolution"], self.__settings["resolution"]))
 
         # Extract subset of stars from catalog
-        field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
+        #field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
+        field_of_view = 90
         boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
         stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
 
@@ -287,13 +216,13 @@ class StarCam(worldobject.WorldObject):
             vis = np.dot(stars["catalog"], dcm)
 
             # Project stars
-            img_x, img_y = self.body2plane(vis)
+            img_x, img_y = self.get_projection(vis)
 
             # Check for stars in image bounds
             in_img = [idx for idx in range(len(img_x)) if (img_x[idx] > 0                 and
-                                                           img_x[idx] < self.resolution-1 and
+                                             img_x[idx] < self.__settings["resolution"]-1 and
                                                            img_y[idx] > 0                 and
-                                                           img_y[idx] < self.resolution-1)]
+                                                img_y[idx] < self.__settings["resolution"]-1)]
 
             # Create image
             # *** This will eventually be replaced by self.psf_fcn
@@ -474,13 +403,36 @@ class StarCam(worldobject.WorldObject):
 
     def add_noise(self, image, delta_t):
         """
-        Add noise to image.
+        Add noise to image using internal noise model.
+
+        Parameters
+        ----------
+        image : ndarray
+            Input image array. All values should be measured in photoelectrons.
+        delta_t : float
+            Exposure time in seconds.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_noise_fcn, StarCam.set_noise_preset
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_noise_preset("poisson", dark_current=1200, read_noise=200)
+        >>> cam.add_noise(np.zeros((4,4)), 1)
+        array([[1398, 1459, 1369, 1466],
+               [1375, 1302, 1416, 1465],
+               [1370, 1434, 1375, 1463],
+               [1491, 1400, 1384, 1381]])
         """
 
-        if self.noise_fcn is not None:
-            return self.noise_fcn(image, delta_t)
-        else:
-            return image
+        # Check if noise function is set
+        return self.noise_fcn(image, delta_t)
 
     def set_sensitivity_fcn(self, fcn):
         """
@@ -617,26 +569,155 @@ class StarCam(worldobject.WorldObject):
         # Compute photon count
         return self.sensitivity_fcn(magnitudes, delta_t)
 
-    def set_projection_fcn(self):
+    def set_projection_fcn(self, fcn, resolution):
         """
+        Set internal projection model for incoming photons.
+
+        Parameters
+        ----------
+        fcn : function
+            Input projection function. Output must be the same size as input.
+            See notes for details about the required function format.
+        resolution : int
+            Resolution of the sensor.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_projection_preset, StarCam.get_projection
+
+        Notes
+        -----
+        Function must be of the form img_x, img_y = f(vectors) where vectors
+        is an Nx3 array of unit vectors describing visible objects. Function
+        must return image-plane (x,y) coordinate in two separate vectors. Below
+        is a valid function definition templates.
+
+        def user_fcn(vectors):
+            ...
+            return img_x, img_y
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> def proj_fcn(vectors):
+        ...     img_x = np.divide(vectors[:, 0], vectors[:, 2])
+        ...     img_y = np.divide(vectors[:, 1], vectors[:, 2])
+        ...     return img_x, img_y
+        ...
+        >>> cam.set_projection_fcn(proj_fcn, resolution=1024)
+        >>> cam.projection_fcn(np.array([[0, 0, 1]]))
+        (array([ 0.]), array([ 0.]))
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Check for valid resolution
+        if resolution <= 0 or not isinstance(resolution, int):
+            raise ValueError("Resolution must be integer-valued and positive.")
 
-    def set_projection_preset(self):
+        # Check for valid function
+        if not callable(fcn):
+            raise ValueError("Must provide callable function.")
+
+        # Set function
+        self.__settings["resolution"] = resolution
+        self.projection_fcn = fcn
+
+    def set_projection_preset(self, preset, **kwargs):
         """
+        Choose preset projection model & assign values. Current options are:
+
+        "pinhole" -- Pinhole projection model.
+
+        Parameters
+        ----------
+        preset : str
+            Name of chosen preset.
+        focal_len : float, optional
+            Focal length of the sensor in mm. Required as keyword argument for
+            "pinhole" preset.
+        pixel_size : float, optional
+            Physical pixel size in mm. Pixels are assume square. Required as
+            keyword argument for "pinhole" preset.
+        resolution : int, optional
+            Resolution of the sensor. Default is a square 1024x1024 image.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        StarCam.set_projection_fcn, StarCam.get_projection, 
+
+        Notes
+        -----
+        The default setting for the StarCam object is the "pinhole" model with
+        a focal length of 93 mm, 0.016 mm pixels, and a resolution of 512x512.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016)
+        >>> cam.projection_fcn(np.array([[0, 0, 1]]))
+        (array([ 512.5]), array([ 512.5]))
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Set default resolution
+        if "resolution" not in kwargs:
+            kwargs["resolution"] = 1024
 
-    def get_projection(self, magnitudes):
+        # Handle pinhole option
+        if preset.lower() == "pinhole":
+
+            # Check input
+            if "focal_len" not in kwargs or "pixel_size" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                         'focal_len', 'pixel_size'")
+
+            # Build function & set
+            proj_fcn = lambda vectors: projectionutils.pinhole_project(vectors,                    \
+                                    kwargs["focal_len"], kwargs["pixel_size"], kwargs["resolution"])
+            self.set_projection_fcn(proj_fcn, kwargs["resolution"])
+
+        # Handle invalid option
+        else:
+            raise NotImplementedError("Invalid preset option.")
+
+    def get_projection(self, vectors):
         """
+        Get projected image-plane coordinates for an input vector using the
+        internal projection model.
+
+        Parameters
+        ----------
+        vectors : ndarray
+            Body vectors to be projected into the image plane. Array should be
+            Nx3 where N is the number of vectors.
+
+        Returns
+        -------
+        img_x : ndarray
+            Array of x-coordinates (N elements).
+        img_y : ndarray
+            Array of y-coordinates (N elements).
+
+        See Also
+        --------
+        StarCam.set_projection_fcn, StarCam.set_projection_preset
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016)
+        >>> cam.get_projection(np.array([[0, 0, 1]]))
+        (array([ 512.5]), array([ 512.5]))
         """
 
-        # To be implemented...
-        raise NotImplementedError("Not yet implemented!")
+        # Compute projection
+        return self.projection_fcn(vectors)
 
     def set_quantum_efficiency_fcn(self, fcn):
         """
