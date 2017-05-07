@@ -439,3 +439,46 @@ class test_relative_to(worldobjecttests):
         self.assertIsInstance(rel_pos, np.ndarray, "Incorrect output type.")
         self.assertTrue(np.all(rel_pos == 1), "Incorrect output value.")
         self.assertTrue(np.all(rel_pos_flipped == -1), "Incorrect output value.")
+
+class test_in_frame_of(worldobjecttests):
+    """
+    Test in_frame_of method.
+    """
+
+    def test_identical(self):
+        """
+        Test identical objects
+        """
+
+        # Create secondary object
+        ext_object = obj.WorldObject()
+
+        # Compute relative position_fcn
+        rel_pos = self.worldobject.in_frame_of(ext_object, 0)
+
+        # Check result
+        self.assertIsInstance(rel_pos, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(rel_pos == 0), "Incorrect output value.")
+
+    def test_different(self):
+        """
+        Test differing objects
+        """
+
+        # Create secondary object
+        ext_object = obj.WorldObject()
+
+        #
+        ext_object.set_position_preset("kinematic", initial_position=np.array([1, 1, 2]),          \
+                                                               initial_velocity=np.array([0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                                                      initial_state=np.array([1, 0, 0, 0, 0, 0, 0]))
+
+        # Compute relative position_fcn
+        rel_pos = ext_object.in_frame_of(self.worldobject, 0)
+        rel_pos_flipped = self.worldobject.in_frame_of(ext_object, 0)
+
+        # Check result
+        self.assertIsInstance(rel_pos, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(rel_pos == np.array([1, -1, -1])), "Incorrect output value.")
+        self.assertTrue(np.all(rel_pos_flipped == -1), "Incorrect output value.")

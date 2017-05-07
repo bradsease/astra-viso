@@ -41,6 +41,7 @@ class WorldObject:
 
         # Attitude dynamics
         self.pointing_fcn = None
+        self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
 
         # Position dynamics
         self.position_fcn = None
@@ -580,9 +581,45 @@ class WorldObject:
         --------
         >>> obj = WorldObject()
         >>> obj2 = WorldObject()
-        >>> obj.relative_position(obj2)
-        
+        >>> obj.relative_to(obj2, 0)
+        array([0, 0, 0])
         """
 
         # Compute relative position
         return self.get_position(time) - origin_object.get_position(time)
+
+    def in_frame_of(self, origin_object, time):
+        """
+        Compute relative position from another WorldObject to self at a
+        given time in the body frame of the target object.
+
+        Parameters
+        ----------
+        origin_object : WorldObject
+            Object to compute the relative position from. Reference frame of
+            the result is the origin_object's body frame.
+
+        Returns
+        -------
+        relative_position : ndarray
+            Array (3-elements) describing the relative position from
+            origin_object to self.
+
+        See Also
+        --------
+        WorldObject.set_position_fcn, WorldObject.set_position_preset,
+        WorldObject.get_position
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj2 = WorldObject()
+        >>> obj.in_frame_of(obj2)
+        array([0, 0, 0])
+        """
+
+        # Compute relative position
+        rel_pos = self.get_position(time) - origin_object.get_position(time)
+
+        # Rotate into body frame
+        return np.dot(rel_pos, origin_object.get_pointing(time, mode="dcm"))
