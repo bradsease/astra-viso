@@ -96,7 +96,7 @@ class test_integrate(starcamtests):
         image = self.starcam.integrate(0, 0)
         self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
-        self.assertEqual(np.sum(image), 0, "Images must be strictly positive.")
+        self.assertEqual(np.sum(image), 0, "Image be all zero.")
 
     def test_nonempty_star_image(self):
         """
@@ -108,6 +108,42 @@ class test_integrate(starcamtests):
         self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
         self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
         self.assertTrue((image >= 0).all(), "Images must be strictly positive.")
+
+    def test_worldobject_and_stars(self):
+        """
+        Test an external object with stars.
+        """
+
+        # Add default worldobject
+        self.starcam.add_worldobject()
+
+        # Generate image
+        image = self.starcam.integrate(0, 1)
+
+        # Check result
+        self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
+        self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
+        self.assertTrue((image >= 0).all(), "Images must be strictly positive.")
+
+    def test_worldobject_only(self):
+        """
+        Test an external object and no stars.
+        """
+
+        # Empty star catalog & remove noise
+        self.starcam.star_catalog.load_preset("random", 0)
+        self.starcam.set_noise_preset("off")
+
+        # Add default worldobject
+        self.starcam.add_worldobject()
+
+        # Generate image
+        image = self.starcam.integrate(0, 1)
+
+        # Check result
+        self.assertEqual(image.shape[0], 1024, "X Resolution incorrect.")
+        self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
+        self.assertGreater(np.sum(image), 0, "Image must contain non-zero pixels.")
 
 class test_setpsf(starcamtests):
     """

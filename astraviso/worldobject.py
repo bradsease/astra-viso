@@ -44,11 +44,12 @@ class WorldObject:
 
         # Position dynamics
         self.position_fcn = None
-        self.set_position_preset("kinematic", initial_position=np.ndarray([0, 0, 0]),              \
-                                                             initial_velocity=np.ndarray([0, 0, 0]))
+        self.set_position_preset("kinematic", initial_position=np.array([0, 0, 1]),                \
+                                                               initial_velocity=np.array([0, 0, 0]))
 
         # Visible intensity function
         self.vismag_fcn = None
+        self.set_vismag_preset("constant", vismag=-1)
 
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """

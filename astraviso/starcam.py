@@ -30,6 +30,7 @@ class StarCam(worldobject.WorldObject):
         self.__settings = {}
         self.__settings["resolution"] = 1024
         self.__settings["max_angle_step"] = 1e-4
+        self.__settings["integration_steps"] = 1000
 
         # Set psf size
         self.setpsf(7, 1) # To be removed...
@@ -48,6 +49,10 @@ class StarCam(worldobject.WorldObject):
         # Set sensor pointing default
         worldobject.WorldObject.__init__(self)
         self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+
+        # Set position model default
+        self.set_position_preset("kinematic", initial_position=np.array([0, 0, 0]),                \
+                                                               initial_velocity=np.array([0, 0, 0]))
 
         # Projection model defaults
         self.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016, resolution=1024)
@@ -191,27 +196,27 @@ class StarCam(worldobject.WorldObject):
         """
 
         # Determine step size
-        angle = np.arccos(0.5*(np.trace(np.dot(self.get_pointing(time, mode="dcm"),                \
-                                                 self.get_pointing(time+delta_t, mode="dcm").T))-1))
-        steps = int(np.ceil(max(1.0 + angle/self.__settings["max_angle_step"], 1.0)))
+        # Temporary solution...
+        steps = self.__settings["integration_steps"]
         step_size = delta_t / steps
-
-        # Allocate image
-        img = np.zeros((self.__settings["resolution"], self.__settings["resolution"]))
+        angle = 0
 
         # Extract subset of stars from catalog
-        #field_of_view = np.rad2deg(2*np.arctan(self.pixel_size*self.resolution/2/self.focal_len))
-        field_of_view = 90
+        # Also a temporary solution...
+        field_of_view = 45
         boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
         stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
         mag = self.get_photons(stars["magnitude"], delta_t) /  steps
 
+        # Allocate image
+        img = np.zeros((self.__settings["resolution"], self.__settings["resolution"]))
+
         # Integrate star signals
         for step in range(steps):
 
-            # Rotate stars
+            # Apply sensor rotation
             dcm = self.get_pointing(time+step_size*step, mode="dcm")
             vis = np.dot(stars["catalog"], dcm)
 
@@ -235,6 +240,45 @@ class StarCam(worldobject.WorldObject):
                 img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] +=                       \
                                                                           mag[idx]*(1-xidx)*(1-yidx)
 
+        # Integrate external object signals
+        for object in self.external_objects:
+            for step in range(steps):
+
+                # Compute current time
+                current_time = time + step_size*step
+
+                # Compute relative position
+                rel_pos = object.get_position(current_time) - self.get_position(current_time)
+
+                # Apply sensor rotation
+                dcm = self.get_pointing(current_time, mode="dcm")
+                vis = np.dot(rel_pos, dcm)
+
+                # Project object
+                img_x, img_y = self.get_projection(vis)
+
+                # Temporary fix for object colocated with observer
+                if vis[2] == 0:
+                    img_x = float("inf")
+                    img_y = float("inf")
+
+                # If object is in image frame, add to image
+                if img_x > 0 and img_y > 0 and img_x < self.__settings["resolution"]-1             \
+                                                        and img_y < self.__settings["resolution"]-1:
+
+                    # Get photon count
+                    mag = self.get_photons(object.get_vismag(current_time,                         \
+                                                        self.get_position(current_time)), step_size)
+
+                    # Add to image
+                    xidx = img_x - np.floor(img_x)
+                    yidx = img_y - np.floor(img_y)
+                    img[int(np.ceil(img_y)), int(np.ceil(img_x))] += mag*xidx*yidx
+                    img[int(np.floor(img_y)), int(np.ceil(img_x))] += mag*xidx*(1-yidx)
+                    img[int(np.ceil(img_y)), int(np.floor(img_x))] += mag*(1-xidx)*yidx
+                    img[int(np.floor(img_y)), int(np.floor(img_x))] += mag*(1-xidx)*(1-yidx)
+
+        # Return result
         return img
 
     def snap(self, time, delta_t):
