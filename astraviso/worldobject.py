@@ -554,3 +554,35 @@ class WorldObject:
 
         # Compute visual magnitude
         return self.vismag_fcn(time, observer_position, self.get_position(time))
+
+    def relative_to(self, origin_object, time):
+        """
+        Compute relative position from another WorldObject to self at a
+        given time.
+
+        Parameters
+        ----------
+        origin_object : WorldObject
+            Object to compute the relative position from.
+
+        Returns
+        -------
+        relative_position : ndarray
+            Array (3-elements) describing the relative position from
+            origin_object to self.
+
+        See Also
+        --------
+        WorldObject.set_position_fcn, WorldObject.set_position_preset,
+        WorldObject.get_position
+
+        Examples
+        --------
+        >>> obj = WorldObject()
+        >>> obj2 = WorldObject()
+        >>> obj.relative_position(obj2)
+        
+        """
+
+        # Compute relative position
+        return self.get_position(time) - origin_object.get_position(time)

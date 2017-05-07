@@ -248,7 +248,7 @@ class StarCam(worldobject.WorldObject):
                 current_time = time + step_size*step
 
                 # Compute relative position
-                rel_pos = object.get_position(current_time) - self.get_position(current_time)
+                rel_pos = object.relative_to(self, current_time)
 
                 # Apply sensor rotation
                 dcm = self.get_pointing(current_time, mode="dcm")
