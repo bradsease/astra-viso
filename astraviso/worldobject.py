@@ -41,7 +41,8 @@ class WorldObject:
 
         # Attitude dynamics
         self.pointing_fcn = None
-        self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.set_pointing_preset("kinematic", initial_quaternion=np.array([0, 0, 0, 1]),           \
+                                                           initial_angular_rate=np.array([0, 0, 0]))
 
         # Position dynamics
         self.position_fcn = None
@@ -68,7 +69,7 @@ class WorldObject:
             String descripting the type of function input. Options are "ode"
             and "explicit".
         initial_state : ndarray, optional
-            Optional array describing the initialpointing state. Required for
+            Optional array describing the initial pointing state. Required for
             "ode" mode only.
         integrator : str, optional
             Integrator to use for "ode" mode. Default is "dopri5". See
@@ -126,11 +127,12 @@ class WorldObject:
         # Set internal pointing function
         self.pointing_fcn = pointing_fcn
 
-    def set_pointing_preset(self, preset, initial_state=None):
+    def set_pointing_preset(self, preset, **kwargs):
         """
         Set internal pointing dynamics to pre-defined attitude function.
         Current options are:
 
+        "static"    -- static pointing direction
         "kinematic" -- rigidy-body kinematic motion with a constant angular
                        rate.
 
@@ -139,8 +141,14 @@ class WorldObject:
         preset : str
             Name of chosen preset.
         initial_state : ndarray, optional
-            Optional array describing the initialpointing state. Required for
-            "kinematic" preset.
+            Optional 7-element array describing the initial pointing state.
+            Required as keyword argument for the "kinematic" preset.
+        initial_quaternion : ndarray, optional
+            Array (4 elements) describing the initial quaternion. Required as
+            a keyword argument for the "static" and "kinematic" presets.
+        initial_angular_rate : ndarray, optional
+            Array (3 elements) describing the initial angular rate of the
+            object. Required as a keyword argument for the "kinematic" preset.
 
         Returns
         -------
@@ -158,20 +166,37 @@ class WorldObject:
         Examples
         --------
         >>> obj = WorldObject()
-        >>> obj.set_pointing_preset("kinematic", np.array([0,0,0,1,0,0,0]))
+        >>> obj.set_pointing_preset("kinematic", 
+        ...                             initial_state=np.array([0,0,0,1,0,0,0]))
         """
 
-        # Rigid body kinematic option
-        if preset == "kinematic":
+        # Handle static option
+        if preset.lower() == "static":
 
             # Check for missing input
-            if initial_state is None:
-                raise ValueError("For 'kinematic' preset, initial_state must be defined.")
+            if "initial_quaternion" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                              'initial_quaternion'")        
+
+            # Set kinematic preset with zero angular rate
+            quaternion = kwargs["initial_quaternion"]
+            zero_rate = np.array([0, 0, 0])
+            self.set_pointing_preset("kinematic", initial_quaternion=quaternion,                   \
+                                                                     initial_angular_rate=zero_rate)
+
+        # Rigid body kinematic option
+        elif preset.lower() == "kinematic":
+
+            # Check for missing input
+            if "initial_quaternion" not in kwargs or "initial_angular_rate" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                        'initial_quaternion', initial_angular_rate")
 
             # Build lambda function
             function = lambda t, state: pointingutils.rigid_body_kinematic(state[0:4], state[4:])
 
             # Set function
+            initial_state=np.hstack((kwargs["initial_quaternion"], kwargs["initial_angular_rate"]))
             self.set_pointing_fcn(function, "ode", initial_state)
 
         # Handle invalid preset
@@ -328,6 +353,7 @@ class WorldObject:
         Set internal position dynamics to preset function.
         Current options are:
 
+        "static"    -- A constant position function.
         "kinematic" -- simple kinematic motion from an initial position and
                        velocity.
 
@@ -360,8 +386,20 @@ class WorldObject:
         array([0, 0, 0])
         """
 
+        # Set static option
+        if preset.lower() == "static":
+
+            # Check input
+            if "initial_position" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                                'initial_position'")
+
+            # Build function & set
+            position_fcn = lambda t: kwargs["initial_position"]
+            self.set_position_fcn(position_fcn, mode="explicit")
+
         # Set kinematic option
-        if preset.lower() == "kinematic":
+        elif preset.lower() == "kinematic":
 
             # Check input
             if "initial_position" not in kwargs or "initial_velocity" not in kwargs:

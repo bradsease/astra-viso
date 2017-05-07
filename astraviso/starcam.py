@@ -48,7 +48,8 @@ class StarCam(worldobject.WorldObject):
 
         # Set sensor pointing default
         worldobject.WorldObject.__init__(self)
-        self.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.set_pointing_preset("kinematic", initial_quaternion=np.array([0, 0, 0, 1]),           \
+                                                           initial_angular_rate=np.array([0, 0, 0]))
 
         # Set position model default
         self.set_position_preset("kinematic", initial_position=np.array([0, 0, 0]),                \

@@ -83,23 +83,39 @@ class test_set_pointing_preset(worldobjecttests):
         """
 
         # Set preset
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Check function static output
         test_result = self.worldobject.pointing_fcn(1)
         expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
-        self.assertTrue(np.all(test_result == expected_result),                                   \
-                                                 "For zero angular rate, result should be static.")
+        self.assertTrue(np.all(test_result == expected_result),                                    \
+                                                  "For zero angular rate, result should be static.")
 
         # Set preset
-        self.worldobject.angular_rate = np.array([2*np.pi, 0, 0])
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+          initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([2*np.pi, 0, 0]))
 
         # Check function single rotation output
         test_result = self.worldobject.pointing_fcn(2)
-        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
+        expected_result = np.array([0, 0, 0, 1, 2*np.pi, 0, 0])
         self.assertTrue(np.all(np.isclose(test_result, expected_result)),              \
                                                    "Quaternion should return after two rotations.")
+
+    def test_static_preset(self):
+        """
+        Test static pointing preset.
+        """
+
+        # Set preset
+        self.worldobject.set_pointing_preset("static", initial_quaternion=np.array([0, 0, 0, 1]))
+
+        # Compute test result
+        test_result = self.worldobject.pointing_fcn(1)
+        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
+
+        # Check result
+        self.assertTrue(np.all(test_result == expected_result), "Result should be static.")
 
 class test_get_pointing(worldobjecttests):
     """
@@ -112,7 +128,8 @@ class test_get_pointing(worldobjecttests):
         """
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Get pointing
         quaternion = self.worldobject.get_pointing(1)
@@ -132,7 +149,8 @@ class test_get_pointing(worldobjecttests):
         num = 9
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Get pointing
         quaternion = self.worldobject.get_pointing(np.arange(num)+1)
@@ -150,7 +168,8 @@ class test_get_pointing(worldobjecttests):
         """
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Get pointing
         dcm = self.worldobject.get_pointing(1, mode="dcm")
@@ -169,7 +188,8 @@ class test_get_pointing(worldobjecttests):
         num = 9
 
         # Set pointing to kinematic
-        self.worldobject.set_pointing_preset("kinematic", np.array([0, 0, 0, 1, 0, 0, 0]))
+        self.worldobject.set_pointing_preset("kinematic",                                          \
+                initial_quaternion=np.array([0, 0, 0, 1]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Get pointing
         dcm = self.worldobject.get_pointing(np.arange(num)+1, mode="dcm")
@@ -263,6 +283,24 @@ class test_set_position_preset(worldobjecttests):
         # Check function output
         self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+
+    def test_static(self):
+        """
+        Test static preset.
+        """
+
+        # Set function
+        self.worldobject.set_position_preset("static", initial_position=np.array([1, 1, 1]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+        test_result2 = self.worldobject.position_fcn(2)
+        expected_result = np.array([1, 1, 1])
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
+        self.assertTrue(np.all(test_result2 == expected_result), "Incorrect function result.")
 
 class test_get_position(worldobjecttests):
     """
@@ -472,7 +510,7 @@ class test_in_frame_of(worldobjecttests):
         ext_object.set_position_preset("kinematic", initial_position=np.array([1, 1, 2]),          \
                                                                initial_velocity=np.array([0, 0, 0]))
         self.worldobject.set_pointing_preset("kinematic",                                          \
-                                                      initial_state=np.array([1, 0, 0, 0, 0, 0, 0]))
+                initial_quaternion=np.array([1, 0, 0, 0]), initial_angular_rate=np.array([0, 0, 0]))
 
         # Compute relative position_fcn
         rel_pos = ext_object.in_frame_of(self.worldobject, 0)
