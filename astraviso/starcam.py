@@ -248,20 +248,15 @@ class StarCam(worldobject.WorldObject):
                 # Compute current time
                 current_time = time + step_size*step
 
-                # Compute relative position
-                rel_pos = object.relative_to(self, current_time)
+                # Compute relative position in camera frame
+                vis = object.in_frame_of(self, current_time)
 
-                # Apply sensor rotation
-                dcm = self.get_pointing(current_time, mode="dcm")
-                vis = np.dot(rel_pos, dcm)
+                # If object is colocated with camera, skip iteration
+                if np.isclose(vis[2], 0):
+                    continue
 
                 # Project object
                 img_x, img_y = self.get_projection(vis)
-
-                # Temporary fix for object colocated with observer
-                if vis[2] == 0:
-                    img_x = float("inf")
-                    img_y = float("inf")
 
                 # If object is in image frame, add to image
                 if img_x > 0 and img_y > 0 and img_x < self.__settings["resolution"]-1             \

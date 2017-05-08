@@ -148,7 +148,8 @@ class WorldObject:
             a keyword argument for the "static" and "kinematic" presets.
         initial_angular_rate : ndarray, optional
             Array (3 elements) describing the initial angular rate of the
-            object. Required as a keyword argument for the "kinematic" preset.
+            object. Measured in radians per second. Required as a keyword
+            argument for the "kinematic" preset.
 
         Returns
         -------
@@ -167,7 +168,8 @@ class WorldObject:
         --------
         >>> obj = WorldObject()
         >>> obj.set_pointing_preset("kinematic", 
-        ...                             initial_state=np.array([0,0,0,1,0,0,0]))
+        ...                           initial_quaternion=np.array([0, 0, 0, 1]),
+        ...                            initial_angular_rate=np.array([0, 0, 0]))
         """
 
         # Handle static option
@@ -176,13 +178,13 @@ class WorldObject:
             # Check for missing input
             if "initial_quaternion" not in kwargs:
                 raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                              'initial_quaternion'")        
+                                                                              'initial_quaternion'")
 
-            # Set kinematic preset with zero angular rate
-            quaternion = kwargs["initial_quaternion"]
-            zero_rate = np.array([0, 0, 0])
-            self.set_pointing_preset("kinematic", initial_quaternion=quaternion,                   \
-                                                                     initial_angular_rate=zero_rate)
+            # Build lambda function
+            function = lambda t: kwargs["initial_quaternion"]
+
+            # Set function
+            self.set_pointing_fcn(function, "explicit")
 
         # Rigid body kinematic option
         elif preset.lower() == "kinematic":

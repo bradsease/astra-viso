@@ -303,6 +303,13 @@ def conv2(img_in, kernel):
     # Return result
     return img
 
+def in_frame(resolution, x_coordinates, y_coordinates):
+    """
+    Return a list of indices corresponding to coordinates in the bounds of the
+    image frame.
+    """
+    raise NotImplementedError("Not yet implemented.")
+
 def imshow(img, scale=None):
     """
     MATLAB-like imshow function.

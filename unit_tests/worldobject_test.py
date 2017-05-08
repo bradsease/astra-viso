@@ -112,7 +112,7 @@ class test_set_pointing_preset(worldobjecttests):
 
         # Compute test result
         test_result = self.worldobject.pointing_fcn(1)
-        expected_result = np.array([0, 0, 0, 1, 0, 0, 0])
+        expected_result = np.array([0, 0, 0, 1])
 
         # Check result
         self.assertTrue(np.all(test_result == expected_result), "Result should be static.")
