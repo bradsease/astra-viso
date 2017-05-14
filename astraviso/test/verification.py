@@ -11,26 +11,27 @@ class verificationtests(unittest.TestCase):
 
     Requirements Verified
     ---------------------
-    1) Objects along the boresight of the sensor must always appear in the image
-       for when using the pinhole projection model, regardless of the pointing
-       direction.
-    2) An object aligned with the boresight must appear in the exact center of
+    1) Objects along the boresight of the sensor shall always appear in the
+       image for when using the pinhole projection model, regardless of the
+       pointing direction.
+    2) An object aligned with the boresight shall appear in the exact center of
        the image when using the pinhole model.
     3) An object aligned with the boresight of the sensor and moving along the
-       x or y axis in intertial space must move along the same axis in the image
-       when using the pinhole model. 
+       x or y axis in intertial space shall move along the same axis in the
+       image when using the pinhole model. 
     4) An object aligned with the boresight of the sensor and moving along the
-       z-axis in intertial space must not move in the image plane when using the
-       pinhole model.
-
-    Requirements Remaining
-    ----------------------
-    5) A positive camera rotation about the x or y axes must cause motion along
-       the corresponding axis with opposite sign in the image plane when using
+       z-axis in intertial space shall not move in the image plane when using
+       the pinhole model.
+    5) A positive camera rotation about the x or y axes shall cause motion along
+       the opposite axis with opposite sign in the image plane when using
        the pinhole model.
     6) With the pinhole model, a positive rotation about the z axis shall cause
        counter-clockwise motion for objects in view but no motion for objects
        aligned with the boresight.
+
+    Requirements Remaining
+    ----------------------
+    None
     """
 
     def setUp(self):
@@ -109,7 +110,6 @@ class test_object_drift(verificationtests):
         """
 
         # Initial setup
-        num_tests = 25
         cam = av.StarCam()
         cam.star_catalog.load_preset("random", 0)
         cam.set_noise_preset("off")
@@ -202,11 +202,77 @@ class test_cam_rotation(verificationtests):
         Requirement(s) Verified: #5, #6
         """
         
-        pass
+        # Initial setup
+        cam = av.StarCam()
+        cam.star_catalog.load_preset("random", 0)
+        cam.set_noise_preset("off")
+        quat = np.array([0, 0, 0, 1])
+        rate = np.array([0, 0, 0])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
 
-    def check_single_axis(self, cam):
-        """
-        Verify worldobject rotation about a single axis
-        """
+        # Speed-up hack for when integration accuracy is not important
+        cam._StarCam__settings["integration_steps"] = 1
 
-        pass
+        # Set up object
+        obj = av.WorldObject()
+        position = np.array([0, 0, 1])
+        velocity = np.array([0, 0, 0])
+        obj.set_position_preset("kinematic", initial_position=position, initial_velocity=velocity)
+
+        # Store reference coordinates
+        cam.add_worldobject(obj)
+        ref_coords = cam.get_projection(obj.in_frame_of(cam, 0))
+
+        # Set up +x test
+        rate = np.array([0.01, 0, 0])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify +x result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertGreater(test_coords[1], ref_coords[1], "For x-axis rotation, object must move   \
+                                                                              in the -y direction.")
+
+        # Set up -x test
+        rate = np.array([-0.01, 0, 0])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify -x result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertLess(test_coords[1], ref_coords[1], "For negative x-axis rotation, object       \
+                                                                    must move in the +y direction.")
+
+        # Set up +y test
+        rate = np.array([0, 0.01, 0])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify +y result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertLess(test_coords[0], ref_coords[0], "For y-axis rotation, object must move      \
+                                                                              in the -x direction.")
+
+        # Set up -y test
+        rate = np.array([0, -0.01, 0])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify -y result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertGreater(test_coords[0], ref_coords[0], "For negative y-axis rotation, object    \
+                                                                    must move in the +x direction.")
+
+        # Set up +z test
+        rate = np.array([0, 0, 0.01])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify +z result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertTrue(np.all(test_coords == ref_coords), "For z-axis rotation, object must not   \
+                                                                                             move.")
+
+        # Set up -z test
+        rate = np.array([0, 0, -0.01])
+        cam.set_pointing_preset("kinematic", initial_quaternion=quat, initial_angular_rate=rate)
+
+        # Verify -z result
+        test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
+        self.assertTrue(np.all(test_coords == ref_coords), "For negative z-axis rotation, object   \
+                                                                                   must note move.")

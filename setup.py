@@ -4,7 +4,7 @@ setup(
 
     # Package definition
     name="astraviso",
-    version="0.1dev.0",
+    version="0.1dev.2",
     packages=find_packages(),
 
     # Required package data
@@ -20,6 +20,7 @@ setup(
     author="Brad Sease",
     author_email="bsease@vt.edu",
     description="A python simulator for star and unresolved spacecraft imaging.",
+    long_description="",
     license="",
     keywords="star camera simulator astronomy astrometry",
     url="https://github.com/bradsease/astra-viso",

@@ -2,6 +2,7 @@
 Astra Viso.
 """
 
+from . import demo
 from .starcam import StarCam
 from .starmap import StarMap
 from .worldobject import WorldObject
@@ -31,3 +32,30 @@ def verify(verbosity=1):
 
     # Run tests
     return runner.run(suite).wasSuccessful()
+
+def run_demo(name="default"):
+    """
+    Run a built-in Astra Viso demo. Current options are:
+
+    "default" -- Default Astra Viso demo. Creates a single image.
+
+    Parameters
+    ----------
+    name : str, optional
+        Name of the demo to run.
+
+    Returns
+    -------
+    None
+    """
+
+    # Import demo module
+    from . import demo
+
+    # Run chosen demo
+    if name.lower() == "default":
+        demo.default()
+
+    # Handle invalid demo name
+    else:
+        raise NotImplementedError("Chosen demo is not valid.")
