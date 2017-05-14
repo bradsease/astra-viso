@@ -44,7 +44,7 @@ class StarCam(worldobject.WorldObject):
 
         # Set star catalog defaults
         self.star_catalog = starmap.StarMap()
-        self.star_catalog.load_preset("random", 1000)
+        self.star_catalog.load_preset("random", 10000)
 
         # Set sensor pointing default
         worldobject.WorldObject.__init__(self)
