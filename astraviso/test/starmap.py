@@ -367,7 +367,7 @@ class test_load_preset(starmaptests):
         self.assertTrue(isinstance(self.starmap.catalog, np.ndarray), "Incorrect type.")
         self.assertTrue(isinstance(self.starmap.magnitude, np.ndarray), "Incorrect type.")
 
-    @unittest.skip("Test not required.")
+    #@unittest.skip("Test not required.")
     def test_hipparcos(self):
         """
         Test Hipparcos preset.

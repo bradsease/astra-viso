@@ -21,9 +21,6 @@ def rigid_body_kinematic(quaternion, angular_rate):
         Derivative with respect to time of the combined state. Quaternion
         occupies first 4 elements of the state followed by the angular rate.
 
-    See Also
-    --------
-
     Notes
     -----
     Uses the quaternion convention where quaternion[3] is the scalar component.

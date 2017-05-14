@@ -42,6 +42,8 @@ class verificationtests(unittest.TestCase):
 class test_pointing_consistency(verificationtests):
     """
     Verify StarCam and WorldObject pointing consistency.
+
+    Requirement(s) Verified: #1, #2
     """
 
     def test_random(self):
@@ -91,6 +93,13 @@ class test_pointing_consistency(verificationtests):
                                                                  to the center of the image frame.")
             self.assertTrue(np.isclose(test_coord[1], correct_coord), "Coordinates must correspond \
                                                                  to the center of the image frame.")
+
+class test_object_drift(verificationtests):
+    """
+    Verify StarCam and WorldObject consistency with a drifting object.
+
+    Requirement(s) Verified: #3, #4
+    """
 
     def test_drift_directions(self):
         """
@@ -178,3 +187,26 @@ class test_pointing_consistency(verificationtests):
         test_coords = cam.get_projection(obj.in_frame_of(cam, 1))
         self.assertTrue(np.all(test_coords == ref_coords), "For z-axis motion, object must         \
                                                                                          not move.")
+
+class test_cam_rotation(verificationtests):
+    """
+    Verify StarCam and WorldObject consistency with a rotating sensor.
+
+    Requirement(s) Verified: #5, #6
+    """
+
+    def test_rotation_directions(self):
+        """
+        Verify worldobject rotation about x, y, and z axes.
+
+        Requirement(s) Verified: #5, #6
+        """
+        
+        pass
+
+    def check_single_axis(self, cam):
+        """
+        Verify worldobject rotation about a single axis
+        """
+
+        pass

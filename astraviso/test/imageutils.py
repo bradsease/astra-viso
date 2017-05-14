@@ -204,3 +204,6 @@ class test_saturate(imageutilstests):
         # Check output
         self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
         self.assertTrue(np.all(saturated==3), "Output values should all be equal to 3.")
+
+if __name__ == '__main__':
+    suite = unittest.TestLoader().loadTestsFromTestCase(WidgetTestCase)

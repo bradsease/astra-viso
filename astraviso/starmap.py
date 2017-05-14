@@ -3,6 +3,7 @@ Astra-Viso star map module.
 """
 import pickle
 import numpy as np
+import pkg_resources as pkg
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -120,7 +121,8 @@ class StarMap:
             try:
 
                 # Load file
-                infile = open("catalogs/" + preset.lower() + ".dat", 'rb')
+                filename = pkg.resource_filename("astraviso", "catalogs/" + preset.lower() + ".dat")
+                infile = open(filename, 'rb')
                 catalog_file = pickle.load(infile)
                 infile.close()
 
