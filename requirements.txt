@@ -1,5 +1,4 @@
 matplotlib
-unittest
 nose
 numba
 random
