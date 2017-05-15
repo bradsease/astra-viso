@@ -1,4 +1,3 @@
 matplotlib
 nose
 numba
-random
