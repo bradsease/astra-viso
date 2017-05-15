@@ -3,7 +3,7 @@ Image utilities for astra-viso.
 """
 import random
 import numpy as np
-from numba import jit
+#from numba import jit
 import matplotlib.pyplot as plt
 
 def poisson_noise(image, delta_t, dark_current, read_noise):
@@ -257,7 +257,7 @@ def saturate(image, bit_depth):
     # Return result
     return image
 
-@jit
+#@jit
 def conv2(img_in, kernel):
     """
     Convolve image with input kernel.
