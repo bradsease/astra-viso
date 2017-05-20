@@ -14,7 +14,7 @@ setup(
 
     # Package definition
     name="astraviso",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
 
     # Required package data
@@ -24,7 +24,7 @@ setup(
     },
 
     # Dependencies
-    install_requires=["numpy", "scipy"],
+    install_requires=["numpy", "scipy", "matplotlib", "numba"],
 
     # Description
     author="Brad Sease",
