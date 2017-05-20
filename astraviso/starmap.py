@@ -75,7 +75,7 @@ class StarMap:
         -----
         [1] Perryman, Michael AC, et al. "The HIPPARCOS catalogue." Astronomy
             and Astrophysics 323 (1997).
-        [2] Høg, Erik, et al. "The Tycho-2 catalogue of the 2.5 million
+        [2] Hog, Erik, et al. "The Tycho-2 catalogue of the 2.5 million
             brightest stars." Astronomy and Astrophysics 355 (2000): L27-L30.
 
         Examples
