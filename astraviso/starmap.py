@@ -119,20 +119,20 @@ class StarMap:
         else:
 
             # Open pickle file, if it exists
-            try:
+            #try:
 
-                # Load file
-                filename = pkg.resource_filename("astraviso", "catalogs/" + preset.lower() + ".dat")
-                infile = open(filename, 'rb')
-                catalog_file = pickle.load(infile)
-                infile.close()
+            # Load file
+            filename = pkg.resource_filename("astraviso", "catalogs/" + preset.lower() + ".dat")
+            infile = open(filename, 'rb')
+            catalog_file = pickle.load(infile)
+            infile.close()
 
-                # Set catalog
-                self.catalog = catalog_file["catalog"]
-                self.magnitude = catalog_file["magnitude"]
+            # Set catalog
+            self.catalog = catalog_file["catalog"]
+            self.magnitude = catalog_file["magnitude"]
 
-            except:
-                print("Unknown preset: %s" % preset)
+            #except:
+            #    print("Unknown preset: %s" % preset)
 
         # Set size variable
         self.size = len(self.catalog)
