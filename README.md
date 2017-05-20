@@ -51,12 +51,14 @@ av.imageutils.imshow(image)
 This code creates a default camera. The default star catalog is a randomly-generated set with 10,000 elements.
 
 
-For additional information, see the full documentation.
+For additional information, see the full documentation: bradsease.github.io/astraviso
 
 ## Requires
-* Python 3+
+* Python 2.7, 3.3+
 * numpy
 * scipy
+* matplotlib
+* numba
 
 
 ## Citing Astra Viso
