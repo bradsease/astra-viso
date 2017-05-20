@@ -1,6 +1,7 @@
 """
 StarCam verification tests.
 """
+from __future__ import division
 import unittest
 import astraviso as av
 import numpy as np

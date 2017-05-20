@@ -1,6 +1,7 @@
 """
 Pointingutils unit tests.
 """
+from __future__ import division
 import unittest
 import numpy as np
 from scipy.integrate import ode

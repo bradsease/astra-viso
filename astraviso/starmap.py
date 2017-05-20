@@ -1,6 +1,7 @@
 """
 Astra-Viso star map module.
 """
+from __future__ import division
 import pickle
 import numpy as np
 import pkg_resources as pkg
@@ -130,7 +131,7 @@ class StarMap:
                 self.catalog = catalog_file["catalog"]
                 self.magnitude = catalog_file["magnitude"]
 
-            except FileNotFoundError:
+            except:
                 print("Unknown preset: %s" % preset)
 
         # Set size variable

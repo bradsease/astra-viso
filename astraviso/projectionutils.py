@@ -1,6 +1,7 @@
 """
 Projection utilities for astra-viso.
 """
+from __future__ import division
 import numpy as np
 
 def pinhole_project(vectors, focal_len, pixel_size, resolution):
