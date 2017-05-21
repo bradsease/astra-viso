@@ -8,6 +8,8 @@ Astra Viso is a full-featured toolset for simulating stars and unresolved space 
 
 ## Project Status
 
+#### Latest Release
+
 [![PyPI](https://img.shields.io/pypi/v/astraviso.svg)](https://pypi.python.org/pypi/astraviso)
 
 #### Master Branch
