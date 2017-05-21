@@ -6,6 +6,10 @@ A python simulator for star and unresolved spacecraft imaging.
 Astra Viso is a full-featured toolset for simulating stars and unresolved space objects. With this software it is simple to set up a simulated sensor and begin generating imagery immediately. The tools allow the user to switch between a number of commonly-used internal modeling presets easily while also having the flexibility to override internal modeling with externally-defined functions.
 
 
+## Project Status
+
+![](https://img.shields.io/pypi/v/astraviso.svg) ![](https://travis-ci.org/bradsease/astra-viso.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
+
 ## Installation
 
 The easiest way to install Astra Viso is with pip. Simply type the following at the command line
