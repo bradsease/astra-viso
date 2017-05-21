@@ -1,0 +1,989 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>StarCam Class &#8212; Astra Viso 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Astra Viso 0.1.1 documentation</span></a></h1>
+        <h2 class="heading"><span>StarCam Class</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="starcam-class">
+<span id="starcam"></span><h1>StarCam Class<a class="headerlink" href="#starcam-class" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div>The StarCam class manages all internal sensor settings and generates images.</div></blockquote>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p>Module <a class="reference internal" href="starmap.html#starmap"><span class="std std-ref">StarMap Class</span></a></p>
+<p class="last">Module <a class="reference internal" href="worldobject.html#worldobject"><span class="std std-ref">WorldObject Class</span></a></p>
+</div>
+<div class="section" id="module-astraviso.starcam">
+<span id="astraviso-starcam-module"></span><h2>astraviso.starcam module<a class="headerlink" href="#module-astraviso.starcam" title="Permalink to this headline">¶</a></h2>
+<p>Astra-Viso star camera module.</p>
+<dl class="class">
+<dt id="astraviso.starcam.StarCam">
+<em class="property">class </em><code class="descclassname">astraviso.starcam.</code><code class="descname">StarCam</code><a class="headerlink" href="#astraviso.starcam.StarCam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="worldobject.html#astraviso.worldobject.WorldObject" title="astraviso.worldobject.WorldObject"><code class="xref py py-class docutils literal"><span class="pre">astraviso.worldobject.WorldObject</span></code></a></p>
+<p>Star camera class.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.add_noise" title="astraviso.starcam.StarCam.add_noise"><code class="xref py py-obj docutils literal"><span class="pre">add_noise</span></code></a>(image,&nbsp;delta_t)</td>
+<td>Add noise to image using internal noise model.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.add_worldobject" title="astraviso.starcam.StarCam.add_worldobject"><code class="xref py py-obj docutils literal"><span class="pre">add_worldobject</span></code></a>([obj])</td>
+<td>Add new or existing WorldObject to the external object catalog.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.delete_worldobject" title="astraviso.starcam.StarCam.delete_worldobject"><code class="xref py py-obj docutils literal"><span class="pre">delete_worldobject</span></code></a>(index)</td>
+<td>Clear a WorldObject from the external object catalog.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.get_photoelectrons" title="astraviso.starcam.StarCam.get_photoelectrons"><code class="xref py py-obj docutils literal"><span class="pre">get_photoelectrons</span></code></a>(photon_image)</td>
+<td>Get photoelectron count from photon count with internal quantum efficiency model.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.get_photons" title="astraviso.starcam.StarCam.get_photons"><code class="xref py py-obj docutils literal"><span class="pre">get_photons</span></code></a>(magnitudes,&nbsp;delta_t)</td>
+<td>Convert array of visible magnitudes to photoelectron counts using the internally-defined sensitivity model.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_pointing</span></code>(time[,&nbsp;mode])</td>
+<td>Get pointing parameters at a given time.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_position</span></code>(time)</td>
+<td>Get object position at a particular time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.get_projection" title="astraviso.starcam.StarCam.get_projection"><code class="xref py py-obj docutils literal"><span class="pre">get_projection</span></code></a>(vectors)</td>
+<td>Get projected image-plane coordinates for an input vector using the internal projection model.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.get_saturation" title="astraviso.starcam.StarCam.get_saturation"><code class="xref py py-obj docutils literal"><span class="pre">get_saturation</span></code></a>(image)</td>
+<td>Saturate image input with internal pixel saturation model.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_vismag</span></code>(time,&nbsp;observer_position)</td>
+<td>Get visible magnitude at a particular time.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">in_frame_of</span></code>(origin_object,&nbsp;time)</td>
+<td>Compute relative position from another WorldObject to self at a given time in the body frame of the target object.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.integrate" title="astraviso.starcam.StarCam.integrate"><code class="xref py py-obj docutils literal"><span class="pre">integrate</span></code></a>(time,&nbsp;delta_t)</td>
+<td>Compute CCD pixel values after set exposure time.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">relative_to</span></code>(origin_object,&nbsp;time)</td>
+<td>Compute relative position from another WorldObject to self at a given time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_fcn" title="astraviso.starcam.StarCam.set_noise_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_noise_fcn</span></code></a>(fcn)</td>
+<td>Set internal noise function.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_preset" title="astraviso.starcam.StarCam.set_noise_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_noise_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Choose preset noise model &amp; assign noise values.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_pointing_fcn</span></code>(fcn,&nbsp;mode[,&nbsp;initial_state,&nbsp;...])</td>
+<td>Set internal pointing dynamics.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_pointing_preset</span></code>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal pointing dynamics to pre-defined attitude function.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_position_fcn</span></code>(fcn,&nbsp;mode[,&nbsp;initial_state,&nbsp;...])</td>
+<td>Set internal position dynamics.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_position_preset</span></code>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal position dynamics to preset function.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_fcn" title="astraviso.starcam.StarCam.set_projection_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_projection_fcn</span></code></a>(fcn,&nbsp;resolution)</td>
+<td>Set internal projection model for incoming photons.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_preset" title="astraviso.starcam.StarCam.set_projection_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_projection_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Choose preset projection model &amp; assign values.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_fcn" title="astraviso.starcam.StarCam.set_quantum_efficiency_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_quantum_efficiency_fcn</span></code></a>(fcn)</td>
+<td>Set function to simulate CCD quantum efficiency.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_preset" title="astraviso.starcam.StarCam.set_quantum_efficiency_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_quantum_efficiency_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Choose preset quantum efficiency model &amp; assign values.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_fcn" title="astraviso.starcam.StarCam.set_saturation_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_saturation_fcn</span></code></a>(fcn)</td>
+<td>Set function to simulate sensor-level saturation thresholding.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_preset" title="astraviso.starcam.StarCam.set_saturation_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_saturation_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Choose preset pixel saturation model &amp; assign values.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_fcn" title="astraviso.starcam.StarCam.set_sensitivity_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_sensitivity_fcn</span></code></a>(fcn)</td>
+<td>Set internal conversion between visible magnitudes and photon counts.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_preset" title="astraviso.starcam.StarCam.set_sensitivity_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_sensitivity_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Choose preset sensitivity model &amp; assign values.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_vismag_fcn</span></code>(fcn)</td>
+<td>Set internal object visual magnitude model.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_vismag_preset</span></code>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal visual magnitude model to preset function.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starcam.StarCam.setpsf" title="astraviso.starcam.StarCam.setpsf"><code class="xref py py-obj docutils literal"><span class="pre">setpsf</span></code></a>(size,&nbsp;sigma)</td>
+<td>Set PSF to Gaussian kernel.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starcam.StarCam.snap" title="astraviso.starcam.StarCam.snap"><code class="xref py py-obj docutils literal"><span class="pre">snap</span></code></a>(time,&nbsp;delta_t)</td>
+<td>Create finished image with specified exposure time.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.add_noise">
+<code class="descname">add_noise</code><span class="sig-paren">(</span><em>image</em>, <em>delta_t</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.add_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add noise to image using internal noise model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image array. All values should be measured in photoelectrons.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Exposure time in seconds.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_fcn" title="astraviso.starcam.StarCam.set_noise_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_noise_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_preset" title="astraviso.starcam.StarCam.set_noise_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_noise_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_noise_preset</span><span class="p">(</span><span class="s2">&quot;poisson&quot;</span><span class="p">,</span> <span class="n">dark_current</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">read_noise</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">add_noise</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[1398, 1459, 1369, 1466],</span>
+<span class="go">       [1375, 1302, 1416, 1465],</span>
+<span class="go">       [1370, 1434, 1375, 1463],</span>
+<span class="go">       [1491, 1400, 1384, 1381]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.add_worldobject">
+<code class="descname">add_worldobject</code><span class="sig-paren">(</span><em>obj=None</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.add_worldobject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new or existing WorldObject to the external object catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>obj</strong> : WorldObject, optional</p>
+<blockquote>
+<div><p>An existing WorldObject instance. If obj is not defined, a new
+WorldObject instance will be created.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The user can manage elements in the external object catalog directly
+through the external_objects property of the StarCam class.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj1</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">add_worldobject</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">external_objects</span>
+<span class="go">[&lt;astraviso.worldobject.WorldObject object at 0x000001A4C8AA6438&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">external_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_pointing_preset</span><span class="p">(</span><span class="s2">&quot;kinematic&quot;</span><span class="p">,</span>                                                                 <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.delete_worldobject">
+<code class="descname">delete_worldobject</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.delete_worldobject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear a WorldObject from the external object catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>index</strong> : int</p>
+<blockquote>
+<div><p>Index of the WorldObject catalog element to remove.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The user can manage elements in the external object catalog directly
+through the external_objects property of the StarCam class.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj1</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">add_worldobject</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">external_objects</span>
+<span class="go">[&lt;astraviso.worldobject.WorldObject object at 0x000001A4C8AA6438&gt;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">delete_worldobject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">external_objects</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.get_photoelectrons">
+<code class="descname">get_photoelectrons</code><span class="sig-paren">(</span><em>photon_image</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.get_photoelectrons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get photoelectron count from photon count with internal quantum
+efficiency model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>photon_image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image where each pixel contains a total photon count.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>photoelectron_image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Scaled, discrete-valued image where each pixel contains a photo-
+electron count.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_fcn" title="astraviso.starcam.StarCam.set_quantum_efficiency_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_quantum_efficiency_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_preset" title="astraviso.starcam.StarCam.set_quantum_efficiency_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_quantum_efficiency_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_quantum_efficiency_preset</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">quantum_efficiency</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">get_saturation</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)))</span>
+<span class="go">array([[ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.get_photons">
+<code class="descname">get_photons</code><span class="sig-paren">(</span><em>magnitudes</em>, <em>delta_t</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.get_photons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert array of visible magnitudes to photoelectron counts using the
+internally-defined sensitivity model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>magnitudes</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of visible magnitudes to be converted.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Sensor exposure time in seconds.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>photon_count</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Total photon count for each input visible magnitude.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_fcn" title="astraviso.starcam.StarCam.set_sensitivity_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_sensitivity_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_preset" title="astraviso.starcam.StarCam.set_sensitivity_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_sensitivity_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_sensitivity_preset</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">aperture</span><span class="o">=</span><span class="mi">1087</span><span class="p">,</span> <span class="n">mv0_flux</span><span class="o">=</span><span class="mi">19000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">get_photons</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="go">3383.7875200000003</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.get_projection">
+<code class="descname">get_projection</code><span class="sig-paren">(</span><em>vectors</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.get_projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get projected image-plane coordinates for an input vector using the
+internal projection model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vectors</strong> : ndarray</p>
+<blockquote>
+<div><p>Body vectors to be projected into the image plane. Array should be
+Nx3 where N is the number of vectors.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>img_x</strong> : ndarray</p>
+<blockquote>
+<div><p>Array of x-coordinates (N elements).</p>
+</div></blockquote>
+<p><strong>img_y</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array of y-coordinates (N elements).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_fcn" title="astraviso.starcam.StarCam.set_projection_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_projection_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_preset" title="astraviso.starcam.StarCam.set_projection_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_projection_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_projection_preset</span><span class="p">(</span><span class="s2">&quot;pinhole&quot;</span><span class="p">,</span> <span class="n">focal_len</span><span class="o">=</span><span class="mi">93</span><span class="p">,</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mf">0.016</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">get_projection</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="go">(array([ 512.5]), array([ 512.5]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.get_saturation">
+<code class="descname">get_saturation</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.get_saturation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saturate image input with internal pixel saturation model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image where each pixel contains a total photoelectron count.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>saturated_image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Saturated image. Output image is the same size as the input.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_fcn" title="astraviso.starcam.StarCam.set_saturation_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_saturation_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_preset" title="astraviso.starcam.StarCam.set_saturation_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_saturation_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_saturation_preset</span><span class="p">(</span><span class="s2">&quot;no_bleed&quot;</span><span class="p">,</span> <span class="n">bit_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">get_saturation</span><span class="p">(</span><span class="mi">16</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)))</span>
+<span class="go">array([[ 3.,  3.,  3.,  3.],</span>
+<span class="go">       [ 3.,  3.,  3.,  3.],</span>
+<span class="go">       [ 3.,  3.,  3.,  3.],</span>
+<span class="go">       [ 3.,  3.,  3.,  3.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.integrate">
+<code class="descname">integrate</code><span class="sig-paren">(</span><em>time</em>, <em>delta_t</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute CCD pixel values after set exposure time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : float</p>
+<blockquote>
+<div><p>Time to begin exposure. Measured in seconds from epoch.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Desired exposure time. Measured in seconds.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>img</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Resulting CCD array values. Each element contains a photon count.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="go">       [ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="go">       [ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="go">       ...,</span>
+<span class="go">       [ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="go">       [ 0.,  0.,  0., ...,  0.,  0.,  0.],</span>
+<span class="go">       [ 0.,  0.,  0., ...,  0.,  0.,  0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_noise_fcn">
+<code class="descname">set_noise_fcn</code><span class="sig-paren">(</span><em>fcn</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_noise_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal noise function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input noise function. Output image must be the same size as input.
+See notes for details about the required function format.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_preset" title="astraviso.starcam.StarCam.set_noise_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_noise_preset</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.add_noise" title="astraviso.starcam.StarCam.add_noise"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.add_noise</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Function must be of the form noisy_image = f(image, delta_t).
+Below are two valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(image, delta_t):</dt>
+<dd>...
+return noisy_image</dd>
+</dl>
+<p>user_fcn = lambda image, delta_t: ...</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">image</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">:</span> <span class="n">image</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_noise_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_noise_preset">
+<code class="descname">set_noise_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_noise_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose preset noise model &amp; assign noise values. Current options are:</p>
+<p>&#8220;poisson&#8221; &#8211; Poisson-distributed noise.
+&#8220;gaussian&#8221; &#8211; Gaussian approximation to poisson noise.
+&#8220;off&#8221; &#8211; Turn image noise off.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>dark_current</strong> : float, optional</p>
+<blockquote>
+<div><p>Sensor dark current noise level. Measured in photoelectrons per
+second. Required for &#8220;gaussian&#8221; and &#8220;poisson&#8221; presets.</p>
+</div></blockquote>
+<p><strong>read_noise</strong> : float, optional</p>
+<blockquote>
+<div><p>Sensor read noise. Measured in photoelectrons.  Required for
+&#8220;gaussian&#8221; and &#8220;poisson&#8221; presets.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_noise_fcn" title="astraviso.starcam.StarCam.set_noise_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_noise_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.add_noise" title="astraviso.starcam.StarCam.add_noise"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.add_noise</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The default noise for the StarCam object is poisson noise with
+dark_current=1200 and read_noise=200.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_noise_preset</span><span class="p">(</span><span class="s2">&quot;poisson&quot;</span><span class="p">,</span> <span class="n">dark_current</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">read_noise</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_projection_fcn">
+<code class="descname">set_projection_fcn</code><span class="sig-paren">(</span><em>fcn</em>, <em>resolution</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_projection_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal projection model for incoming photons.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input projection function. Output must be the same size as input.
+See notes for details about the required function format.</p>
+</div></blockquote>
+<p><strong>resolution</strong> : int</p>
+<blockquote>
+<div><p>Resolution of the sensor.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_preset" title="astraviso.starcam.StarCam.set_projection_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_projection_preset</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_projection" title="astraviso.starcam.StarCam.get_projection"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_projection</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Function must be of the form img_x, img_y = f(vectors) where vectors
+is an Nx3 array of unit vectors describing visible objects. Function
+must return image-plane (x,y) coordinate in two separate vectors. Below
+is a valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(vectors):</dt>
+<dd>...
+return img_x, img_y</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">proj_fcn</span><span class="p">(</span><span class="n">vectors</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">img_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">vectors</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">vectors</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">img_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">vectors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">vectors</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">img_x</span><span class="p">,</span> <span class="n">img_y</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_projection_fcn</span><span class="p">(</span><span class="n">proj_fcn</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">projection_fcn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="go">(array([ 0.]), array([ 0.]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_projection_preset">
+<code class="descname">set_projection_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_projection_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose preset projection model &amp; assign values. Current options are:</p>
+<p>&#8220;pinhole&#8221; &#8211; Pinhole projection model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>focal_len</strong> : float, optional</p>
+<blockquote>
+<div><p>Focal length of the sensor in mm. Required as keyword argument for
+&#8220;pinhole&#8221; preset.</p>
+</div></blockquote>
+<p><strong>pixel_size</strong> : float, optional</p>
+<blockquote>
+<div><p>Physical pixel size in mm. Pixels are assume square. Required as
+keyword argument for &#8220;pinhole&#8221; preset.</p>
+</div></blockquote>
+<p><strong>resolution</strong> : int, optional</p>
+<blockquote>
+<div><p>Resolution of the sensor. Default is a square 1024x1024 image.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_projection_fcn" title="astraviso.starcam.StarCam.set_projection_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_projection_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_projection" title="astraviso.starcam.StarCam.get_projection"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_projection</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The default setting for the StarCam object is the &#8220;pinhole&#8221; model with
+a focal length of 93 mm, 0.016 mm pixels, and a resolution of 512x512.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_projection_preset</span><span class="p">(</span><span class="s2">&quot;pinhole&quot;</span><span class="p">,</span> <span class="n">focal_len</span><span class="o">=</span><span class="mi">93</span><span class="p">,</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mf">0.016</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">projection_fcn</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="go">(array([ 512.5]), array([ 512.5]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_quantum_efficiency_fcn">
+<code class="descname">set_quantum_efficiency_fcn</code><span class="sig-paren">(</span><em>fcn</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_quantum_efficiency_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set function to simulate CCD quantum efficiency.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input quantum efficiency function. Function should convert from
+a continous photon count to a discrete photoelectron count. See
+notes for details about the required function format.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_preset" title="astraviso.starcam.StarCam.set_quantum_efficiency_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_quantum_efficiency_preset</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_photoelectrons" title="astraviso.starcam.StarCam.get_photoelectrons"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_photoelectrons</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Function must be of the form photoelectron_count = f(image).
+Below are two valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(image):</dt>
+<dd>...
+return photoelectron_count</dd>
+</dl>
+<p>user_fcn = lambda image: ...</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">image</span> <span class="o">*</span> <span class="mf">0.22</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_quantum_efficiency_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_quantum_efficiency_preset">
+<code class="descname">set_quantum_efficiency_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_quantum_efficiency_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose preset quantum efficiency model &amp; assign values. Current options are:</p>
+<p>&#8220;constant&#8221; &#8211; Equal quantum efficiency for every pixel.
+&#8220;gaussian&#8221; &#8211; Gaussian-distributed quantum efficiency values for each</p>
+<blockquote>
+<div>pixel.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>quantum_efficiency</strong> : float, optional</p>
+<blockquote>
+<div><p>Relationship between photons and photoelectrons. Measured as the
+number of photoelectrons per photon. Required for &#8220;constant&#8221; preset.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float, optional</p>
+<blockquote>
+<div><p>Desired standard deviation of random values. Required for &#8220;gaussian&#8221;
+preset.</p>
+</div></blockquote>
+<p><strong>seed</strong> : float, optional</p>
+<blockquote>
+<div><p>Random number generator seed. Optional for &#8220;gaussian&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_quantum_efficiency_fcn" title="astraviso.starcam.StarCam.set_quantum_efficiency_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_quantum_efficiency_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_photoelectrons" title="astraviso.starcam.StarCam.get_photoelectrons"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_photoelectrons</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The StarCam object uses the &#8216;constant&#8217; preset by default with a quantum
+efficiency parameter of 0.22.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_quantum_efficiency_preset</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_saturation_fcn">
+<code class="descname">set_saturation_fcn</code><span class="sig-paren">(</span><em>fcn</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_saturation_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set function to simulate sensor-level saturation thresholding.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input saturation function. Must be of the form f(image). Output
+must be the same size as input.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_preset" title="astraviso.starcam.StarCam.set_saturation_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_saturation_preset</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_saturation" title="astraviso.starcam.StarCam.get_saturation"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_saturation</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Function must be of the form saturated_image = f(image).
+Below are two valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(image):</dt>
+<dd>...
+return saturated_image</dd>
+</dl>
+<p>user_fcn = lambda image: ...</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_saturation_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_saturation_preset">
+<code class="descname">set_saturation_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_saturation_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose preset pixel saturation model &amp; assign values. Current options
+are:</p>
+<p>&#8220;no_bleed&#8221; &#8211; Saturation with no cross-pixel bleed.
+&#8220;off&#8221;      &#8211; No saturation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>bit_depth</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of bits used to store each pixel. Required for &#8220;no_bleed&#8221;
+preset. Maximum value for a pixel is 2**bit_depth - 1.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_saturation_fcn" title="astraviso.starcam.StarCam.set_saturation_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_saturation_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_saturation" title="astraviso.starcam.StarCam.get_saturation"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_saturation</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The StarCam object uses the &#8216;no_bleed&#8217; preset by default with a bit
+depth of 16.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_saturation_preset</span><span class="p">(</span><span class="s2">&quot;no_bleed&quot;</span><span class="p">,</span> <span class="n">bit_depth</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_sensitivity_fcn">
+<code class="descname">set_sensitivity_fcn</code><span class="sig-paren">(</span><em>fcn</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_sensitivity_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal conversion between visible magnitudes and photon counts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input photon function. Output must be the same size as input. See
+notes for details about the required function format.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_preset" title="astraviso.starcam.StarCam.set_sensitivity_preset"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_sensitivity_preset</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_photons" title="astraviso.starcam.StarCam.get_photons"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_photons</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Function must be of the form photon_count = f(magnitude, delta_t).
+Below are two valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(magnitude, delta_t):</dt>
+<dd>...
+return photon_count</dd>
+</dl>
+<p>user_fcn = lambda magnitude, delta_t: ...</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">vismags</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">:</span> <span class="mi">100</span><span class="o">*</span><span class="n">vismags</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_sensitivity_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.set_sensitivity_preset">
+<code class="descname">set_sensitivity_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.set_sensitivity_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose preset sensitivity model &amp; assign values. This model defines the
+internal conversion between visible magnitudes and photon counts Current
+options are:</p>
+<p>&#8220;default&#8221; &#8211; A log-scale magnitude to photon conversion.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>aperture</strong> : float, optional</p>
+<blockquote>
+<div><p>Aperture area in mm^2. Required for &#8220;default&#8221; preset.</p>
+</div></blockquote>
+<p><strong>mv0_flux</strong> : float, optional</p>
+<blockquote>
+<div><p>Photoelectrons per second per mm^2 of aperture area. Required for
+&#8220;default&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.starcam.StarCam.set_sensitivity_fcn" title="astraviso.starcam.StarCam.set_sensitivity_fcn"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.set_sensitivity_fcn</span></code></a>, <a class="reference internal" href="#astraviso.starcam.StarCam.get_photons" title="astraviso.starcam.StarCam.get_photons"><code class="xref py py-obj docutils literal"><span class="pre">StarCam.get_photons</span></code></a>, <code class="xref py py-obj docutils literal"><span class="pre">imageutils.vismag2photon</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The default values for the StarCam object are 1087 mm^2 aperture area
+and 19,000 photons per mm^2 of aperture area per second.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">set_sensitivity_preset</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">aperture</span><span class="o">=</span><span class="mi">1087</span><span class="p">,</span> <span class="n">mv0_flux</span><span class="o">=</span><span class="mi">19000</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.setpsf">
+<code class="descname">setpsf</code><span class="sig-paren">(</span><em>size</em>, <em>sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.setpsf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set PSF to Gaussian kernel.</p>
+<p>In the future should have a separate function to handle explicit
+PSF definitions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starcam.StarCam.snap">
+<code class="descname">snap</code><span class="sig-paren">(</span><em>time</em>, <em>delta_t</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starcam.StarCam.snap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create finished image with specified exposure time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : float</p>
+<blockquote>
+<div><p>Time to begin exposure. Measured in seconds from epoch.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Desired exposure time. Measured in seconds.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Resulting image array. Each pixel contains an integer value.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span> <span class="o">=</span> <span class="n">StarCam</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cam</span><span class="o">.</span><span class="n">snap</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[1427, 1408, 1429, ..., 1381, 1414, 1404],</span>
+<span class="go">       [1418, 1370, 1400, ..., 1389, 1395, 1445],</span>
+<span class="go">       [1390, 1445, 1323, ..., 1369, 1408, 1417],</span>
+<span class="go">       ...,</span>
+<span class="go">       [1372, 1469, 1393, ..., 1356, 1468, 1412],</span>
+<span class="go">       [1324, 1437, 1496, ..., 1419, 1399, 1360],</span>
+<span class="go">       [1412, 1450, 1371, ..., 1376, 1367, 1421]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Brad Sease.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

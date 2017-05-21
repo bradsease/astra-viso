@@ -1,6 +1,7 @@
 """
 projectionutils unit tests.
 """
+from __future__ import division
 import unittest
 import numpy as np
 from astraviso import projectionutils

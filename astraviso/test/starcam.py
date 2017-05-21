@@ -1,6 +1,7 @@
 """
 StarCam unit tests.
 """
+from __future__ import division
 import unittest
 from astraviso import starcam as cam
 from astraviso import worldobject

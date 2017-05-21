@@ -6,6 +6,21 @@ A python simulator for star and unresolved spacecraft imaging.
 Astra Viso is a full-featured toolset for simulating stars and unresolved space objects. With this software it is simple to set up a simulated sensor and begin generating imagery immediately. The tools allow the user to switch between a number of commonly-used internal modeling presets easily while also having the flexibility to override internal modeling with externally-defined functions.
 
 
+## Project Status
+
+#### Latest Release
+
+[![PyPI](https://img.shields.io/pypi/v/astraviso.svg)](https://pypi.python.org/pypi/astraviso)
+
+#### Master Branch
+
+[![Travis branch](https://img.shields.io/travis/bradsease/astra-viso/master.svg)](https://travis-ci.org/bradsease/astra-viso) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
+
+#### Development Branch
+
+[![Travis branch](https://img.shields.io/travis/bradsease/astra-viso/Dev.svg)](https://travis-ci.org/bradsease/astra-viso) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=Dev)](https://coveralls.io/github/bradsease/astra-viso?branch=Dev)
+
+
 ## Installation
 
 The easiest way to install Astra Viso is with pip. Simply type the following at the command line
@@ -51,16 +66,18 @@ av.imageutils.imshow(image)
 This code creates a default camera. The default star catalog is a randomly-generated set with 10,000 elements.
 
 
-For additional information, see the full documentation.
+For additional information, see the full 	[documentation](https://bradsease.github.io/astraviso).
 
 ## Requires
-* Python 3+
+* Python 2.7, 3.3+
 * numpy
 * scipy
+* matplotlib
+* numba
 
 
 ## Citing Astra Viso
 
 If you use Astra Viso for research, please cite me! Here's a suggested format:
 
-B. Sease, *Astra Viso*, ver. 0.1.0, 2017.
+B. Sease, *Astra Viso*, ver. 0.1.1, 2017.

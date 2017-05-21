@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>imageutils Module &#8212; Astra Viso 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Astra Viso 0.1.1 documentation</span></a></h1>
+        <h2 class="heading"><span>imageutils Module</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="imageutils-module">
+<span id="imageutils"></span><h1>imageutils Module<a class="headerlink" href="#imageutils-module" title="Permalink to this headline">¶</a></h1>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<ul class="last simple">
+<li>Module <a class="reference internal" href="projectionutils.html#projectionutils"><span class="std std-ref">projectionutils Module</span></a></li>
+<li>Module <a class="reference internal" href="pointingutils.html#pointingutils"><span class="std std-ref">pointingutils Module</span></a></li>
+</ul>
+</div>
+<div class="section" id="astraviso-imageutils-module">
+<h2>astraviso.imageutils module<a class="headerlink" href="#astraviso-imageutils-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-astraviso.imageutils"></span><p>Image utilities for astra-viso.</p>
+<dl class="function">
+<dt id="astraviso.imageutils.apply_constant_quantum_efficiency">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">apply_constant_quantum_efficiency</code><span class="sig-paren">(</span><em>photon_image</em>, <em>quantum_efficiency</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.apply_constant_quantum_efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a constant quantum efficiency to an input image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>photon_image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image where each pixel contains a photon count.</p>
+</div></blockquote>
+<p><strong>quantum_efficiency</strong> : float</p>
+<blockquote>
+<div><p>Relationship between photons and photoelectrons. Measured as the number
+of photoelectrons per photon.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>photoelectron_image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Scaled, discrete-valued image where each pixel contains a photo-
+electron count.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apply_constant_quantum_efficiency</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)),</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="go">array([[ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.],</span>
+<span class="go">       [ 1.,  1.,  1.,  1.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.apply_gaussian_quantum_efficiency">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">apply_gaussian_quantum_efficiency</code><span class="sig-paren">(</span><em>photon_image</em>, <em>mean_quantum_efficiency</em>, <em>sigma</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.apply_gaussian_quantum_efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a spatially gaussian random quantum efficiency to an input image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>photon_image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image where each pixel contains a photon count.</p>
+</div></blockquote>
+<p><strong>mean_quantum_efficiency</strong> : float</p>
+<blockquote>
+<div><p>Relationship between photons and photoelectrons (mean value). Measured
+as the number of photoelectrons per photon.</p>
+</div></blockquote>
+<p><strong>sigma</strong> : float</p>
+<blockquote>
+<div><p>Desired standard deviation of the resulting random values.</p>
+</div></blockquote>
+<p><strong>seed</strong> : float, optional</p>
+<blockquote>
+<div><p>Random number generator seed.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>photoelectron_image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Scaled, discrete-valued image where each pixel contains a photo-
+electron count.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Warning: this function may result in negative quantum efficiencies. In that
+event, the negative entry is replaced with its absolute value. Thus the
+resulting distribution is only approximately gaussian. For large values of
+mean_quantum_efficiency/sigma this effect will not be significant.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">apply_gaussian_quantum_efficiency</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[ 22.,  22.,  20.,  18.],</span>
+<span class="go">       [ 17.,  20.,  17.,  17.],</span>
+<span class="go">       [ 20.,  20.,  21.,  18.],</span>
+<span class="go">       [ 20.,  19.,  16.,  21.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="astraviso.imageutils.conv2">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">conv2</code><a class="headerlink" href="#astraviso.imageutils.conv2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convolve image with input kernel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>img_in</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image.</p>
+</div></blockquote>
+<p><strong>kernel</strong> : ndarray</p>
+<blockquote>
+<div><p>Input kernel. Must be square and have an odd number of rows.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>img</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Convolved image.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span><span class="mi">512</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image_conv</span> <span class="o">=</span> <span class="n">conv2</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.gaussian_noise">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">gaussian_noise</code><span class="sig-paren">(</span><em>image</em>, <em>delta_t</em>, <em>dark_current</em>, <em>read_noise</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.gaussian_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add gaussian-distributed noise to an image. Approximates poisson-
+distributed noise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image in the form of an MxN numpy array.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Sensor integration time in seconds.</p>
+</div></blockquote>
+<p><strong>dark_current</strong> : float</p>
+<blockquote>
+<div><p>Sensor dark current noise level. Measured in photoelectrons per second.</p>
+</div></blockquote>
+<p><strong>read_noise</strong> : float</p>
+<blockquote>
+<div><p>Sensor read noise. Measured in photoelectrons.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Input image with added noise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noisy_image</span> <span class="o">=</span> <span class="n">gaussian_noise</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.imshow">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">imshow</code><span class="sig-paren">(</span><em>img</em>, <em>scale=None</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.imshow" title="Permalink to this definition">¶</a></dt>
+<dd><p>MATLAB-like imshow function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image.</p>
+</div></blockquote>
+<p><strong>scale</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Minimum and maximum scale. Defaults to the minimum and maximum values
+in the image.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Will halt script until user exits the image window.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">512</span><span class="p">,</span><span class="mi">512</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.in_frame">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">in_frame</code><span class="sig-paren">(</span><em>resolution</em>, <em>x_coordinates</em>, <em>y_coordinates</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.in_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of indices corresponding to coordinates in the bounds of the
+image frame.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.poisson_noise">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">poisson_noise</code><span class="sig-paren">(</span><em>image</em>, <em>delta_t</em>, <em>dark_current</em>, <em>read_noise</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.poisson_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add poisson-distributed noise to an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image in the form of an MxN numpy array.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Sensor integration time in seconds.</p>
+</div></blockquote>
+<p><strong>dark_current</strong> : float</p>
+<blockquote>
+<div><p>Sensor dark current noise level. Measured in photoelectrons per second.</p>
+</div></blockquote>
+<p><strong>read_noise</strong> : float</p>
+<blockquote>
+<div><p>Sensor read noise. Measured in photoelectrons.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Input image with added noise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">noisy_image</span> <span class="o">=</span> <span class="n">poisson_noise</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.saturate">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">saturate</code><span class="sig-paren">(</span><em>image</em>, <em>bit_depth</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.saturate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a saturation threshold to an input image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>image</strong> : ndarray</p>
+<blockquote>
+<div><p>Input image where each pixel represents a photoelectron count.</p>
+</div></blockquote>
+<p><strong>bit_depth</strong> : int</p>
+<blockquote>
+<div><p>Number of bits to store each pixel. Maximum value of a particular pixel
+is 2**bit_depth - 1.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>saturated_image</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Image with no values above the saturation threshold.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">saturate</span><span class="p">(</span><span class="mi">40</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.imageutils.vismag2photon">
+<code class="descclassname">astraviso.imageutils.</code><code class="descname">vismag2photon</code><span class="sig-paren">(</span><em>vismags</em>, <em>delta_t</em>, <em>aperture</em>, <em>mv0_flux</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.imageutils.vismag2photon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert visible magnitude to photoelectron count.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vismags</strong> : int, float, or ndarray</p>
+<blockquote>
+<div><p>Object visible magnitude.</p>
+</div></blockquote>
+<p><strong>delta_t</strong> : float</p>
+<blockquote>
+<div><p>Sensor exposure time in seconds.</p>
+</div></blockquote>
+<p><strong>aperture</strong> : float</p>
+<blockquote>
+<div><p>Aperture area in mm^2.</p>
+</div></blockquote>
+<p><strong>mv0_flux</strong> : float</p>
+<blockquote>
+<div><p>Photoelectrons per second per mm^2 of aperture area.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>photons</strong> : float or ndarray</p>
+<blockquote class="last">
+<div><p>Total photon count for each input visible magnitude.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>Based on: Liebe, Carl Christian. &#8220;Accuracy performance of star trackers-a</dt>
+<dd>tutorial.&#8221; IEEE Transactions on aerospace and electronic systems
+38.2 (2002): 587-599.</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vismag2photon</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">19000</span><span class="p">)</span>
+<span class="go">19000.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vismags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vismag2photon</span><span class="p">(</span><span class="n">vismags</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">19000</span><span class="p">)</span>
+<span class="go">array([  7600.,  19000.,  47500.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Brad Sease.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

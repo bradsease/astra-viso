@@ -1,0 +1,7 @@
+[report]
+omit =  
+    *__init__*
+    *test*
+    *demo*
+include =
+    astraviso*

@@ -1,6 +1,7 @@
 """
 Imageutils unit tests.
 """
+from __future__ import division
 import unittest
 import numpy as np
 from astraviso import imageutils as iu
@@ -205,5 +206,41 @@ class test_saturate(imageutilstests):
         self.assertIsInstance(saturated, np.ndarray, "Output type should be ndarray.")
         self.assertTrue(np.all(saturated==3), "Output values should all be equal to 3.")
 
-if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(WidgetTestCase)
+class test_conv2(imageutilstests):
+    """
+    Test conv2 function.
+    """
+
+    def test_3by3(self):
+        """
+        Test 3x3 convoltuion kernel.
+        """
+
+        # Create kernel & image
+        kernel = np.ones((3,3))
+        image = np.ones((64,64))
+
+        # Convolve
+        result = iu.conv2(image, kernel)
+
+        # Check result
+        self.assertIsInstance(result, np.ndarray, "Output type should be ndarray.")
+        self.assertEqual(image.shape, result.shape, "Image shape must be preserved.")
+        self.assertTrue(np.all(result[1:-2,1:-2] == 9), "Incorrect pixel values.")
+
+    def test_exceptions(self):
+        """
+        Verify conv2 exceptions.
+        """
+
+        # Create kernel & image
+        kernel = np.ones((3,3))
+        image = np.ones((64,64))
+
+        # Test even kernel
+        with self.assertRaises(ValueError):
+            iu.conv2(image, np.ones((2,2)))
+
+        # Test rectangular kernel
+        with self.assertRaises(ValueError):
+            iu.conv2(image, np.ones((2,3)))

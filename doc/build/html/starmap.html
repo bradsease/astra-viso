@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>StarMap Class &#8212; Astra Viso 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Astra Viso 0.1.1 documentation</span></a></h1>
+        <h2 class="heading"><span>StarMap Class</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="starmap-class">
+<span id="starmap"></span><h1>StarMap Class<a class="headerlink" href="#starmap-class" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div>The StarMap class...</div></blockquote>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p>Module <a class="reference internal" href="starcam.html#starcam"><span class="std std-ref">StarCam Class</span></a></p>
+<p class="last">Module <a class="reference internal" href="worldobject.html#worldobject"><span class="std std-ref">WorldObject Class</span></a></p>
+</div>
+<div class="section" id="module-astraviso.starmap">
+<span id="astraviso-starmap-class"></span><h2>astraviso.starmap class<a class="headerlink" href="#module-astraviso.starmap" title="Permalink to this headline">¶</a></h2>
+<p>Astra-Viso star map module.</p>
+<dl class="class">
+<dt id="astraviso.starmap.StarMap">
+<em class="property">class </em><code class="descclassname">astraviso.starmap.</code><code class="descname">StarMap</code><span class="sig-paren">(</span><em>preset=None</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Star map class.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starmap.StarMap.downsample" title="astraviso.starmap.StarMap.downsample"><code class="xref py py-obj docutils literal"><span class="pre">downsample</span></code></a>(factor[,&nbsp;mode])</td>
+<td>Downsample current catalog.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starmap.StarMap.downselect" title="astraviso.starmap.StarMap.downselect"><code class="xref py py-obj docutils literal"><span class="pre">downselect</span></code></a>(func,&nbsp;mode)</td>
+<td>Downselect current catalog according to a boolean-valued input function.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starmap.StarMap.get_all" title="astraviso.starmap.StarMap.get_all"><code class="xref py py-obj docutils literal"><span class="pre">get_all</span></code></a>()</td>
+<td>Export all catalog elements to a dict.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starmap.StarMap.get_region" title="astraviso.starmap.StarMap.get_region"><code class="xref py py-obj docutils literal"><span class="pre">get_region</span></code></a>(vector,&nbsp;angle)</td>
+<td>Extract catalog elements falling within a given angle of a specified unit vector.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starmap.StarMap.load_preset" title="astraviso.starmap.StarMap.load_preset"><code class="xref py py-obj docutils literal"><span class="pre">load_preset</span></code></a>(preset,&nbsp;\*arg)</td>
+<td>Load a preset star catalog.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starmap.StarMap.select_brighter" title="astraviso.starmap.StarMap.select_brighter"><code class="xref py py-obj docutils literal"><span class="pre">select_brighter</span></code></a>(limit)</td>
+<td>Select only stars brighter than a given magnitude.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starmap.StarMap.select_dimmer" title="astraviso.starmap.StarMap.select_dimmer"><code class="xref py py-obj docutils literal"><span class="pre">select_dimmer</span></code></a>(limit)</td>
+<td>Select only stars dimmer than a given magnitude.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starmap.StarMap.select_range" title="astraviso.starmap.StarMap.select_range"><code class="xref py py-obj docutils literal"><span class="pre">select_range</span></code></a>(brightest,&nbsp;dimmest)</td>
+<td>Select only stars within a range of magnitudes.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.starmap.StarMap.viewfield" title="astraviso.starmap.StarMap.viewfield"><code class="xref py py-obj docutils literal"><span class="pre">viewfield</span></code></a>()</td>
+<td>Create 3D plot of the entire catalog.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.starmap.StarMap.viewregion" title="astraviso.starmap.StarMap.viewregion"><code class="xref py py-obj docutils literal"><span class="pre">viewregion</span></code></a>(vector,&nbsp;angle)</td>
+<td>Create 3D plot of a region of the catalog.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.downsample">
+<code class="descname">downsample</code><span class="sig-paren">(</span><em>factor</em>, <em>mode='random'</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.downsample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downsample current catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>factor</strong> : float</p>
+<blockquote>
+<div><p>Factor to downsample by. Resulting catalog length will be
+approximately 1/factor.</p>
+</div></blockquote>
+<p><strong>mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Downsampling mode. Options are &#8220;random&#8221; or &#8220;interval&#8221;. Default is
+&#8220;random&#8221;.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;interval&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">11796</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.downselect">
+<code class="descname">downselect</code><span class="sig-paren">(</span><em>func</em>, <em>mode</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.downselect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downselect current catalog according to a boolean-valued input function.
+Culls the internal catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func</strong> : function</p>
+<blockquote>
+<div><p>Boolean-valued selection function. Must accept two inputs. See notes
+for more information on the required input format.</p>
+</div></blockquote>
+<p><strong>mode</strong> : str</p>
+<blockquote>
+<div><p>Target values for downselect operation. Options are &#8220;magnitude&#8221; or
+&#8220;catalog&#8221;.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>For the &#8220;magnitude&#8221; mode option, the input function must be of the form:</dt>
+<dd>bool = f(magnitude, index)</dd>
+</dl>
+<p>where the magnitude value is a scalar float and the index is a scalar
+int. The index value corresponds to the index of the current element.</p>
+<dl class="docutils">
+<dt>For the &#8220;catalog&#8221; mode option, the input function must be of the form:</dt>
+<dd>bool = f(vector, index)</dd>
+</dl>
+<p>where the vector value is a 3-element array and the index is a scalar
+int. The index value corresponds to the index of the current element.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">select_fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">mag</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">mag</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="o">&amp;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">100000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">downselect</span><span class="p">(</span><span class="n">select_fcn</span><span class="p">,</span> <span class="s2">&quot;magnitude&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">1413</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.get_all">
+<code class="descname">get_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export all catalog elements to a dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>None</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>map</strong> : dict</p>
+<blockquote class="last">
+<div><p>Dictionary containing the star catalog in the form of an Nx3 array
+of unit vectors (key:&#8221;catalog&#8221;) and an array of corresponding
+visible magnitudes (key:&#8221;magnitude&#8221;).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;singlecenter&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">map</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_all</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">map</span>
+<span class="go">{&#39;catalog&#39;: array([[0, 0, 1]]), &#39;magnitude&#39;: array([-1])}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.get_region">
+<code class="descname">get_region</code><span class="sig-paren">(</span><em>vector</em>, <em>angle</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.get_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract catalog elements falling within a given angle of a specified
+unit vector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vector</strong> : ndarray</p>
+<blockquote>
+<div><p>Three-element array containing a desired unit vector direction.</p>
+</div></blockquote>
+<p><strong>angle</strong> : float</p>
+<blockquote>
+<div><p>Angle about the designated unit vector to accept stars. Measured in
+degrees.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>map</strong> : dict</p>
+<blockquote class="last">
+<div><p>Dictionary containing the star catalog region in the form of an Nx3
+array of unit vectors (key:&#8221;catalog&#8221;) and an array of corresponding
+visible magnitudes (key:&#8221;magnitude&#8221;).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">map</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="mf">0.001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">map</span>
+<span class="go">{&#39;catalog&#39;: array([[ -1.68386803e-06,   4.35351891e-06,   1.00000000e+00],</span>
+<span class="go">[ -1.83452395e-06,  -3.16303724e-06,   1.00000000e+00],</span>
+<span class="go">[  1.51683717e-05,   4.10971724e-06,   1.00000000e+00]]), </span>
+<span class="go">&#39;magnitude&#39;: array([ 9.03,  9.02,  8.69])}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.load_preset">
+<code class="descname">load_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>*arg</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.load_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a preset star catalog. Current available options are:</p>
+<p>&#8220;singlecenter&#8221; &#8211; A single bright star aligned with the z-axis.
+&#8220;sixfaces&#8221;     &#8211; Six bright stars oriented along each positive and</p>
+<blockquote>
+<div>negative axis.</div></blockquote>
+<dl class="docutils">
+<dt>&#8220;random&#8221;       &#8211; A randomly generated catalog with a user-defined</dt>
+<dd>number of stars.</dd>
+</dl>
+<p>&#8220;hipparcos&#8221;    &#8211; The Hipparcos star catalog. 117,955 total stars [1].
+&#8220;tycho&#8221;        &#8211; The Tycho-2 star catalog. 1,055,115 total stars [2].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Desired preset option.</p>
+</div></blockquote>
+<p><strong>star_count</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of stars desired from the &#8220;random&#8221; preset. Required for the
+&#8220;random&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>[1] Perryman, Michael AC, et al. &#8220;The HIPPARCOS catalogue.&#8221; Astronomy</dt>
+<dd>and Astrophysics 323 (1997).</dd>
+<dt>[2] Hog, Erik, et al. &#8220;The Tycho-2 catalogue of the 2.5 million</dt>
+<dd>brightest stars.&#8221; Astronomy and Astrophysics 355 (2000): L27-L30.</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;tycho&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">1055115</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">load_preset</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.select_brighter">
+<code class="descname">select_brighter</code><span class="sig-paren">(</span><em>limit</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.select_brighter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select only stars brighter than a given magnitude. Culls the internal
+catalog only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>limit</strong> : float</p>
+<blockquote>
+<div><p>Visible magnitude limit. Stars with magnitude values less than this
+limit will be selected.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">select_brighter</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">41057</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.select_dimmer">
+<code class="descname">select_dimmer</code><span class="sig-paren">(</span><em>limit</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.select_dimmer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select only stars dimmer than a given magnitude. Culls the internal
+catalog only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>limit</strong> : float</p>
+<blockquote>
+<div><p>Visible magnitude limit. Stars with magnitude values greater than
+this limit will be selected.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">select_dimmer</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">76561</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.select_range">
+<code class="descname">select_range</code><span class="sig-paren">(</span><em>brightest</em>, <em>dimmest</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.select_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select only stars within a range of magnitudes. Culls the internal
+catalog only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>brightest</strong> : float</p>
+<blockquote>
+<div><p>Upper limit on star brightness. Stars with magnitude values greater
+than this limit will be selected.</p>
+</div></blockquote>
+<p><strong>dimmest</strong> : float</p>
+<blockquote>
+<div><p>Lower limit on star brightness. Stars with magnitude values less
+than this limit will be selected.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span> <span class="o">=</span> <span class="n">StarMap</span><span class="p">(</span><span class="s2">&quot;hipparcos&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">117955</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">select_dimmer</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">catalog</span><span class="o">.</span><span class="n">size</span>
+<span class="go">41393</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.viewfield">
+<code class="descname">viewfield</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.viewfield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create 3D plot of the entire catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>None</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.starmap.StarMap.viewregion">
+<code class="descname">viewregion</code><span class="sig-paren">(</span><em>vector</em>, <em>angle</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.starmap.StarMap.viewregion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create 3D plot of a region of the catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vector</strong> : ndarray</p>
+<blockquote>
+<div><p>Three-element array containing a desired unit vector direction.</p>
+</div></blockquote>
+<p><strong>angle</strong> : float</p>
+<blockquote>
+<div><p>Angle about the designated unit vector to accept stars. Measured in
+degrees.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Brad Sease.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

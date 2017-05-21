@@ -1,6 +1,7 @@
 """
 Astra-Viso star camera module.
 """
+from __future__ import division
 import numpy as np
 from astraviso import worldobject
 from astraviso import starmap

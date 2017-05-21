@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pointingutils Module &#8212; Astra Viso 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Astra Viso 0.1.1 documentation</span></a></h1>
+        <h2 class="heading"><span>pointingutils Module</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="pointingutils-module">
+<span id="pointingutils"></span><h1>pointingutils Module<a class="headerlink" href="#pointingutils-module" title="Permalink to this headline">¶</a></h1>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<ul class="last simple">
+<li>Module <a class="reference internal" href="imageutils.html#imageutils"><span class="std std-ref">imageutils Module</span></a></li>
+<li>Module <a class="reference internal" href="projectionutils.html#projectionutils"><span class="std std-ref">projectionutils Module</span></a></li>
+</ul>
+</div>
+<div class="section" id="astraviso-pointingutils-module">
+<h2>astraviso.pointingutils module<a class="headerlink" href="#astraviso-pointingutils-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-astraviso.pointingutils"></span><p>Pointing utilities for astra-viso.</p>
+<dl class="function">
+<dt id="astraviso.pointingutils.quaternion2dcm">
+<code class="descclassname">astraviso.pointingutils.</code><code class="descname">quaternion2dcm</code><span class="sig-paren">(</span><em>quaternion_list</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.pointingutils.quaternion2dcm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert quaternions to direction cosine matrices (DCMs).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>quaternion_list</strong> : list</p>
+<blockquote>
+<div><p>Input quaternion list where each element is a quaternion in an
+ndarray. Also accepts a single ndarray as input.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dcm_list</strong> : list</p>
+<blockquote class="last">
+<div><p>Direction cosine matrices (DCMs) corresponding to input quaternions.
+Each DCM is a 3x3 ndarray.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="astraviso.pointingutils.rigid_body_kinematic">
+<code class="descclassname">astraviso.pointingutils.</code><code class="descname">rigid_body_kinematic</code><span class="sig-paren">(</span><em>quaternion</em>, <em>angular_rate</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.pointingutils.rigid_body_kinematic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rigid body kinematic ODE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>quaternion</strong> : ndarray</p>
+<blockquote>
+<div><p>Input quaternion vector (length 4). Scalar component is designated as
+the last element.</p>
+</div></blockquote>
+<p><strong>angular_rate</strong> : ndarray</p>
+<blockquote>
+<div><p>Input angular rate vector (length 3).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>state_deriv</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Derivative with respect to time of the combined state. Quaternion
+occupies first 4 elements of the state followed by the angular rate.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Uses the quaternion convention where quaternion[3] is the scalar component.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quaternion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angular_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rigid_body_kinematic</span><span class="p">(</span><span class="n">quaternion</span><span class="p">,</span> <span class="n">angular_rate</span><span class="p">)</span>
+<span class="go">array([ 0.05,  0.05,  0.05,  0.  ,  0.  ,  0.  ,  0.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Brad Sease.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

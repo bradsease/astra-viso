@@ -1,6 +1,7 @@
 """
 Astra-Viso star map module.
 """
+from __future__ import division
 import pickle
 import numpy as np
 import pkg_resources as pkg
@@ -75,7 +76,7 @@ class StarMap:
         -----
         [1] Perryman, Michael AC, et al. "The HIPPARCOS catalogue." Astronomy
             and Astrophysics 323 (1997).
-        [2] Høg, Erik, et al. "The Tycho-2 catalogue of the 2.5 million
+        [2] Hog, Erik, et al. "The Tycho-2 catalogue of the 2.5 million
             brightest stars." Astronomy and Astrophysics 355 (2000): L27-L30.
 
         Examples
@@ -130,8 +131,8 @@ class StarMap:
                 self.catalog = catalog_file["catalog"]
                 self.magnitude = catalog_file["magnitude"]
 
-            except FileNotFoundError:
-                print("Unknown preset: %s" % preset)
+            except:
+                print("Failed to open catalog: %s" % preset)
 
         # Set size variable
         self.size = len(self.catalog)

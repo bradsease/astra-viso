@@ -1,0 +1,634 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>WorldObject Class &#8212; Astra Viso 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body role="document">
+      <div class="header" role="banner"><h1 class="heading"><a href="index.html">
+          <span>Astra Viso 0.1.1 documentation</span></a></h1>
+        <h2 class="heading"><span>WorldObject Class</span></h2>
+      </div>
+      <div class="topnav" role="navigation" aria-label="top navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="worldobject-class">
+<span id="worldobject"></span><h1>WorldObject Class<a class="headerlink" href="#worldobject-class" title="Permalink to this headline">¶</a></h1>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p>Module <a class="reference internal" href="starcam.html#starcam"><span class="std std-ref">StarCam Class</span></a></p>
+<p class="last">Module <a class="reference internal" href="starmap.html#starmap"><span class="std std-ref">StarMap Class</span></a></p>
+</div>
+<div class="section" id="astraviso-worldobject-class">
+<h2>astraviso.worldobject class<a class="headerlink" href="#astraviso-worldobject-class" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-astraviso.worldobject"></span><p>Astra-Viso world object module.</p>
+<dl class="class">
+<dt id="astraviso.worldobject.WorldObject">
+<em class="property">class </em><code class="descclassname">astraviso.worldobject.</code><code class="descname">WorldObject</code><span class="sig-paren">(</span><em>name='Object1'</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>World object class.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.get_pointing" title="astraviso.worldobject.WorldObject.get_pointing"><code class="xref py py-obj docutils literal"><span class="pre">get_pointing</span></code></a>(time[,&nbsp;mode])</td>
+<td>Get pointing parameters at a given time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.get_position" title="astraviso.worldobject.WorldObject.get_position"><code class="xref py py-obj docutils literal"><span class="pre">get_position</span></code></a>(time)</td>
+<td>Get object position at a particular time.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.get_vismag" title="astraviso.worldobject.WorldObject.get_vismag"><code class="xref py py-obj docutils literal"><span class="pre">get_vismag</span></code></a>(time,&nbsp;observer_position)</td>
+<td>Get visible magnitude at a particular time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.in_frame_of" title="astraviso.worldobject.WorldObject.in_frame_of"><code class="xref py py-obj docutils literal"><span class="pre">in_frame_of</span></code></a>(origin_object,&nbsp;time)</td>
+<td>Compute relative position from another WorldObject to self at a given time in the body frame of the target object.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.relative_to" title="astraviso.worldobject.WorldObject.relative_to"><code class="xref py py-obj docutils literal"><span class="pre">relative_to</span></code></a>(origin_object,&nbsp;time)</td>
+<td>Compute relative position from another WorldObject to self at a given time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_fcn" title="astraviso.worldobject.WorldObject.set_pointing_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_pointing_fcn</span></code></a>(fcn,&nbsp;mode[,&nbsp;initial_state,&nbsp;...])</td>
+<td>Set internal pointing dynamics.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_preset" title="astraviso.worldobject.WorldObject.set_pointing_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_pointing_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal pointing dynamics to pre-defined attitude function.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="astraviso.worldobject.WorldObject.set_position_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_position_fcn</span></code></a>(fcn,&nbsp;mode[,&nbsp;initial_state,&nbsp;...])</td>
+<td>Set internal position dynamics.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_preset" title="astraviso.worldobject.WorldObject.set_position_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_position_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal position dynamics to preset function.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_fcn" title="astraviso.worldobject.WorldObject.set_vismag_fcn"><code class="xref py py-obj docutils literal"><span class="pre">set_vismag_fcn</span></code></a>(fcn)</td>
+<td>Set internal object visual magnitude model.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_preset" title="astraviso.worldobject.WorldObject.set_vismag_preset"><code class="xref py py-obj docutils literal"><span class="pre">set_vismag_preset</span></code></a>(preset,&nbsp;\*\*kwargs)</td>
+<td>Set internal visual magnitude model to preset function.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.get_pointing">
+<code class="descname">get_pointing</code><span class="sig-paren">(</span><em>time</em>, <em>mode='quaternion'</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.get_pointing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pointing parameters at a given time. Supports both quaternion and
+direction-cosine-matrix parameterizations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : float or ndarray</p>
+<blockquote>
+<div><p>Desired time(s) to extract pointing information.</p>
+</div></blockquote>
+<p><strong>mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Desired output parameterization. Supports &#8220;quaternion&#8221; and &#8220;dcm&#8221;.
+Default is &#8220;dcm&#8221;.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pointing</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array containing pointing data corresponding to each input time. For
+quaternion output, the array is Nx4 where N is the number of times
+requested. For DCM output, the array is Nx3x3.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_fcn" title="astraviso.worldobject.WorldObject.set_pointing_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_pointing_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_preset" title="astraviso.worldobject.WorldObject.set_pointing_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_pointing_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_pointing_preset</span><span class="p">(</span><span class="s2">&quot;kinematic&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_pointing</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([ 0.,  0.,  0.,  1.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.get_position">
+<code class="descname">get_position</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.get_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get object position at a particular time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : float or ndarray</p>
+<blockquote>
+<div><p>Desired time to extract position information.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>position</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Position vector of the WorldObject at given time in intertial space.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="astraviso.worldobject.WorldObject.set_position_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_preset" title="astraviso.worldobject.WorldObject.set_position_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_position_preset</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([0, 0, 0])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.get_vismag">
+<code class="descname">get_vismag</code><span class="sig-paren">(</span><em>time</em>, <em>observer_position</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.get_vismag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get visible magnitude at a particular time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>time</strong> : float or ndarray</p>
+<blockquote>
+<div><p>Desired time to extract visual magnitude information.</p>
+</div></blockquote>
+<p><strong>observer_position</strong> : ndarray</p>
+<blockquote>
+<div><p>Array describing the position of the observer in intertial space.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>vismag</strong> : float</p>
+<blockquote class="last">
+<div><p>Visual magnitude of the WorldObject at the given time.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_fcn" title="astraviso.worldobject.WorldObject.set_vismag_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_vismag_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_preset" title="astraviso.worldobject.WorldObject.set_vismag_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_vismag_preset</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_vismag_preset</span><span class="p">(</span><span class="s2">&quot;sine&quot;</span><span class="p">,</span> <span class="n">vismag</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_vismag</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">7.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_vismag</span><span class="p">(</span><span class="mf">7.5</span><span class="p">)</span>
+<span class="go">9.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.in_frame_of">
+<code class="descname">in_frame_of</code><span class="sig-paren">(</span><em>origin_object</em>, <em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.in_frame_of" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute relative position from another WorldObject to self at a
+given time in the body frame of the target object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>origin_object</strong> : WorldObject</p>
+<blockquote>
+<div><p>Object to compute the relative position from. Reference frame of
+the result is the origin_object&#8217;s body frame.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>relative_position</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array (3-elements) describing the relative position from
+origin_object to self.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="astraviso.worldobject.WorldObject.set_position_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_preset" title="astraviso.worldobject.WorldObject.set_position_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_preset</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_position" title="astraviso.worldobject.WorldObject.get_position"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_position</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj2</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">in_frame_of</span><span class="p">(</span><span class="n">obj2</span><span class="p">)</span>
+<span class="go">array([0, 0, 0])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.relative_to">
+<code class="descname">relative_to</code><span class="sig-paren">(</span><em>origin_object</em>, <em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.relative_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute relative position from another WorldObject to self at a
+given time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>origin_object</strong> : WorldObject</p>
+<blockquote>
+<div><p>Object to compute the relative position from.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>relative_position</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>Array (3-elements) describing the relative position from
+origin_object to self.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="astraviso.worldobject.WorldObject.set_position_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_preset" title="astraviso.worldobject.WorldObject.set_position_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_preset</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_position" title="astraviso.worldobject.WorldObject.get_position"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_position</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj2</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">obj2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">array([0, 0, 0])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_pointing_fcn">
+<code class="descname">set_pointing_fcn</code><span class="sig-paren">(</span><em>fcn</em>, <em>mode</em>, <em>initial_state=None</em>, <em>integrator='dopri5'</em>, <em>**ode_args</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_pointing_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal pointing dynamics. Accepts both ODEs and explicit
+functions of time. Any number of states are allowed as long as the
+first four elements correspond to the quaternion attitude
+parameterization. The scalar component of the quaternion should be the
+fourth element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input pointing function.</p>
+</div></blockquote>
+<p><strong>mode</strong> : str</p>
+<blockquote>
+<div><p>String descripting the type of function input. Options are &#8220;ode&#8221;
+and &#8220;explicit&#8221;.</p>
+</div></blockquote>
+<p><strong>initial_state</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Optional array describing the initial pointing state. Required for
+&#8220;ode&#8221; mode only.</p>
+</div></blockquote>
+<p><strong>integrator</strong> : str, optional</p>
+<blockquote>
+<div><p>Integrator to use for &#8220;ode&#8221; mode. Default is &#8220;dopri5&#8221;. See
+documentation for scipy.integrate.ode for valid settings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_preset" title="astraviso.worldobject.WorldObject.set_pointing_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_pointing_preset</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_pointing" title="astraviso.worldobject.WorldObject.get_pointing"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_pointing</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>For &#8220;ode&#8221; mode, any keyword arguments after &#8220;integrator&#8221; will pass
+directly into the ode.set_integrator. See scipy.integrate.ode for
+valid settings.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_pointing_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">,</span> <span class="s2">&quot;ode&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_pointing</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([ 0.,  0.,  0.,  1.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_pointing_preset">
+<code class="descname">set_pointing_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_pointing_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal pointing dynamics to pre-defined attitude function.
+Current options are:</p>
+<p>&#8220;static&#8221;    &#8211; static pointing direction
+&#8220;kinematic&#8221; &#8211; rigidy-body kinematic motion with a constant angular</p>
+<blockquote>
+<div>rate.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>initial_state</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Optional 7-element array describing the initial pointing state.
+Required as keyword argument for the &#8220;kinematic&#8221; preset.</p>
+</div></blockquote>
+<p><strong>initial_quaternion</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Array (4 elements) describing the initial quaternion. Required as
+a keyword argument for the &#8220;static&#8221; and &#8220;kinematic&#8221; presets.</p>
+</div></blockquote>
+<p><strong>initial_angular_rate</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Array (3 elements) describing the initial angular rate of the
+object. Measured in radians per second. Required as a keyword
+argument for the &#8220;kinematic&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_pointing_fcn" title="astraviso.worldobject.WorldObject.set_pointing_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_pointing_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_pointing" title="astraviso.worldobject.WorldObject.get_pointing"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_pointing</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Uses default integrator values. For more fine-grained control, use
+WorldObject.set_pointing_fcn.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_pointing_preset</span><span class="p">(</span><span class="s2">&quot;kinematic&quot;</span><span class="p">,</span> 
+<span class="gp">... </span>                          <span class="n">initial_quaternion</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+<span class="gp">... </span>                           <span class="n">initial_angular_rate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_position_fcn">
+<code class="descname">set_position_fcn</code><span class="sig-paren">(</span><em>fcn</em>, <em>mode</em>, <em>initial_state=None</em>, <em>integrator='dopri5'</em>, <em>**ode_args</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal position dynamics. Accepts both ODEs and explicit
+functions of time. Any number of states are allowed as long as the
+first three elements correspond to the intertial position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input position function. Function must be of the form f(t, state)
+where &#8220;state&#8221; is a vector.</p>
+</div></blockquote>
+<p><strong>mode</strong> : str</p>
+<blockquote>
+<div><p>String descripting the type of function input. Options are &#8220;ode&#8221;
+and &#8220;explicit&#8221;.</p>
+</div></blockquote>
+<p><strong>initial_state</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Optional array describing the initial state. Required for
+&#8220;ode&#8221; mode only.</p>
+</div></blockquote>
+<p><strong>integrator</strong> : str, optional</p>
+<blockquote>
+<div><p>Integrator to use for &#8220;ode&#8221; mode. Default is &#8220;dopri5&#8221;. See
+documentation for scipy.integrate.ode for valid settings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_preset" title="astraviso.worldobject.WorldObject.set_position_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_preset</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_position" title="astraviso.worldobject.WorldObject.get_position"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_position</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>For &#8220;ode&#8221; mode, any keyword arguments after &#8220;integrator&#8221; will pass
+directly into the ode.set_integrator. See scipy.integrate.ode for
+valid settings.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_position_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">,</span> <span class="s2">&quot;ode&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([ 1.,  1.,  1.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_position_preset">
+<code class="descname">set_position_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_position_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal position dynamics to preset function.
+Current options are:</p>
+<p>&#8220;static&#8221;    &#8211; A constant position function.
+&#8220;kinematic&#8221; &#8211; simple kinematic motion from an initial position and</p>
+<blockquote>
+<div>velocity.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>initial_position</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Initial object position. Required as keyword argument for the
+&#8220;kinematic&#8221; preset.</p>
+</div></blockquote>
+<p><strong>initial_velocity</strong> : ndarray, optional</p>
+<blockquote>
+<div><p>Initial object position. Required as keyword argument for the
+&#8220;kinematic&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_position_fcn" title="astraviso.worldobject.WorldObject.set_position_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_position_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_position" title="astraviso.worldobject.WorldObject.get_position"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_position</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_position_preset</span><span class="p">(</span><span class="s2">&quot;kinematic&quot;</span><span class="p">,</span> 
+<span class="gp">... </span>                             <span class="n">initial_position</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+<span class="gp">... </span>                              <span class="n">initial_velocity</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">position_fcn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([0, 0, 0])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_vismag_fcn">
+<code class="descname">set_vismag_fcn</code><span class="sig-paren">(</span><em>fcn</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_vismag_fcn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal object visual magnitude model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fcn</strong> : function</p>
+<blockquote>
+<div><p>Input visual magnitude function. Output must be scalar. See notes
+for details about the required function format.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_preset" title="astraviso.worldobject.WorldObject.set_vismag_preset"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_vismag_preset</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_vismag" title="astraviso.worldobject.WorldObject.get_vismag"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_vismag</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>Function must be of the form:</dt>
+<dd>vismag = f(t, observer_position, object_position)</dd>
+</dl>
+<p>Below are two valid function definition templates.</p>
+<dl class="docutils">
+<dt>def user_fcn(t, observer_position, object_position):</dt>
+<dd>...
+return vismag</dd>
+</dl>
+<p>user_fcn = lambda t, observer_position, object_position: ...</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fcn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="mi">7</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="o">/</span><span class="mi">30</span><span class="p">)</span> <span class="c1"># Ignore args after t</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_vismag_fcn</span><span class="p">(</span><span class="n">fcn</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">vismag_fcn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">7.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">vismag_fcn</span><span class="p">(</span><span class="mf">7.5</span><span class="p">)</span>
+<span class="go">9.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="astraviso.worldobject.WorldObject.set_vismag_preset">
+<code class="descname">set_vismag_preset</code><span class="sig-paren">(</span><em>preset</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#astraviso.worldobject.WorldObject.set_vismag_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set internal visual magnitude model to preset function. Available
+presets are:</p>
+<p>&#8220;constant&#8221; &#8211; static user-defined visual magnitude.
+&#8220;sine&#8221;     &#8211; sinusoidal visual magnitude. Function of the form:</p>
+<blockquote>
+<div>vismag + amplitude*np.sin(2*np.pi*t/frequency)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>preset</strong> : str</p>
+<blockquote>
+<div><p>Name of chosen preset.</p>
+</div></blockquote>
+<p><strong>vismag</strong> : float, optional</p>
+<blockquote>
+<div><p>Object visual magnitude. Argument required as keyword for &#8220;constant&#8221;
+and &#8220;sine&#8221; preset options.</p>
+</div></blockquote>
+<p><strong>amplitude</strong> : float, optional</p>
+<blockquote>
+<div><p>Visual magnitude oscillation amplitude. Argument required as keyword
+for &#8220;sine&#8221; preset.</p>
+</div></blockquote>
+<p><strong>frequency</strong> : float, optional</p>
+<blockquote>
+<div><p>Visual magnitude oscillation frequency. Measured in seconds.
+Argument required as keyword for &#8220;sine&#8221; preset.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#astraviso.worldobject.WorldObject.set_vismag_fcn" title="astraviso.worldobject.WorldObject.set_vismag_fcn"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.set_vismag_fcn</span></code></a>, <a class="reference internal" href="#astraviso.worldobject.WorldObject.get_vismag" title="astraviso.worldobject.WorldObject.get_vismag"><code class="xref py py-obj docutils literal"><span class="pre">WorldObject.get_vismag</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">WorldObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">set_vismag_preset</span><span class="p">(</span><span class="s2">&quot;sine&quot;</span><span class="p">,</span> <span class="n">vismag</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">vismag_fcn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">7.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">vismag_fcn</span><span class="p">(</span><span class="mf">7.5</span><span class="p">)</span>
+<span class="go">9.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      
+        <p>
+        <a class="uplink" href="index.html">Contents</a>
+        </p>
+
+      </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Brad Sease.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
+    </div>
+  </body>
+</html>

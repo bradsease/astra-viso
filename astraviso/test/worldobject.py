@@ -1,6 +1,7 @@
 """
 WorldObject unit tests.
 """
+from __future__ import division
 import unittest
 from astraviso import worldobject as obj
 import numpy as np

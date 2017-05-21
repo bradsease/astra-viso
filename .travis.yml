@@ -1,0 +1,23 @@
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+before_install:  
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=$HOME/miniconda3/bin:$PATH
+  - conda create -n travisci -q -y python=$TRAVIS_PYTHON_VERSION numba llvmlite numpy scipy matplotlib numba
+  - source activate travisci
+  - python --version
+  - pip list
+install:
+  - pip install -r requirements.txt
+script: nosetests --with-coverage
+after_success: coveralls
+after_failure:
+  - ls -a
+  - cat .coverage

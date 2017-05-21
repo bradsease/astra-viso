@@ -1,6 +1,7 @@
 """
 Astra-Viso world object module.
 """
+from __future__ import division
 import numpy as np
 from scipy.integrate import ode
 from astraviso import pointingutils

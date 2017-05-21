@@ -1,6 +1,7 @@
 """
 Pointing utilities for astra-viso.
 """
+from __future__ import division
 import numpy as np
 
 def rigid_body_kinematic(quaternion, angular_rate):

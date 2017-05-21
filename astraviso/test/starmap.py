@@ -1,6 +1,7 @@
 """
 StarMap unit tests.
 """
+from __future__ import division
 import unittest
 from astraviso import starmap as sm
 import numpy as np
