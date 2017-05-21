@@ -8,9 +8,11 @@ Astra Viso is a full-featured toolset for simulating stars and unresolved space 
 
 ## Project Status
 
+![](https://img.shields.io/pypi/v/astraviso.svg) 
+
 #### Master Branch
 
-![](https://img.shields.io/pypi/v/astraviso.svg) ![](https://travis-ci.org/bradsease/astra-viso.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
+![](https://travis-ci.org/bradsease/astra-viso.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
 
 #### Development Branch
 
