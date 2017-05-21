@@ -8,15 +8,15 @@ Astra Viso is a full-featured toolset for simulating stars and unresolved space 
 
 ## Project Status
 
-![](https://img.shields.io/pypi/v/astraviso.svg) 
+[![PyPI](https://img.shields.io/pypi/v/astraviso.svg)](https://pypi.python.org/pypi/astraviso)
 
 #### Master Branch
 
-![](https://travis-ci.org/bradsease/astra-viso.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
+[![Travis branch](https://img.shields.io/travis/bradsease/astra-viso/master.svg)](https://travis-ci.org/bradsease/astra-viso) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=master)](https://coveralls.io/github/bradsease/astra-viso?branch=master)
 
 #### Development Branch
 
-![](https://travis-ci.org/bradsease/astra-viso.svg?branch=Dev) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=Dev)](https://coveralls.io/github/bradsease/astra-viso?branch=Dev)
+[![Travis branch](https://img.shields.io/travis/bradsease/astra-viso/Dev.svg)](https://travis-ci.org/bradsease/astra-viso) [![Coverage Status](https://coveralls.io/repos/github/bradsease/astra-viso/badge.svg?branch=Dev)](https://coveralls.io/github/bradsease/astra-viso?branch=Dev)
 
 
 ## Installation
