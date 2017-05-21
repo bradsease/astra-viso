@@ -19,4 +19,6 @@ install:
   - pip install -r requirements.txt
 script: nosetests --with-coverage
 after_success: coveralls
-after_failure: ls -a
+after_failure:
+  - ls -a
+  - cat .coverage
