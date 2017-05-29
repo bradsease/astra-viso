@@ -304,12 +304,33 @@ def conv2(img_in, kernel):
     # Return result
     return img
 
-def in_frame(resolution, x_coordinates, y_coordinates):
+def in_frame(resolution, img_x, img_y, buffer=0.5):
     """
     Return a list of indices corresponding to coordinates in the bounds of the
     image frame.
+
+    Parameters
+    ----------
+    resolution : tuple
+        Resolution along the x and y axes, respectively.
+    img_x : ndarray
+        Input coordinates along the x axis.
+    img_y : ndarray
+        Input coordinates along the y axis.
+    buffer: float, optional
+        Buffer width for inclusion of slightly out-of-frame coordinates.
+        Default is half a pixel.
+
+    Returns
+    -------
+    in_bounds : list
+        List of indices corresponding to the (x,y) coordinates within the
+        image frame.
     """
-    raise NotImplementedError("Not yet implemented.")
+    return [idx for idx in range(len(img_x)) if (img_x[idx] >= 0-buffer                 and
+                                                 img_x[idx] <= resolution[0]-1+buffer   and
+                                                 img_y[idx] >= 0-buffer                 and
+                                                 img_y[idx] <= resolution[1]-1+buffer)]
 
 def imshow(img, scale=None):
     """

@@ -244,3 +244,24 @@ class test_conv2(imageutilstests):
         # Test rectangular kernel
         with self.assertRaises(ValueError):
             iu.conv2(image, np.ones((2,3)))
+
+class test_in_frame(imageutilstests):
+    """
+    Test in_frame function.
+    """
+
+    def test_diagonal(self):
+        """
+        Test all diagonal coordinates.
+        """
+
+        # Create diagonal
+        img_x = np.array(range(16))
+        img_y = np.array(range(16))
+
+        # Compute result
+        result = iu.in_frame((16,16), img_x, img_y)
+
+        # Check result
+        self.assertIsInstance(result, list, "Incorrect output type.")
+        self.assertEqual(len(result), len(img_x), "Incorrect output size.")
