@@ -38,7 +38,7 @@ class test_pinhole_project(imageutilstests):
         self.assertEqual(len(img_x), 1, "Output dimension should equal input dimension")
         self.assertEqual(len(img_x), len(img_y), "Number of x and y coordinates should be equal.")
         self.assertEqual(img_x[0], img_y[0], "For this case, coordinates should be equal.")
-        self.assertEqual(img_x[0], 512.5, "For this case, coordinate value should be 512.5.")
+        self.assertEqual(img_x[0], 511.5, "For this case, coordinate value should be 512.5.")
 
     def test_multiple_pinhole(self):
         """

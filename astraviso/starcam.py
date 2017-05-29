@@ -225,6 +225,9 @@ class StarCam(worldobject.WorldObject):
             # Project stars
             img_x, img_y = self.get_projection(vis)
 
+            # Shift y-axis origin to upper left corner
+            img_y = self.__settings["resolution"] - img_y - 1
+
             # Check for stars in image bounds
             in_img = [idx for idx in range(len(img_x)) if (img_x[idx] > 0                 and
                                              img_x[idx] < self.__settings["resolution"]-1 and
@@ -258,6 +261,9 @@ class StarCam(worldobject.WorldObject):
 
                 # Project object
                 img_x, img_y = self.get_projection(vis)
+
+                # Shift y-axis origin to upper left corner
+                img_y = self.__settings["resolution"] - img_y - 1
 
                 # If object is in image frame, add to image
                 if img_x > 0 and img_y > 0 and img_x < self.__settings["resolution"]-1             \
