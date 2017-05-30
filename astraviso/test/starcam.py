@@ -399,8 +399,8 @@ class test_set_projection_preset(starcamtests):
 
         # Compute result
         img_x, img_y = self.starcam.projection_fcn(np.array([[0, 0, 1]]))
-        true_img_x = np.array([512.5])
-        true_img_y = np.array([512.5])
+        true_img_x = np.array([511.5])
+        true_img_y = np.array([511.5])
 
         # Check function set
         self.assertTrue(callable(self.starcam.projection_fcn), "Function not callable.")
@@ -422,8 +422,8 @@ class test_get_projection(starcamtests):
 
         # Compute result
         img_x, img_y = self.starcam.get_projection(np.array([[0, 0, 1]]))
-        true_img_x = np.array([512.5])
-        true_img_y = np.array([512.5])
+        true_img_x = np.array([511.5])
+        true_img_y = np.array([511.5])
 
         # Check function set
         self.assertTrue(callable(self.starcam.projection_fcn), "Function not callable.")
