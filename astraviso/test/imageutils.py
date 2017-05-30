@@ -146,7 +146,7 @@ class test_apply_gaussian_qe(imageutilstests):
 
     def test_seed(self):
         """
-        Test RNG seed capability.
+        Test RNG seed capability for Gaussian QE.
         """
 
         # Create test image
@@ -164,11 +164,11 @@ class test_apply_gaussian_qe(imageutilstests):
 
     def test_positive(self):
         """
-        Test RNG seed capability.
+        Check Gaussian QE for negative values.
         """
 
         # Create test image
-        test_image = 16*np.ones((128,128))
+        test_image = 16*np.ones((256,256))
 
         # Convert to photoelectrons
         photo_electrons = iu.apply_gaussian_quantum_efficiency(test_image, 0, 1, seed=1)

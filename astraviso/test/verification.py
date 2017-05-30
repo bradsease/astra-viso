@@ -50,7 +50,7 @@ class test_pointing_consistency(verificationtests):
 
     def test_random(self):
         """
-        Test multiple randomly-generated orientations.
+        Verify multiple randomly-generated orientations.
 
         Requirement(s) Verified: #1, #2
         """
@@ -89,7 +89,7 @@ class test_pointing_consistency(verificationtests):
             self.assertTrue(np.all(image >= 0), "Images must be strictly positive.")
 
             # Verify requirement #2
-            correct_coord = (cam._StarCam__settings["resolution"] + 1)/2
+            correct_coord = (cam._StarCam__settings["resolution"] - 1)/2
             test_coord = np.hstack(cam.get_projection(obj.in_frame_of(cam, 1)))
             self.assertTrue(np.isclose(test_coord[0], correct_coord), "Coordinates must correspond \
                                                                  to the center of the image frame.")

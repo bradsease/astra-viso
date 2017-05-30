@@ -48,7 +48,7 @@ def pinhole_project(vectors, focal_len, pixel_size, resolution):
 
     # Intermediate values
     f_over_s = focal_len / pixel_size
-    half_res = (resolution + 1)/2
+    half_res = (resolution - 1)/2
 
     # Projection equation
     img_x = f_over_s * np.divide(vectors[:, 0], vectors[:, 2]) + half_res

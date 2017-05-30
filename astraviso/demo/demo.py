@@ -29,7 +29,7 @@ def default():
     # Create WorldObject and define motion
     cam.add_worldobject()
     cam.external_objects[0].set_position_preset("kinematic",                                       \
-                 initial_position=np.array([25, -50, 1000]), initial_velocity=np.array([50, 50, 0]))
+                 initial_position=np.array([0, 0, 1000]), initial_velocity=np.array([50, 25, 0]))
     cam.external_objects[0].set_vismag_preset("constant", vismag=2)
 
     # Create image and display
