@@ -80,4 +80,4 @@ For additional information, see the full 	[documentation](https://bradsease.gith
 
 If you use Astra Viso for research, please cite me! Here's a suggested format:
 
-B. Sease, *Astra Viso*, ver. 0.1.1, 2017.
+B. Sease, *Astra Viso*, ver. #.#.#, 2017.

@@ -50,7 +50,7 @@ class test_pointing_consistency(verificationtests):
 
     def test_random(self):
         """
-        Test multiple randomly-generated orientations.
+        Verify multiple randomly-generated orientations.
 
         Requirement(s) Verified: #1, #2
         """
