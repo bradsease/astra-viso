@@ -168,6 +168,53 @@ def apply_constant_quantum_efficiency(photon_image, quantum_efficiency):
     # Scale image & return result
     return np.floor(photon_image * quantum_efficiency)
 
+def apply_polynomial_quantum_efficiency(photon_image, poly_coefficients):
+    """
+    Apply a polynomial-valued quantum efficiency array to an input image.
+
+    Parameters
+    ----------
+    photon_image : ndarray
+        Input image where each pixel contains a photon count.
+    poly_coefficients : ndarray
+        Polynomial coefficient array. Elements designated such that 
+        poly_coefficients[i,j] * x^i * y^j. The origin of the (x,y) pixel
+        coordinate system is the geometric center of the image. Coefficient
+        array must be 2 dimensional.
+
+    Returns
+    -------
+    photoelectron_image : ndarray
+        Scaled, discrete-valued image where each pixel contains a photo-
+        electron count.
+
+    Notes
+    -----
+    See documentation for numpy.polynomial.polynomial.polyval2d for more
+    information on constructing the polynomial coefficient matrix.
+
+    Examples
+    --------
+    >>> poly_coefficients = np.array([[1,0,1], [0,0,0], [1,0,0]])
+    >>> apply_polynomial_quantum_efficiency(np.ones((4,4)), poly_coefficients)
+    array([[ 5.  3.  3.  5.]
+           [ 3.  1.  1.  3.]
+           [ 3.  1.  1.  3.]
+           [ 5.  3.  3.  5.]])
+    """
+
+    # Check input shape
+    if len(photon_image.shape) == 1:
+        raise ValueError("Input image must be 2-dimensional.")
+
+    # Generate quantum efficiency map
+    x, y = np.meshgrid(range(photon_image.shape[0]), range(photon_image.shape[1]))
+    quantum_efficiency = np.polynomial.polynomial.polyval2d(x-np.max(x)/2, y-np.max(y)/2,          \
+                                                                                  poly_coefficients)
+
+    # Scale image & return result
+    return np.floor(photon_image * quantum_efficiency)
+
 def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sigma, seed=None):
     """
     Apply a spatially gaussian random quantum efficiency to an input image.
@@ -258,7 +305,7 @@ def saturate(image, bit_depth):
     # Return result
     return image
 
-@jit
+@jit(nopython=True)
 def conv2(img_in, kernel):
     """
     Convolve image with input kernel.
@@ -327,6 +374,7 @@ def in_frame(resolution, img_x, img_y, buffer=0.5):
         List of indices corresponding to the (x,y) coordinates within the
         image frame.
     """
+
     return [idx for idx in range(len(img_x)) if (img_x[idx] >= 0-buffer                 and
                                                  img_x[idx] <= resolution[0]-1+buffer   and
                                                  img_y[idx] >= 0-buffer                 and

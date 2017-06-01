@@ -3,6 +3,7 @@ Astra-Viso star camera module.
 """
 from __future__ import division
 import numpy as np
+from scipy import signal
 from astraviso import worldobject
 from astraviso import starmap
 from astraviso import imageutils
@@ -229,10 +230,9 @@ class StarCam(worldobject.WorldObject):
             img_y = self.__settings["resolution"] - img_y - 1
 
             # Check for stars in image bounds
-            in_img = [idx for idx in range(len(img_x)) if (img_x[idx] > 0                 and
-                                             img_x[idx] < self.__settings["resolution"]-1 and
-                                                           img_y[idx] > 0                 and
-                                                img_y[idx] < self.__settings["resolution"]-1)]
+            # *** Set buffer > 0 after implementing self.psf_fcn
+            resolution = (self.__settings["resolution"], self.__settings["resolution"])
+            in_img = imageutils.in_frame(resolution, img_x, img_y, buffer=-0.01)
 
             # Create image
             # *** This will eventually be replaced by self.psf_fcn
@@ -265,9 +265,13 @@ class StarCam(worldobject.WorldObject):
                 # Shift y-axis origin to upper left corner
                 img_y = self.__settings["resolution"] - img_y - 1
 
+                # Check if object is in frame
+                # *** Set buffer > 0 after implementing self.psf_fcn
+                resolution = (self.__settings["resolution"], self.__settings["resolution"])
+                in_img = imageutils.in_frame(resolution, img_x, img_y, buffer=-0.01)
+
                 # If object is in image frame, add to image
-                if img_x > 0 and img_y > 0 and img_x < self.__settings["resolution"]-1             \
-                                                        and img_y < self.__settings["resolution"]-1:
+                if len(in_img) > 0:
 
                     # Get photon count
                     mag = self.get_photons(object.get_vismag(current_time,                         \
@@ -317,7 +321,8 @@ class StarCam(worldobject.WorldObject):
         image = self.integrate(time, delta_t)
 
         # Defocus image
-        image = imageutils.conv2(image, self.psf)
+        #image = imageutils.conv2(image, self.psf)
+        image = signal.convolve2d(image, self.psf, mode='same')
 
         # Convert to photoelectrons
         image = self.get_photoelectrons(image)

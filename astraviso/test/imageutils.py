@@ -124,6 +124,44 @@ class test_apply_constant_qe(imageutilstests):
         self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
         self.assertTrue(np.all(photo_electrons==6), "Output values should all be equal to 6.")
 
+class test_apply_polynomial_qe(imageutilstests):
+    """
+    Test apply_polynomial_quantum_efficiency function.
+    """
+
+    def test_constant(self):
+        """
+        Test output value and type for constant polynomial QE.
+        """
+
+        # Convert to photoelectrons for zero QE
+        photo_electrons = iu.apply_polynomial_quantum_efficiency(np.ones((16,16)), [[0,0],[0,0]])
+
+        # Check output
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons==0), "Output values should all be equal to 0.")
+
+        # Convert to photoelectrons for constant QE
+        photo_electrons = iu.apply_polynomial_quantum_efficiency(np.ones((16,16)), [[2,0],[0,0]])
+
+        # Check output
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons==2), "Output values should all be equal to 2.")
+
+    def test_parabola(self):
+        """
+        Test output value and type for parabolic polynomial QE.
+        """
+
+        # Convert to photoelectrons
+        coeffs = np.array([[0,0,1], [0,0,0], [1,0,0]])
+        photo_electrons = iu.apply_polynomial_quantum_efficiency(np.ones((5,5)), coeffs)
+
+        # Check output
+        self.assertIsInstance(photo_electrons, np.ndarray, "Output type should be ndarray.")
+        self.assertTrue(np.all(photo_electrons>=0), "Output values should all be positive.")
+        self.assertEqual(photo_electrons[2,2], 0, "Center pixel should be equal to 0.")
+
 class test_apply_gaussian_qe(imageutilstests):
     """
     Test apply_gaussian_quantum_efficiency function.
@@ -252,16 +290,18 @@ class test_in_frame(imageutilstests):
 
     def test_diagonal(self):
         """
-        Test all diagonal coordinates.
+        Test diagonal coordinates.
         """
 
         # Create diagonal
-        img_x = np.array(range(16))
-        img_y = np.array(range(16))
+        img_x = np.array(range(-1, 17))
+        img_y = np.array(range(-1, 17))
 
         # Compute result
         result = iu.in_frame((16,16), img_x, img_y)
 
         # Check result
         self.assertIsInstance(result, list, "Incorrect output type.")
-        self.assertEqual(len(result), len(img_x), "Incorrect output size.")
+        self.assertEqual(len(result), len(img_x)-2, "Incorrect output size.")
+        self.assertListEqual(list(img_x[result]), list(range(16)), "Incorrect indices.")
+        self.assertListEqual(list(img_y[result]), list(range(16)), "Incorrect indices.")
