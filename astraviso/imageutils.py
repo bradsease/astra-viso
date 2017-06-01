@@ -305,7 +305,7 @@ def saturate(image, bit_depth):
     # Return result
     return image
 
-@jit(nopython=True)
+@jit
 def conv2(img_in, kernel):
     """
     Convolve image with input kernel.
