@@ -54,6 +54,11 @@ class WorldObject:
         self.vismag_fcn = None
         self.set_vismag_preset("constant", vismag=-1)
 
+    def attach_to(self, target_object, rel_orientation, rel_position):
+        """
+        """
+        raise NotImplementedError('Not yet implemented.')
+
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """
         Set internal pointing dynamics. Accepts both ODEs and explicit

@@ -94,6 +94,29 @@ class StarCam(worldobject.WorldObject):
         # Normalize and return
         self.psf = kernel / np.sum(kernel)
 
+    def get_boresight(self, time):
+        """
+        Extract boresight pointing vector at a given time.
+
+        Parameters
+        ----------
+        time : float
+            Time, in seconds, to compute boresight vector.
+
+        Returns
+        -------
+        boresight : ndarray
+            Unit vector describing the orientation of the sensor boresight in
+            the default intertial frame.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> cam.get_boresight(0)
+        array([ 0.,  0.,  1.])
+        """
+        return self.get_pointing(time, mode="dcm")[:,2]
+
     def add_worldobject(self, obj=None):
         """
         Add new or existing WorldObject to the external object catalog.

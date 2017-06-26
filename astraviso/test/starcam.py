@@ -83,6 +83,25 @@ class test_delete_worldobject(starcamtests):
             self.assertEqual(len(self.starcam.external_objects), idx, "Incorrect number of       \
                                                                                  catalog elements.")
 
+class test_get_boresight(starcamtests):
+    """
+    Test get_boresight method.
+    """
+
+    def test_single(self):
+        """
+        Test get_boresight.
+        """
+
+        # Get test result
+        result = self.starcam.get_boresight(0)
+        expected_result = np.array([0, 0, 1])
+
+        # Check result
+        self.assertIsInstance(result, np.ndarray, "Output must be ndarray.")
+        self.assertEqual(len(result), 3, "Output must have three elements.")
+        self.assertTrue(np.all(np.isclose(result, expected_result)), "Incorrect boresight result.")
+
 class test_integrate(starcamtests):
     """
     Test integrate method.
