@@ -476,7 +476,7 @@ class test_set_quantum_efficiency_preset(starcamtests):
 
     def test_constant(self):
         """
-        Test constant model with input options.
+        Test constant QE model with input options.
         """
 
         # Test image
@@ -487,12 +487,12 @@ class test_set_quantum_efficiency_preset(starcamtests):
         test_result = self.starcam.quantum_efficiency_fcn(test_image)
 
         # Check function
-        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(callable(self.starcam.quantum_efficiency_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result==1), "Incorrect result.")
 
     def test_gaussian(self):
         """
-        Test gaussian model with input options.
+        Test gaussian QE model with input options.
         """
 
         # Test image
@@ -503,7 +503,24 @@ class test_set_quantum_efficiency_preset(starcamtests):
         test_result = self.starcam.quantum_efficiency_fcn(test_image)
 
         # Check function
-        self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
+        self.assertTrue(callable(self.starcam.quantum_efficiency_fcn), "Function not callable.")
+        self.assertTrue(np.all(test_result >= 0), "Image should be strictly positive.")
+
+    def test_polynomial(self):
+        """
+        Test polynomial QE model with input options.
+        """
+
+        # Test data
+        coeffs = np.array([[1,0,1], [0,0,0], [1,0,0]])
+        test_image = 5*np.ones((16,16))
+
+        # Set gaussian model
+        self.starcam.set_quantum_efficiency_preset("polynomial", poly=coeffs)
+        test_result = self.starcam.quantum_efficiency_fcn(test_image)
+
+        # Check function
+        self.assertTrue(callable(self.starcam.quantum_efficiency_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result >= 0), "Image should be strictly positive.")
 
 class test_get_photoelectrons(starcamtests):

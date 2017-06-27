@@ -344,7 +344,6 @@ class StarCam(worldobject.WorldObject):
         image = self.integrate(time, delta_t)
 
         # Defocus image
-        #image = imageutils.conv2(image, self.psf)
         image = signal.convolve2d(image, self.psf, mode='same')
 
         # Convert to photoelectrons
@@ -474,7 +473,7 @@ class StarCam(worldobject.WorldObject):
         # Invalid input
         else:
             raise NotImplementedError("Invalid noise preset. Available options are: poisson,       \
-                                                                                         gaussian.")
+                                                                                    gaussian, off.")
 
     def add_noise(self, image, delta_t):
         """
@@ -835,18 +834,20 @@ class StarCam(worldobject.WorldObject):
         if not callable(fcn):
             raise ValueError("Must provide callable function.")
         if fcn(np.zeros((16, 32))).shape != (16, 32):
-            raise ValueError("Saturation function output size must be equal to input.")
+            raise ValueError("Quantum efficiency function output size must be equal to input.")
 
         # Set function
         self.quantum_efficiency_fcn = fcn
 
     def set_quantum_efficiency_preset(self, preset, **kwargs):
         """
-        Choose preset quantum efficiency model & assign values. Current options are:
+        Choose preset quantum efficiency model & assign values. Options are:
 
         "constant" -- Equal quantum efficiency for every pixel.
         "gaussian" -- Gaussian-distributed quantum efficiency values for each
                       pixel.
+        "polynomial" -- Quantum efficiency described by a radial polynomial:
+                        qe(r) = a_0 + a_1*r + a_2*(r**2) + ... + a_n*(r**n)
 
         Parameters
         ----------
@@ -860,6 +861,11 @@ class StarCam(worldobject.WorldObject):
             preset.
         seed : float, optional
             Random number generator seed. Optional for "gaussian" preset.
+        poly : ndarray, optional
+            Polynomial coefficient array required for "polynomial" preset.
+            Elements designated such that  poly[i,j] * x^i * y^j. The origin of
+            the (x,y) pixel coordinate system is the geometric center of the
+            image. Coefficient array, poly, must be 2 dimensional.
 
         Returns
         -------
@@ -876,8 +882,14 @@ class StarCam(worldobject.WorldObject):
 
         Examples
         --------
+
+        Constant QE
         >>> cam = StarCam()
         >>> cam.set_quantum_efficiency_preset("constant", 0.22)
+
+        Polynomial QE with qe(x,y) = 1 + x**2 + y**2
+        >>> coeffs = np.array([[1,0,1], [0,0,0], [1,0,0]])
+        >>> cam.set_quantum_efficiency_preset("polynomial", poly=coeffs)
         """
 
         # Set default option
@@ -908,6 +920,19 @@ class StarCam(worldobject.WorldObject):
             # Build function & set
             qe_fcn = lambda image: imageutils.apply_gaussian_quantum_efficiency(image,             \
                                       kwargs["quantum_efficiency"], kwargs["sigma"], kwargs["seed"])
+            self.set_quantum_efficiency_fcn(qe_fcn)
+
+        # Set polynomial option
+        elif preset.lower() == "polynomial":
+
+            # Check input
+            if "poly" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments for this preset:    \
+                                                                                           'poly'.")
+
+            # Build function
+            qe_fcn = lambda image: imageutils.apply_polynomial_quantum_efficiency(image,           \
+                                                                                     kwargs["poly"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
         # Handle invalid option

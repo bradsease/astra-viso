@@ -168,7 +168,7 @@ def apply_constant_quantum_efficiency(photon_image, quantum_efficiency):
     # Scale image & return result
     return np.floor(photon_image * quantum_efficiency)
 
-def apply_polynomial_quantum_efficiency(photon_image, poly_coefficients):
+def apply_polynomial_quantum_efficiency(photon_image, poly):
     """
     Apply a polynomial-valued quantum efficiency array to an input image.
 
@@ -176,11 +176,11 @@ def apply_polynomial_quantum_efficiency(photon_image, poly_coefficients):
     ----------
     photon_image : ndarray
         Input image where each pixel contains a photon count.
-    poly_coefficients : ndarray
+    poly : ndarray
         Polynomial coefficient array. Elements designated such that 
-        poly_coefficients[i,j] * x^i * y^j. The origin of the (x,y) pixel
-        coordinate system is the geometric center of the image. Coefficient
-        array must be 2 dimensional.
+        poly[i,j] * x^i * y^j. The origin of the (x,y) pixel coordinate system
+        is the geometric center of the image. Coefficient array, poly, must be
+        2 dimensional.
 
     Returns
     -------
@@ -195,22 +195,19 @@ def apply_polynomial_quantum_efficiency(photon_image, poly_coefficients):
 
     Examples
     --------
-    >>> poly_coefficients = np.array([[1,0,1], [0,0,0], [1,0,0]])
-    >>> apply_polynomial_quantum_efficiency(np.ones((4,4)), poly_coefficients)
+    >>> # Example polynomial: 1 + x**2 + y**2
+    >>> coeffs = np.array([[1,0,1], [0,0,0], [1,0,0]])
+    >>> apply_polynomial_quantum_efficiency(np.ones((4,4)), coeffs)
     array([[ 5.  3.  3.  5.]
            [ 3.  1.  1.  3.]
            [ 3.  1.  1.  3.]
            [ 5.  3.  3.  5.]])
     """
 
-    # Check input shape
-    if len(photon_image.shape) == 1:
-        raise ValueError("Input image must be 2-dimensional.")
-
     # Generate quantum efficiency map
-    x, y = np.meshgrid(range(photon_image.shape[0]), range(photon_image.shape[1]))
-    quantum_efficiency = np.polynomial.polynomial.polyval2d(x-np.max(x)/2, y-np.max(y)/2,          \
-                                                                                  poly_coefficients)
+    s_x, s_y = photon_image.shape
+    x, y = np.meshgrid(range(s_y), range(s_x))
+    quantum_efficiency = np.polynomial.polynomial.polyval2d(x-s_x/2, y-s_y/2, poly)
 
     # Scale image & return result
     return np.floor(photon_image * quantum_efficiency)
@@ -380,7 +377,7 @@ def in_frame(resolution, img_x, img_y, buffer=0.5):
                                                  img_y[idx] >= 0-buffer                 and
                                                  img_y[idx] <= resolution[1]-1+buffer)]
 
-def imshow(img, scale=None):
+def imshow(img, points=None, scale=None):
     """
     MATLAB-like imshow function.
 
@@ -388,6 +385,9 @@ def imshow(img, scale=None):
     ----------
     image : ndarray
         Input image.
+    points : tuple
+        Tuple containing two arrays, (x, y), of points to overlay on the image
+        where x and y are equal-length ndarrays.
     scale : ndarray, optional
         Minimum and maximum scale. Defaults to the minimum and maximum values
         in the image.
@@ -404,6 +404,10 @@ def imshow(img, scale=None):
     --------
     >>> imshow(np.random.rand((512,512))
     """
+
+    #
+    if points is not None:
+        raise NotImplementedError('Feature not yet implemented.')
 
     # Assign default scale
     if not scale:
