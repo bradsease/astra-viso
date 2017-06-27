@@ -8,6 +8,7 @@ from astraviso import worldobject
 from astraviso import starmap
 from astraviso import imageutils
 from astraviso import projectionutils
+from astraviso import positionutils
 
 class StarCam(worldobject.WorldObject):
     """
@@ -275,11 +276,16 @@ class StarCam(worldobject.WorldObject):
                 # Compute current time
                 current_time = time + step_size*step
 
+                # Apply light time correction
+                light_time = positionutils.light_time(object.get_position,           \
+                                                      self.get_position, current_time)
+                current_time -= light_time
+
                 # Compute relative position in camera frame
                 vis = object.in_frame_of(self, current_time)
 
                 # If object is colocated with camera, skip iteration
-                if np.isclose(vis[2], 0):
+                if np.allclose(vis, 0):
                     continue
 
                 # Project object

@@ -1,6 +1,7 @@
 from .imageutils import *
 from .pointingutils import *
 from .projectionutils import *
+from .positionutils import *
 
 from .starcam import *
 from .starmap import *
