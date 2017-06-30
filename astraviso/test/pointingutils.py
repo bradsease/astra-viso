@@ -126,3 +126,83 @@ class test_quaternion2dcm(pointingutilstests):
         self.assertTrue((dcm_single == result).all(), "Incorrect value result.")
         for row in dcm_single:
             self.assertTrue(np.isclose(np.linalg.norm(row), 1), "Incorrect dcm row magnitude.")
+
+class test_quaternion_functions(pointingutilstests):
+    """
+    Test quaternion-related functions.
+    """
+
+    def test_qmultiply(self):
+        """
+        Test qmultiply function.
+        """
+
+        # Test multiplication by identity
+        quat1 = np.array([0, 0, 0, 1])
+        quat2 = np.array([0, np.cos(np.pi/4), 0, np.cos(np.pi/4)])
+        result = point.qmultiply(quat1, quat2)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, quat2), "Incorrect output.")
+
+        # Test reversed multiplication by identity
+        quat1 = np.array([0, 0, 0, 1])
+        quat2 = np.array([0, np.cos(np.pi/4), 0, np.cos(np.pi/4)])
+        result = point.qmultiply(quat2, quat1)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, quat2), "Incorrect output.")
+
+        # Test multiplication by self
+        quat1 = np.array([0.5, 0.5, 0.5, 0.5])
+        expected_result = np.array([0.5, 0.5, 0.5, -0.5])
+        result = point.qmultiply(quat1, quat1)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, expected_result), "Incorrect output.")
+
+    def test_qinv(self):
+        """
+        Test qinv function.
+        """
+
+        # Define identity quaternion
+        identity = np.array([0, 0, 0, 1])
+
+        # Test trivial case
+        quat = identity
+        result = point.qinv(quat)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, identity), "Incorrect output.")
+
+        # Test with qmultiply
+        quat = np.array([0.5, 0.5, 0.5, 0.5])
+        result = point.qinv(quat)
+        result = point.qmultiply(quat, result)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, identity), "Incorrect output.")
+
+    def test_qrotate(self):
+        """
+        Test qrotate function.
+        """
+
+        # Define identity quaternion
+        identity = np.array([0, 0, 0, 1])
+
+        # Test rotation of identity
+        quat = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
+        result = point.qrotate(identity, quat)
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, quat), "Incorrect output.")
+
+        # Test combination of rotations
+        quat = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
+        result = point.qrotate(quat, quat)
+        expected_result = np.array([0, np.sin(np.pi/2), 0, np.cos(np.pi/2)])
+        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertEqual(len(result), 4, "Output must have 4 elements.")
+        self.assertTrue(np.allclose(result, quat), "Incorrect output.")

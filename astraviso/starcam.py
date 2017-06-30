@@ -193,6 +193,21 @@ class StarCam(worldobject.WorldObject):
         # Delete object
         del self.external_objects[index]
 
+    def display_scene(self):
+        """
+        Display a 3D plot of the sensor and all relevant worldobjects in the
+        default inertial frame.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
+        raise NotImplementedError('Not yet implemented.')
+
     def integrate(self, time, delta_t):
         """
         Compute CCD pixel values after set exposure time.

@@ -30,6 +30,48 @@ class test_initialization(worldobjecttests):
         # Check types
         pass
 
+class test_attach_to(worldobjecttests):
+    """
+    Test attach_to method.
+    """
+
+    def test_attach_to_default(self):
+        """
+        Test attach_to method with default object.
+        """
+
+        # Test default object
+        target = obj.WorldObject()
+        rel_q = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
+        rel_p = np.array([0, 0, 0])
+
+        # Check results
+        self.worldobject.attach_to(target, rel_q, rel_p)
+        result_q = self.worldobject.get_pointing(0)
+        result_p = self.worldobject.get_position(0)
+        self.assertTrue(np.allclose(result_q, rel_q), "Incorrect pointing.")
+        self.assertTrue(np.allclose(result_p, target.get_position(0)), "Incorrect position.")
+
+    def test_attach_to_rotated(self):
+        """
+        Test attach_to method with rotated object.
+        """
+
+        # Test default object
+        target = obj.WorldObject()
+        target.set_pointing_preset("static",                                        \
+               initial_quaternion=np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)]))
+        rel_q = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
+        rel_p = np.array([1, 0, 0])
+        expected_q = np.array([0, np.sin(np.pi), 0, np.cos(np.pi)])
+
+        # Check results
+        self.worldobject.attach_to(target, rel_q, rel_p)
+        result_q = self.worldobject.get_pointing(0)
+        result_p = self.worldobject.get_position(0)
+        self.assertTrue(np.allclose(result_q, rel_q), "Incorrect pointing.")
+        self.assertTrue(np.allclose(result_p, np.array([0, 0, 0])), "Incorrect position.")
+
 class test_set_pointing_fcn(worldobjecttests):
     """
     Test set_pointing_fcn method.

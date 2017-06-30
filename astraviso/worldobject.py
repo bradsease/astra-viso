@@ -54,10 +54,41 @@ class WorldObject:
         self.vismag_fcn = None
         self.set_vismag_preset("constant", vismag=-1)
 
-    def attach_to(self, target_object, rel_orientation, rel_position):
+    def attach_to(self, target, rel_quaternion, rel_position):
         """
+        Set internal pointing and position dynamics by attaching this object to
+        a secondary object.
+
+        Parameters
+        ----------
+        target : WorldObject
+            Target object from which to derive pointing and position dynamics.
+        rel_quaternion : ndarray
+            Relative orientation quaternion. Defined as the orientation of this
+            object (self) in the body-fixed frame of the target object.
+        rel_position : ndarray
+            Relative position vector. Defined as the position of this object
+            (self) in the body-fixed frame of the target object.
+
+        Returns
+        -------
+        None
         """
-        raise NotImplementedError('Not yet implemented.')
+
+        # Check if target object is valid
+        if target.position_fcn is None or target.pointing_fcn is None:
+            raise ValueError("Target must have defined pointing and position functions.")
+
+        # Set relative pointing dynamics
+        def pointing_fcn(time):
+            return pointingutils.qrotate(target.get_pointing(time), rel_quaternion)
+        self.set_pointing_fcn(pointing_fcn, mode="explicit")
+
+        # Set relative position dynamics
+        def position_fcn(time):
+            return target.get_position(time) +                              \
+                   np.dot(target.get_pointing(time, mode="dcm"), rel_position)
+        self.set_position_fcn(position_fcn, mode="explicit")
 
     def set_pointing_fcn(self, fcn, mode, initial_state=None, integrator="dopri5", **ode_args):
         """

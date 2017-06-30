@@ -107,3 +107,64 @@ def quaternion2dcm(quaternion_list):
         return dcm_list[0]
     else:
         return dcm_list
+
+def qmultiply(q, r):
+    """
+    Multiply two quaternions.
+
+    Parameters
+    ----------
+    q : ndarray
+        First quaternion. Scalar component designated as q[3].
+    r : ndarray
+        Second quaternion. Scalar component designated as q[3].
+
+    Returns
+    -------
+    result : ndarray
+        Result of q*r.
+    """
+
+    # Compute multiplication
+    result = np.zeros(4)
+    result[0] = r[3]*q[0] + r[0]*q[3] - r[1]*q[2] + r[2]*q[1]
+    result[1] = r[3]*q[1] + r[0]*q[2] + r[1]*q[3] - r[2]*q[0]
+    result[2] = r[3]*q[2] - r[0]*q[1] + r[1]*q[0] + r[2]*q[3]
+    result[3] = r[3]*q[3] - r[0]*q[0] - r[1]*q[1] - r[2]*q[2]
+
+    # Return
+    return result
+
+def qinv(quaternion):
+    """
+    Quaternion inverse.
+
+    Parameters
+    ----------
+    quaternion : ndarray
+        Input quaternion. Scalar component designated as q[3].
+
+    Returns
+    -------
+    result : ndarray
+        Inverted quaternion.
+    """
+    return quaternion * np.array([-1, -1, -1, 1])
+
+def qrotate(q, r):
+    """
+    Rotate one quaternion by another.
+
+    Parameters
+    ----------
+    q : ndarray
+        First quaternion. Scalar component designated as q[3].
+    r : ndarray
+        Second quaternion. Scalar component designated as q[3].
+
+    Returns
+    -------
+    result : ndarray
+        Result of rotating q by r.
+    """
+    return qmultiply(qmultiply(q, r), qinv(q))
