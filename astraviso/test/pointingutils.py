@@ -66,14 +66,14 @@ class test_rigid_body_kinematics(pointingutilstests):
 
             # Check result
             self.assertTrue(np.allclose(result, np.hstack((quaternion, angular_rate))), \
-                                                        "Quaternion must return after 2 rotations.")
+                                             "Quaternion must return after 2 rotations.")
 
-class test_quaternion2dcm(pointingutilstests):
+class test_quat_conversion(pointingutilstests):
     """
-    Test quaternion to DCM conversion function.
+    Test conversions between quaternions and DCMs.
     """
 
-    def test_types(self):
+    def test_quat2dcm(self):
         """
         Test input / output types.
         """
@@ -90,10 +90,6 @@ class test_quaternion2dcm(pointingutilstests):
         self.assertEqual(type(dcm_single), np.ndarray, "Incorrect output type.")
         self.assertEqual(type(dcm_multi), list, "Incorrect output type.")
 
-    def test_identity(self):
-        """
-        Test identical assignment.
-        """
 
         # Set up scenarios
         quaternion = np.array([0, 0, 0, 1])
@@ -108,10 +104,6 @@ class test_quaternion2dcm(pointingutilstests):
         for dcm in dcm_multi:
             self.assertTrue((dcm == np.eye(3)).all(), "Incorrect identity result.")
 
-    def test_values(self):
-        """
-        Test values for a specific case.
-        """
 
         # Set up scenario
         quaternion = np.array([0.5, 0.5, 0.5, 0.5])
@@ -126,6 +118,33 @@ class test_quaternion2dcm(pointingutilstests):
         self.assertTrue((dcm_single == result).all(), "Incorrect value result.")
         for row in dcm_single:
             self.assertTrue(np.isclose(np.linalg.norm(row), 1), "Incorrect dcm row magnitude.")
+
+    def test_quat_dcm_closure(self):
+        """
+        Test closure in quat > dcm > quat > dcm conversions.
+        """
+
+        # Set up identity scenario
+        dcm = np.eye(3)
+
+        # Compute closures
+        quat = point.dcm2quaternion(dcm)
+        dcm2 = point.quaternion2dcm(quat)
+        quat2 = point.dcm2quaternion(dcm2)
+
+        # Check values
+        self.assertTrue(np.allclose(dcm, dcm2), "Closure failed: dcm > quat > dcm.")
+        self.assertTrue(np.allclose(quat, quat2), "Closure failed: dcm > quat > dcm > quat.")
+
+        # Test random
+        np.random.seed(1)
+        for idx in range(50):
+            angles = 2*np.pi*np.random.rand(3)
+            dcm = np.dot(np.dot(point.rot1(angles[0]), point.rot2(angles[1])), \
+                                                          point.rot3(angles[2]))
+            quat = point.dcm2quaternion(dcm)
+            dcm2 = point.quaternion2dcm(quat)
+            self.assertTrue(np.allclose(dcm, dcm2), "Closure failed: dcm > quat > dcm.")
 
 class test_quaternion_functions(pointingutilstests):
     """
@@ -206,3 +225,122 @@ class test_quaternion_functions(pointingutilstests):
         self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, quat), "Incorrect output.")
+
+class test_dcm_functions(pointingutilstests):
+    """
+    
+    """
+
+    def check_rotation_matrix(self, R):
+        """
+        Rotation matrix verification function.
+        """
+
+        # Check dimensions
+        self.assertEqual(R.shape[0], R.shape[1], "Rotation matrix must be square.")
+        self.assertEqual(R.shape[0], 3, "Rotation matrix must be 3x3.")
+
+        # Check determinant is one
+        self.assertTrue(np.isclose(np.linalg.det(R), 1.0), 
+                                         "Determinant of a rotation matrix must be one.")
+
+        # Check column norms
+        for idx in range(len(R)):
+            self.assertTrue(np.isclose(np.linalg.norm(R[idx,:]), 1.0), 
+                                            "Rotation matrix rows must have unity norm.")
+
+    def test_x_rotation(self):
+        """
+        Test rot1 function for positive, negative, and zero rotations.
+        """
+
+        # Test zero rotation
+        dcm = point.rot1(0)
+        self.check_rotation_matrix(dcm)
+
+        # Test positive rotation
+        dcm = point.rot1(np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+        # Test negative rotation
+        dcm = point.rot1(-np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+    def test_y_rotation(self):
+        """
+        Test rot2 function for positive, negative, and zero rotations.
+        """
+
+        # Test zero rotation
+        dcm = point.rot2(0)
+        self.check_rotation_matrix(dcm)
+
+        # Test positive rotation
+        dcm = point.rot2(np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+        # Test negative rotation
+        dcm = point.rot2(-np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+    def test_z_rotation(self):
+        """
+        Test rot3 function for positive, negative, and zero rotations.
+        """
+
+        # Test zero rotation
+        dcm = point.rot3(0)
+        self.check_rotation_matrix(dcm)
+
+        # Test positive rotation
+        dcm = point.rot3(np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+        # Test negative rotation
+        dcm = point.rot3(-np.pi/3)
+        self.check_rotation_matrix(dcm)
+
+class test_radec_functions(pointingutilstests):
+    """
+    Test right ascension & declination functions.
+    """
+
+    def test_vector_to_ra_dec(self):
+        """
+        Test vector_to_ra_dec function.
+
+        TODO: Tests for d_ra and d_dec.
+        """
+
+        # Set up test cases
+        vector = np.array([0, 0, 1])
+        vector_rate = np.array([0, 0.1, 1])
+
+        # Test vector-only mode
+        ra, dec = point.vector_to_ra_dec(vector)
+        self.assertEqual(ra, 0, "Right ascension should be zero.")
+        self.assertTrue(np.isclose(dec, 90), "Declination should be 90.")
+
+        # Test vector & rate mode
+        ra, dec, d_ra, d_dec = point.vector_to_ra_dec(vector, vector_rate)
+        self.assertEqual(ra, 90, "Right ascension should be 90.")
+        self.assertTrue(np.isclose(dec, 90), "Declination should be 90.")
+
+        # Test vector-only mode with radian output
+        ra, dec = point.vector_to_ra_dec(vector, output="rad")
+        self.assertEqual(ra, 0, "Right ascension should be zero.")
+        self.assertTrue(np.isclose(dec, np.pi/2), "Declination should be pi/2.")
+
+        # Test vector & rate mode with radian output
+        ra, dec, d_ra, d_dec = point.vector_to_ra_dec(vector, 
+                                                               vector_rate, output="rad")
+        self.assertEqual(ra, np.pi/2, "Right ascension should be pi/2.")
+        self.assertTrue(np.isclose(dec, np.pi/2), "Declination should be pi/2.")
+
+        # Set up test cases
+        vector = np.array([1, 0, 0])
+        
+        # Test vector-only mode with radian output
+        ra, dec = point.vector_to_ra_dec(vector, output="rad")
+        self.assertEqual(ra, 0, "Right ascension should be zero.")
+        self.assertTrue(np.isclose(dec, 0), "Declination should be 0.")

@@ -51,6 +51,34 @@ def rigid_body_kinematic(quaternion, angular_rate):
     # Return quaternion rate
     return np.hstack((np.dot(matrix, quaternion)/2, np.zeros(3)))
 
+def rigid_body_track(observer, target):
+    """
+    Rigid body tracking dynamics.
+
+    Parameters
+    ----------
+    observer : WorldObject
+        Observing object. Must have position dynamics enabled.
+    target : WorldObject
+        Object to track. Must have position dynamics enabled.
+
+    Returns
+    -------
+    state : ndarray
+        Attitude history function for the observer. Defined as an explicit
+        function of time.
+
+    Notes
+    -----
+    Uses the quaternion convention where quaternion[3] is the scalar component.
+
+    Examples
+    --------
+    >>> ...
+    """
+    # np.dot(dec, ra)
+    pass
+
 def quaternion2dcm(quaternion_list):
     """
     Convert quaternions to direction cosine matrices (DCMs).
@@ -107,6 +135,57 @@ def quaternion2dcm(quaternion_list):
         return dcm_list[0]
     else:
         return dcm_list
+
+def dcm2quaternion(dcm):
+    """
+    Convert a direction-cosine matrix to a quaternion.
+
+    Parameters
+    ----------
+    dcm : ndarray
+        Direction-cosine matrix (DCM).
+
+    Returns
+    -------
+    quaternion : ndarray
+        Output quaternion. q[3] is the scalar component.
+    """
+
+    # Initial setup
+    trace = np.trace(dcm)
+    quaternion = np.zeros(4)
+
+    # Choose method to avoid singularity
+    if trace > 0:
+        denom = 2*np.sqrt(trace + 1)
+        quaternion[3] = denom/4
+        quaternion[0] = (dcm[2, 1] - dcm[1, 2])/denom
+        quaternion[1] = (dcm[0, 2] - dcm[2, 0])/denom
+        quaternion[2] = (dcm[1, 0] - dcm[0, 1])/denom
+
+    elif (dcm[0, 0] > dcm[1, 1]) and (dcm[0, 0] > dcm[2, 2]):
+        denom = 2*np.sqrt(1 + dcm[0, 0] - dcm[1, 1] - dcm[2, 2])
+        quaternion[3] = (dcm[2, 1] - dcm[1, 2])/denom
+        quaternion[0] = denom/4
+        quaternion[1] = (dcm[0, 1] + dcm[1, 0])/denom
+        quaternion[2] = (dcm[0, 2] + dcm[2, 0])/denom
+
+    elif (dcm[1, 1] > dcm[2, 2]):
+        denom = 2*np.sqrt(1 + dcm[1, 1] - dcm[0, 0] - dcm[2, 2])
+        quaternion[3] = (dcm[0, 2] - dcm[2, 0])/denom
+        quaternion[0] = (dcm[0, 1] + dcm[1, 0])/denom
+        quaternion[1] = denom/4
+        quaternion[2] = (dcm[1, 2] + dcm[2, 1])/denom
+
+    else:
+        denom = 2*np.sqrt(1 + dcm[2, 2] - dcm[0, 0] - dcm[1, 1])
+        quaternion[3] = (dcm[1, 0] - dcm[0, 1])/denom
+        quaternion[0] = (dcm[0, 2] + dcm[2, 0])/denom
+        quaternion[1] = (dcm[1, 2] + dcm[2, 1])/denom
+        quaternion[2] = denom/4
+
+    # Enforce normalization and return
+    return quaternion / np.linalg.norm(quaternion)
 
 def qmultiply(q, r):
     """
@@ -168,3 +247,176 @@ def qrotate(q, r):
         Result of rotating q by r.
     """
     return qmultiply(qmultiply(q, r), qinv(q))
+
+def rot1(theta):
+    """
+    Create direction-cosine matrix (dcm) for a rotation about the x-axis.
+    The rotation matrix is formed such that numpy.dot(dcm, vec) rotates vec
+    counter-clockwise about the x-axis.
+
+    Parameters
+    ----------
+    theta : float
+        Angular displacement of desired rotation. Measured in radians.
+
+    Returns
+    -------
+    dcm : ndarray
+        Rotation matrix corresponding to input rotation angle.
+
+    Examples
+    --------
+    >>> from ssa.attitude import rot1
+    >>> rot1(1.5)
+    array([[ 1.        ,  0.        ,  0.        ],
+           [ 0.        ,  0.0707372 ,  0.99749499],
+           [ 0.        , -0.99749499,  0.0707372 ]])
+    """
+
+    # Store sine and cosine values
+    ct = np.cos(theta)
+    st = np.sin(theta)
+
+    # Construct dcm
+    return np.array([[1, 0, 0], [0, ct, -st], [0, st, ct]])
+
+def rot2(theta):
+    """
+    Create direction-cosine matrix (dcm) for a rotation about the y-axis.
+    The rotation matrix is formed such that numpy.dot(dcm, vec) rotates vec
+    counter-clockwise about the y-axis.
+
+    Parameters
+    ----------
+    theta : float
+        Angular displacement of desired rotation. Measured in radians.
+
+    Returns
+    -------
+    dcm : ndarray
+        Rotation matrix corresponding to input rotation angle.
+
+    Examples
+    --------
+    >>> from ssa.attitude import rot2
+    >>> rot2(1.5)
+    array([[ 0.0707372 ,  0.        , -0.99749499],
+           [ 0.        ,  1.        ,  0.        ],
+           [ 0.99749499,  0.        ,  0.0707372 ]])
+    """
+
+    # Store sine and cosine values
+    ct = np.cos(theta)
+    st = np.sin(theta)
+
+    # Construct dcm
+    return np.array([[ct, 0, st], [0, 1, 0], [-st, 0, ct]])
+
+def rot3(theta):
+    """
+    Create direction-cosine matrix (dcm) for a rotation about the z-axis.
+    The rotation matrix is formed such that numpy.dot(dcm, vec) rotates vec
+    counter-clockwise about the z-axis.
+
+    Parameters
+    ----------
+    theta : float
+        Angular displacement of desired rotation.  Measured in radians.
+
+    Returns
+    -------
+    dcm : ndarray
+        Rotation matrix corresponding to input rotation angle.
+
+    Examples
+    --------
+    >>> from ssa.attitude import rot3
+    >>> rot3(1.5)
+    array([[ 0.0707372 ,  0.99749499,  0.        ],
+           [-0.99749499,  0.0707372 ,  0.        ],
+           [ 0.        ,  0.        ,  1.        ]])
+    """
+
+    # Store sine and cosine values
+    ct = np.cos(theta)
+    st = np.sin(theta)
+
+    # Construct dcm
+    return np.array([[ct, -st, 0], [st, ct, 0], [0, 0, 1]])
+
+def vector_to_ra_dec(vector, vector_rate=None, output="deg"):
+    """
+    Compute right ascension and declination from an input vector and optional
+    vector rate.
+
+    Parameters
+    ----------
+    vector : ndarray
+        Input vector.
+    vector_rate : ndarray, optional
+        Derivative of the input vector. Only required for ra/dec derivatives
+        and resolution of the singularity at zenith.
+    output : str
+        Output units. Options are "deg" or "rad". Default is "deg".
+
+    Returns
+    -------
+    ra : float
+        Right ascension.
+    dec : float
+        Declination.
+    d_ra : float
+        Right ascension derivative. Only returned with vector_rate input.
+    d_dec : float
+        Declination derivative. Only returned with vector_rate input.
+
+    Notes
+    -----
+    Based on David Vallado's astrodynamics code for MATLAB.
+    https://celestrak.com/software/vallado-sw.asp
+    """
+
+    # Compute right ascension and declination
+    ra = np.arctan2(vector[1], vector[0])
+    dec = np.arcsin(vector[2] / np.linalg.norm(vector))
+
+    # Handle vector rates
+    if vector_rate is not None:
+
+        # Compute temporary values
+        tmp1 = np.linalg.norm(vector[:2])
+        tmp2 = - vector[1]**2 - vector[0]**2
+
+        # Update right ascension if singular
+        if np.isclose(tmp1, 0):
+            ra = np.arctan2(vector_rate[1], vector_rate[0])
+
+        # Compute right ascension derivative
+        if np.isclose(tmp2, 0):
+            d_ra = 0
+        else:
+            d_ra = (vector_rate[0]*vector[1]-vector_rate[1]*vector[0])/tmp1
+
+        # Compute declination derivative
+        if np.isclose(tmp1, 0):
+            d_dec = 0
+        else:
+            d_dec = (vector_rate[2]-np.dot(vector, vector_rate)*np.sin(dec))/tmp1
+
+    # Convert to correct units
+    if output.lower() == "deg":
+
+        # Convert angles
+        ra = np.rad2deg(ra)
+        dec = np.rad2deg(dec)
+
+        # Convert rates
+        if vector_rate is not None:
+            d_ra = np.rad2deg(d_ra)
+            d_dec = np.rad2deg(d_dec)
+
+    # Choose output configuration
+    if vector_rate is None:
+        return ra, dec
+    else:
+        return ra, dec, d_ra, d_dec
