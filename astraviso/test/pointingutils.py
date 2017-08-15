@@ -4,6 +4,7 @@ Pointingutils unit tests.
 from __future__ import division
 import unittest
 import numpy as np
+import astraviso as av
 from scipy.integrate import ode
 from astraviso import pointingutils as point
 
@@ -39,8 +40,8 @@ class test_rigid_body_kinematics(pointingutilstests):
         self.assertTrue(isinstance(deriv, np.ndarray), "Incorrect output type.")
 
         # Check values
-        self.assertTrue(np.array_equal(deriv, np.array([0, 0, 0, 0, 0, 0, 0])),                    \
-                                                                          "Incorrect output value.")
+        self.assertTrue(np.array_equal(deriv, np.array([0, 0, 0, 0, 0, 0, 0])),
+                                       "Incorrect output value.")
 
     def test_closure(self):
         """
@@ -56,7 +57,8 @@ class test_rigid_body_kinematics(pointingutilstests):
             angular_rate[dim] = 2.0 * np.pi
 
             # Build function
-            fcn = lambda t, state: point.rigid_body_kinematic(state[0:4], state[4:])
+            fcn = lambda t, state: point.rigid_body_kinematic(state[0:4],
+                                                              state[4:])
 
             # Set up integrator
             integ = ode(fcn)
@@ -65,8 +67,60 @@ class test_rigid_body_kinematics(pointingutilstests):
             result = integ.integrate(2)
 
             # Check result
-            self.assertTrue(np.allclose(result, np.hstack((quaternion, angular_rate))), \
-                                             "Quaternion must return after 2 rotations.")
+            self.assertTrue(np.allclose(result, np.hstack((quaternion,
+                                                           angular_rate))),
+                            "Quaternion must return after 2 rotations.")
+
+class test_rigid_body_track(pointingutilstests):
+    """
+    Test rigid_body_track function.
+    """
+
+    def single_case(self, position):
+        """
+        Single template test case for rigid body tracking function.
+        """
+
+        # Set up scenario
+        cam = av.StarCam()
+        obj = av.WorldObject()
+        obj.set_position_preset("static", initial_position=position)
+        state_fcn = point.rigid_body_track(cam, obj)
+        state_val = state_fcn(0)
+
+        # Check result
+        self.assertTrue(callable(state_fcn), "State function must be callable.")
+        self.assertEqual(len(state_val), 4,
+                         "State quaternion must have 4 elements.")
+        self.assertIsInstance(state_val, np.ndarray,
+                              "State quaternion must be ndarray.")
+        self.assertTrue(np.isclose(np.linalg.norm(state_val), 1.0),
+                                   "Quaternion norm must be 1.")
+
+        # Validate
+        cam.set_pointing_preset("static", initial_quaternion=state_val)
+        in_frame = obj.in_frame_of(cam, 0)
+        in_frame = in_frame/np.linalg.norm(in_frame)
+        self.assertTrue(np.allclose(in_frame, np.array([0, 0, 1])),
+                        "Object must be aligned with boresight.")
+
+    def test_many(self):
+        """
+        Test array of cases for rigid_body_track.
+        """
+
+        # Test object on x,y,z axes
+        self.single_case([1, 0, 0])
+        self.single_case([0, 1, 0])
+        self.single_case([0, 0, 1])
+        self.single_case([1, 1, 1])
+
+        # Test random
+        np.random.seed(1)
+        for _ in range(10):
+            vector = np.random.randn(3)
+            self.single_case(vector)
+
 
 class test_quat_conversion(pointingutilstests):
     """
@@ -100,9 +154,11 @@ class test_quat_conversion(pointingutilstests):
         dcm_multi = point.quaternion2dcm(quaternion_list)
 
         # Check result
-        self.assertTrue((dcm_single == np.eye(3)).all(), "Incorrect identity result.")
+        self.assertTrue((dcm_single == np.eye(3)).all(),
+                        "Incorrect identity result.")
         for dcm in dcm_multi:
-            self.assertTrue((dcm == np.eye(3)).all(), "Incorrect identity result.")
+            self.assertTrue((dcm == np.eye(3)).all(),
+                            "Incorrect identity result.")
 
 
         # Set up scenario
@@ -117,7 +173,8 @@ class test_quat_conversion(pointingutilstests):
         # Check result
         self.assertTrue((dcm_single == result).all(), "Incorrect value result.")
         for row in dcm_single:
-            self.assertTrue(np.isclose(np.linalg.norm(row), 1), "Incorrect dcm row magnitude.")
+            self.assertTrue(np.isclose(np.linalg.norm(row), 1),
+                            "Incorrect dcm row magnitude.")
 
     def test_quat_dcm_closure(self):
         """
@@ -133,18 +190,21 @@ class test_quat_conversion(pointingutilstests):
         quat2 = point.dcm2quaternion(dcm2)
 
         # Check values
-        self.assertTrue(np.allclose(dcm, dcm2), "Closure failed: dcm > quat > dcm.")
-        self.assertTrue(np.allclose(quat, quat2), "Closure failed: dcm > quat > dcm > quat.")
+        self.assertTrue(np.allclose(dcm, dcm2),
+                        "Closure failed: dcm > quat > dcm.")
+        self.assertTrue(np.allclose(quat, quat2),
+                        "Closure failed: dcm > quat > dcm > quat.")
 
         # Test random
         np.random.seed(1)
         for idx in range(50):
             angles = 2*np.pi*np.random.rand(3)
-            dcm = np.dot(np.dot(point.rot1(angles[0]), point.rot2(angles[1])), \
+            dcm = np.dot(np.dot(point.rot1(angles[0]), point.rot2(angles[1])),
                                                           point.rot3(angles[2]))
             quat = point.dcm2quaternion(dcm)
             dcm2 = point.quaternion2dcm(quat)
-            self.assertTrue(np.allclose(dcm, dcm2), "Closure failed: dcm > quat > dcm.")
+            self.assertTrue(np.allclose(dcm, dcm2),
+                            "Closure failed: dcm > quat > dcm.")
 
 class test_quaternion_functions(pointingutilstests):
     """
@@ -160,7 +220,8 @@ class test_quaternion_functions(pointingutilstests):
         quat1 = np.array([0, 0, 0, 1])
         quat2 = np.array([0, np.cos(np.pi/4), 0, np.cos(np.pi/4)])
         result = point.qmultiply(quat1, quat2)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, quat2), "Incorrect output.")
 
@@ -168,7 +229,8 @@ class test_quaternion_functions(pointingutilstests):
         quat1 = np.array([0, 0, 0, 1])
         quat2 = np.array([0, np.cos(np.pi/4), 0, np.cos(np.pi/4)])
         result = point.qmultiply(quat2, quat1)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, quat2), "Incorrect output.")
 
@@ -176,9 +238,11 @@ class test_quaternion_functions(pointingutilstests):
         quat1 = np.array([0.5, 0.5, 0.5, 0.5])
         expected_result = np.array([0.5, 0.5, 0.5, -0.5])
         result = point.qmultiply(quat1, quat1)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
-        self.assertTrue(np.allclose(result, expected_result), "Incorrect output.")
+        self.assertTrue(np.allclose(result, expected_result),
+                        "Incorrect output.")
 
     def test_qinv(self):
         """
@@ -191,7 +255,8 @@ class test_quaternion_functions(pointingutilstests):
         # Test trivial case
         quat = identity
         result = point.qinv(quat)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, identity), "Incorrect output.")
 
@@ -199,7 +264,8 @@ class test_quaternion_functions(pointingutilstests):
         quat = np.array([0.5, 0.5, 0.5, 0.5])
         result = point.qinv(quat)
         result = point.qmultiply(quat, result)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, identity), "Incorrect output.")
 
@@ -214,7 +280,8 @@ class test_quaternion_functions(pointingutilstests):
         # Test rotation of identity
         quat = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
         result = point.qrotate(identity, quat)
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, quat), "Incorrect output.")
 
@@ -222,13 +289,14 @@ class test_quaternion_functions(pointingutilstests):
         quat = np.array([0, np.sin(np.pi/4), 0, np.cos(np.pi/4)])
         result = point.qrotate(quat, quat)
         expected_result = np.array([0, np.sin(np.pi/2), 0, np.cos(np.pi/2)])
-        self.assertIsInstance(result, np.ndarray, "Output type must be ndarray.")
+        self.assertIsInstance(result, np.ndarray,
+                              "Output type must be ndarray.")
         self.assertEqual(len(result), 4, "Output must have 4 elements.")
         self.assertTrue(np.allclose(result, quat), "Incorrect output.")
 
 class test_dcm_functions(pointingutilstests):
     """
-    
+
     """
 
     def check_rotation_matrix(self, R):
@@ -237,17 +305,18 @@ class test_dcm_functions(pointingutilstests):
         """
 
         # Check dimensions
-        self.assertEqual(R.shape[0], R.shape[1], "Rotation matrix must be square.")
+        self.assertEqual(R.shape[0], R.shape[1],
+                         "Rotation matrix must be square.")
         self.assertEqual(R.shape[0], 3, "Rotation matrix must be 3x3.")
 
         # Check determinant is one
-        self.assertTrue(np.isclose(np.linalg.det(R), 1.0), 
-                                         "Determinant of a rotation matrix must be one.")
+        self.assertTrue(np.isclose(np.linalg.det(R), 1.0),
+                        "Determinant of a rotation matrix must be one.")
 
         # Check column norms
         for idx in range(len(R)):
-            self.assertTrue(np.isclose(np.linalg.norm(R[idx,:]), 1.0), 
-                                            "Rotation matrix rows must have unity norm.")
+            self.assertTrue(np.isclose(np.linalg.norm(R[idx,:]), 1.0),
+                            "Rotation matrix rows must have unity norm.")
 
     def test_x_rotation(self):
         """
@@ -332,14 +401,14 @@ class test_radec_functions(pointingutilstests):
         self.assertTrue(np.isclose(dec, np.pi/2), "Declination should be pi/2.")
 
         # Test vector & rate mode with radian output
-        ra, dec, d_ra, d_dec = point.vector_to_ra_dec(vector, 
-                                                               vector_rate, output="rad")
+        ra, dec, d_ra, d_dec = point.vector_to_ra_dec(vector,
+                                                      vector_rate, output="rad")
         self.assertEqual(ra, np.pi/2, "Right ascension should be pi/2.")
         self.assertTrue(np.isclose(dec, np.pi/2), "Declination should be pi/2.")
 
         # Set up test cases
         vector = np.array([1, 0, 0])
-        
+
         # Test vector-only mode with radian output
         ra, dec = point.vector_to_ra_dec(vector, output="rad")
         self.assertEqual(ra, 0, "Right ascension should be zero.")

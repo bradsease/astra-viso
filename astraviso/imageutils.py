@@ -35,7 +35,8 @@ def poisson_noise(image, delta_t, dark_current, read_noise):
 
     # Check for invalid input
     if np.any(np.array([delta_t, dark_current, read_noise]) < 0):
-        raise ValueError("Input values for delta_t, dark_current, and read_noise must be positive.")
+        raise ValueError("Input values for delta_t, dark_current, and \
+                         read_noise must be positive.")
 
     # Add shot noise
     image = np.random.poisson(image)
@@ -78,17 +79,19 @@ def gaussian_noise(image, delta_t, dark_current, read_noise):
 
     # Check for invalid input
     if np.any(np.array([delta_t, dark_current, read_noise]) < 0):
-        raise ValueError("Input values for delta_t, dark_current, and read_noise must be positive.")
+        raise ValueError("Input values for delta_t, dark_current, and \
+                          read_noise must be positive.")
 
     # Add shot noise
     image += np.round(np.sqrt(image) * np.random.randn(*image.shape))
 
     # Add dark current
-    image += np.round(dark_current*delta_t + np.sqrt(dark_current*delta_t) *                       \
-                                                                      np.random.randn(*image.shape))
+    image += np.round(dark_current*delta_t + np.sqrt(dark_current*delta_t) *
+                      np.random.randn(*image.shape))
 
     # Add read noise
-    image += np.round(read_noise + np.sqrt(read_noise) * np.random.randn(*image.shape))
+    image += np.round(read_noise + np.sqrt(read_noise) *
+                      np.random.randn(*image.shape))
 
     return image
 
@@ -129,7 +132,8 @@ def vismag2photon(vismags, delta_t, aperture, mv0_flux):
 
     # Check for incorrect input
     if np.any(np.array([delta_t, aperture, mv0_flux]) < 0):
-        raise ValueError("Input value for delta_t, aperture, and mv0_flux cannot be negative.")
+        raise ValueError("Input value for delta_t, aperture, and mv0_flux \
+                         cannot be negative.")
 
     # Return total photon count
     return mv0_flux * (1 / (2.5**np.asarray(vismags))) * delta_t * aperture
@@ -177,7 +181,7 @@ def apply_polynomial_quantum_efficiency(photon_image, poly):
     photon_image : ndarray
         Input image where each pixel contains a photon count.
     poly : ndarray
-        Polynomial coefficient array. Elements designated such that 
+        Polynomial coefficient array. Elements designated such that
         poly[i,j] * x^i * y^j. The origin of the (x,y) pixel coordinate system
         is the geometric center of the image. Coefficient array, poly, must be
         2 dimensional.
@@ -207,12 +211,14 @@ def apply_polynomial_quantum_efficiency(photon_image, poly):
     # Generate quantum efficiency map
     s_x, s_y = photon_image.shape
     x, y = np.meshgrid(range(s_y), range(s_x))
-    quantum_efficiency = np.polynomial.polynomial.polyval2d(x-s_x/2, y-s_y/2, poly)
+    quantum_efficiency = np.polynomial.polynomial.polyval2d(x-s_x/2, y-s_y/2,
+                                                            poly)
 
     # Scale image & return result
     return np.floor(photon_image * quantum_efficiency)
 
-def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sigma, seed=None):
+def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency,
+                                      sigma, seed=None):
     """
     Apply a spatially gaussian random quantum efficiency to an input image.
 
@@ -252,7 +258,8 @@ def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sig
 
     # Validate input
     if mean_quantum_efficiency < 0 or sigma < 0:
-        raise ValueError("Mean quantum efficiency and sigma parameter must be positive.")
+        raise ValueError("Mean quantum efficiency and sigma parameter must be \
+                         positive.")
 
     # Set up RNG
     rng = random.Random()
@@ -262,8 +269,8 @@ def apply_gaussian_quantum_efficiency(photon_image, mean_quantum_efficiency, sig
 
     # Generate efficiencies
     rows, cols = photon_image.shape
-    quantum_efficiency = np.array([[rng.gauss(mean_quantum_efficiency, sigma) for col in           \
-                                                               range(cols)] for row in range(rows)])
+    quantum_efficiency = np.array([[rng.gauss(mean_quantum_efficiency, sigma)
+                                for col in range(cols)] for row in range(rows)])
 
     # Scale image & return result
     return np.floor(np.abs(photon_image * quantum_efficiency))
@@ -372,12 +379,11 @@ def in_frame(resolution, img_x, img_y, buffer=0.5):
         image frame.
     """
 
-    return [idx for idx in range(len(img_x)) if (img_x[idx] >= 0-buffer                 and
-                                                 img_x[idx] <= resolution[0]-1+buffer   and
-                                                 img_y[idx] >= 0-buffer                 and
-                                                 img_y[idx] <= resolution[1]-1+buffer)]
+    return [idx for idx in range(len(img_x)) if
+            (img_x[idx] >= 0-buffer and img_x[idx] <= resolution[0]-1+buffer and
+             img_y[idx] >= 0-buffer and img_y[idx] <= resolution[1]-1+buffer)]
 
-def imshow(img, points=None, scale=None):
+def imshow(img, scale=None, points=None):
     """
     MATLAB-like imshow function.
 
@@ -385,12 +391,12 @@ def imshow(img, points=None, scale=None):
     ----------
     image : ndarray
         Input image.
-    points : tuple
-        Tuple containing two arrays, (x, y), of points to overlay on the image
-        where x and y are equal-length ndarrays.
     scale : ndarray, optional
         Minimum and maximum scale. Defaults to the minimum and maximum values
         in the image.
+    points : tuple
+        Tuple containing two arrays, (x, y), of points to overlay on the image
+        where x and y are equal-length ndarrays.
 
     Returns
     -------
@@ -405,7 +411,7 @@ def imshow(img, points=None, scale=None):
     >>> imshow(np.random.rand((512,512))
     """
 
-    #
+    # Future feature addition to overlay points on image
     if points is not None:
         raise NotImplementedError('Feature not yet implemented.')
 

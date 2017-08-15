@@ -2,6 +2,7 @@
 Pointing utilities for astra-viso.
 """
 from __future__ import division
+from astraviso import mathutils
 import numpy as np
 
 def rigid_body_kinematic(quaternion, angular_rate):
@@ -64,7 +65,7 @@ def rigid_body_track(observer, target):
 
     Returns
     -------
-    state : ndarray
+    state_fcn : ndarray
         Attitude history function for the observer. Defined as an explicit
         function of time.
 
@@ -74,10 +75,25 @@ def rigid_body_track(observer, target):
 
     Examples
     --------
-    >>> ...
+    >>> cam = StarCam()
+    >>> obj = WorldObject()
+    >>> state_fcn = rigid_body_track(cam, obj)
+    >>> state_fcn(0)
+    array([ 0.85090352,  0.        ,  0.        ,  0.52532199])
     """
-    # np.dot(dec, ra)
-    pass
+
+    def state_fcn(time):
+        """ Tracking trajectory function. """
+        ra, dec = vector_to_ra_dec(target.get_position(time)-
+                                   observer.get_position(time), output="rad")
+
+        dcm = mathutils.dot_sequence(rot3(ra), rot2(-dec), rot3(-np.pi/2),
+                                     rot1(-np.pi/2))
+
+        return dcm2quaternion(dcm)
+
+    # Return f(t)
+    return state_fcn
 
 def quaternion2dcm(quaternion_list):
     """
