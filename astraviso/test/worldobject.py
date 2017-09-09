@@ -345,6 +345,40 @@ class test_set_position_preset(worldobjecttests):
         self.assertTrue(np.all(test_result == expected_result), "Incorrect function result.")
         self.assertTrue(np.all(test_result2 == expected_result), "Incorrect function result.")
 
+    def test_earth_orbit(self):
+        """
+        Test earth_orbit preset.
+        """
+
+        # Set function
+        self.worldobject.set_position_preset("earth_orbit",
+                                             initial_position=1e3*np.array([6778, 0, 0]),
+                                             initial_velocity=1e3*np.array([0, 7.660477, 0]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(test_result), 6, "Incorrect output dimension.")
+
+    def test_earth_orbit_j2(self):
+        """
+        Test earth_orbit preset.
+        """
+
+        # Set function
+        self.worldobject.set_position_preset("earth_orbit_j2",
+                                             initial_position=1e3*np.array([6778, 0, 0]),
+                                             initial_velocity=1e3*np.array([0, 7.660477, 0]))
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(1)
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(test_result), 6, "Incorrect output dimension.")
+
 class test_get_position(worldobjecttests):
     """
     Test get_position method.

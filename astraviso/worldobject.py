@@ -5,6 +5,7 @@ from __future__ import division
 import numpy as np
 from scipy.integrate import ode
 from astraviso import pointingutils
+from astraviso import positionutils
 
 class WorldObject:
     """
@@ -204,7 +205,7 @@ class WorldObject:
         Examples
         --------
         >>> obj = WorldObject()
-        >>> obj.set_pointing_preset("kinematic", 
+        >>> obj.set_pointing_preset("kinematic",
         ...                           initial_quaternion=np.array([0, 0, 0, 1]),
         ...                            initial_angular_rate=np.array([0, 0, 0]))
         """
@@ -392,9 +393,12 @@ class WorldObject:
         Set internal position dynamics to preset function.
         Current options are:
 
-        "static"    -- A constant position function.
-        "kinematic" -- simple kinematic motion from an initial position and
-                       velocity.
+        "static"         -- A constant position function.
+        "kinematic"      -- Simple kinematic motion from an initial position and
+                            velocity.
+        "earth_orbit"    -- A simple Earth orbit with two-body dynamics.
+        "earth_orbit_j2" -- An Earth orbit with two-body dynamics plus the J2
+                            perturbation.
 
         Parameters
         ----------
@@ -402,10 +406,10 @@ class WorldObject:
             Name of chosen preset.
         initial_position : ndarray, optional
             Initial object position. Required as keyword argument for the
-            "kinematic" preset.
+            "static", "kinematic", and "orbit" presets.
         initial_velocity : ndarray, optional
             Initial object position. Required as keyword argument for the
-            "kinematic" preset.
+            "kinematic" and "orbit" presets.
 
         Returns
         -------
@@ -418,9 +422,9 @@ class WorldObject:
         Examples
         --------
         >>> obj = WorldObject()
-        >>> obj.set_position_preset("kinematic", 
-        ...                              initial_position=np.ndarray([0, 0, 0]),
-        ...                               initial_velocity=np.ndarray([0, 0, 0])
+        >>> obj.set_position_preset("kinematic",
+        ...                         initial_position=np.ndarray([0, 0, 0]),
+        ...                         initial_velocity=np.ndarray([0, 0, 0])
         >>> obj.position_fcn(1)
         array([0, 0, 0])
         """
@@ -430,8 +434,8 @@ class WorldObject:
 
             # Check input
             if "initial_position" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                                'initial_position'")
+                raise ValueError("Must provide the following keyword arguments \
+                                 for this preset: 'initial_position'")
 
             # Build function & set
             position_fcn = lambda t: kwargs["initial_position"]
@@ -442,11 +446,44 @@ class WorldObject:
 
             # Check input
             if "initial_position" not in kwargs or "initial_velocity" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                            'initial_position', 'initial_velocity'")
+                raise ValueError("Must provide the following keyword arguments \
+                                 for this preset: 'initial_position',          \
+                                 'initial_velocity'")
 
             # Build function & set
-            position_fcn = lambda t: kwargs["initial_position"] + kwargs["initial_velocity"]*t
+            position_fcn = lambda t: kwargs["initial_position"]   \
+                                     + kwargs["initial_velocity"]*t
+            self.set_position_fcn(position_fcn, mode="explicit")
+
+        # Set earth_orbit option
+        elif preset.lower() == "earth_orbit":
+
+            # Check input
+            if "initial_position" not in kwargs or "initial_velocity" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments \
+                                 for this preset: 'initial_position',          \
+                                 'initial_velocity'")
+
+            # Build function and set
+            initial_state = np.hstack((kwargs["initial_position"],
+                                       kwargs["initial_velocity"]))
+            position_fcn = positionutils.earth_orbit(initial_state)
+            self.set_position_fcn(position_fcn, mode="explicit")
+
+        # Set earth_orbit option
+        elif preset.lower() == "earth_orbit_j2":
+
+            # Check input
+            if "initial_position" not in kwargs or "initial_velocity" not in kwargs:
+                raise ValueError("Must provide the following keyword arguments \
+                                 for this preset: 'initial_position',          \
+                                 'initial_velocity'")
+
+            # Build function and set
+            initial_state = np.hstack((kwargs["initial_position"],
+                                       kwargs["initial_velocity"]))
+            position_fcn = positionutils.earth_orbit(initial_state,
+                                                     nonspherical="on")
             self.set_position_fcn(position_fcn, mode="explicit")
 
         # Handle invalid option
