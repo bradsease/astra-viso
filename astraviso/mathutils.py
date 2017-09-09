@@ -22,3 +22,26 @@ def dot_sequence(*args):
         types and dimensions.
     """
     return reduce(np.dot, args)
+
+def unit(vector):
+    """
+    Normalize input vector.
+
+    Parameters
+    ----------
+    vector : ndarray
+        Input vector as either a row or column array.
+
+    Returns
+    -------
+    unit_vector : float
+        Input vector normalized to magnitude 1.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> vector = np.ones(3)
+    >>> unit(vector)
+    array([ 0.57735027,  0.57735027,  0.57735027])
+    """
+    return vector / np.linalg.norm(vector)

@@ -46,3 +46,20 @@ class test_dot_sequence(mathutilstests):
         result = math.dot_sequence(dcm, dcm, dcm, dcm)
         self.assertTrue(np.array_equal(result, np.eye(3)),
                         "Incorrect output value for 90 deg rotation input.")
+
+class test_vector_functions(mathutilstests):
+    """
+    Tests for vector tools in math module.
+    """
+
+    def test_unit(self):
+        """
+        Test unit function.
+        """
+
+        # Test unit
+        np.random.seed(1)
+        for idx in range(10):
+            unit_vector = math.unit(np.random.randn(3))
+            self.assertTrue(np.isclose(np.linalg.norm(unit_vector), 1),
+                            "Magnitude of unit vector should be 1.")
