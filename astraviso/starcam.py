@@ -206,7 +206,7 @@ class StarCam(worldobject.WorldObject):
         # Extract subset of stars from catalog
         # Also a temporary solution...
         field_of_view = 45
-        boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
+        boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm").T)
         stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
@@ -553,7 +553,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_sensitivity_fcn, StarCam.get_photons, 
+        StarCam.set_sensitivity_fcn, StarCam.get_photons,
         imageutils.vismag2photon
 
         Notes
@@ -697,7 +697,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_projection_fcn, StarCam.get_projection, 
+        StarCam.set_projection_fcn, StarCam.get_projection,
 
         Notes
         -----

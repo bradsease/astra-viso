@@ -14,7 +14,7 @@ setup(
 
     # Package definition
     name="astraviso",
-    version="0.1.1",
+    version="0.1.3",
     packages=find_packages(),
 
     # Required package data
