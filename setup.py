@@ -14,13 +14,13 @@ setup(
 
     # Package definition
     name="astraviso",
-    version="0.1.2",
+    version="0.2.0",
     packages=find_packages(),
 
     # Required package data
     include_package_data=True,
     package_data={
-        'astraviso': ['catalogs/*.dat'],
+        'astraviso': ['catalogs/*.dat', 'test/data/*'],
     },
 
     # Dependencies

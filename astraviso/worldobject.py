@@ -6,6 +6,7 @@ import numpy as np
 from scipy.integrate import ode
 from astraviso import pointingutils
 from astraviso import positionutils
+from astraviso import ephemeris
 
 class WorldObject:
     """
@@ -489,6 +490,37 @@ class WorldObject:
         # Handle invalid option
         else:
             raise NotImplementedError("Invalid preset option.")
+
+    def load_position_ephemeris(self, ephemeris_file):
+        """
+        Set internal position state to be sampled from a provided ephemeris
+        file. Currently only supports STK-format ephemerides. See
+        astraviso.ephemeris for more information.
+
+        Parameters
+        ----------
+        ephemeris_file : str
+            Path to the target ephemeris file to load.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        WorldObject.set_position_preset, WorldObject.set_position_fcn,
+        WorldObject.get_position
+
+        Notes
+        -----
+        In the current implementation, care should be taken to keep ephemeris
+        step sizes as small as possible to avoid large interpolation error. Step
+        sizes of less than 30 seconds for LEO spacecraft are recommended.
+        """
+
+        # Load ephemeris
+        internal_ephem = ephemeris.OrbitEphemeris(ephemeris_file)
+        self.set_position_fcn(internal_ephem.get_position, mode="explicit")
 
     def get_position(self, time):
         """

@@ -5,6 +5,7 @@ from __future__ import division
 import unittest
 from astraviso import worldobject as obj
 import numpy as np
+import pkg_resources as pkg
 
 class worldobjecttests(unittest.TestCase):
     """
@@ -378,6 +379,28 @@ class test_set_position_preset(worldobjecttests):
         # Check function output
         self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
         self.assertEqual(len(test_result), 6, "Incorrect output dimension.")
+
+class test_load_position_ephemeris(worldobjecttests):
+    """
+    Test set_position_ephemeris method.
+    """
+
+    def test_sample_ephem(self):
+        """
+        Test load of a sample ephemeris file.
+        """
+
+        # Load ephemeris
+        sample_ephem_path = pkg.resource_filename("astraviso",
+                                                  "test/data/test_sat.e")
+        self.worldobject.load_position_ephemeris(sample_ephem_path)
+
+        # Compute result
+        test_result = self.worldobject.position_fcn(120)
+
+        # Check function output
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(test_result), 3, "Incorrect output dimension.")
 
 class test_get_position(worldobjecttests):
     """
