@@ -3,9 +3,10 @@ Ephemeris handling module.
 
 References
 ----------
-[1] AGI, "Ephemeris File Format (*.e)".
-    help.agi.com/stk/index.htm#stk/importfiles-02.htm
-
+[1] Analytical Graphics, Inc., "Ephemeris File Format (*.e)".
+    http://help.agi.com/stk/index.htm#stk/importfiles-02.htm
+[2] Analytical Graphics, Inc., "Attitude File Format (*.a)".
+    http://help.agi.com/stk/index.htm#stk/importfiles-01.htm
 TODO:
     - Implement support for Lagrange and Hermite interpolation options. Code
       currently uses PCHIP and has large errors for LEOs.
@@ -20,18 +21,31 @@ import scipy.interpolate
 import numpy as np
 import datetime as dt
 
-STK_DATA_FORMATS = ["EphemerisTimePos", "EphemerisTimePosVel",
-                    "EphemerisTimePosVelAcc", "EphemerisLLATimePos",
-                    "EphemerisLLATimePosVel", "EphemerisLLRTimePos",
-                    "EphemerisLLRTimePosVel", "EphemerisMSLLLATimePos",
-                    "EphemerisMSLLLATimePosVel", "EphemerisTerrainLLATimePos",
-                    "EphemerisGeocentricLLATimePosVel",
-                    "EphemerisGeodeticLLRTimePos",
-                    "EphemerisGeodeticLLRTimePosVel", "CovarianceTimePos",
-                    "CovarianceTimePosVel"]
+STK_ORBIT_FORMATS = ["EphemerisTimePos", "EphemerisTimePosVel",
+                     "EphemerisTimePosVelAcc", "EphemerisLLATimePos",
+                     "EphemerisLLATimePosVel", "EphemerisLLRTimePos",
+                     "EphemerisLLRTimePosVel", "EphemerisMSLLLATimePos",
+                     "EphemerisMSLLLATimePosVel", "EphemerisTerrainLLATimePos",
+                     "EphemerisGeocentricLLATimePosVel",
+                     "EphemerisGeodeticLLRTimePos",
+                     "EphemerisGeodeticLLRTimePosVel", "CovarianceTimePos",
+                     "CovarianceTimePosVel"]
 
-SUPPORTED_STK_DATA_FORMATS = ["EphemerisTimePos", "EphemerisTimePosVel",
-                              "EphemerisTimePosVelAcc"]
+SUPPORTED_STK_ORBIT_FORMATS = ["EphemerisTimePos", "EphemerisTimePosVel",
+                               "EphemerisTimePosVelAcc"]
+
+STK_ATT_FORMATS = ["AttitudeTimeQuaternions", "AttitudeTimeQuatScalarFirst",
+                   "AttitudeTimeQuatAngVels", "AttitudeTimeAngVels",
+                   "AttitudeTimeEulerAngles", "AttitudeTimeEulerAngleRates",
+                   "AttitudeTimeEulerAnglesAndRates", "AttitudeTimeYPRAngles",
+                   "AttitudeTimeYPRAngleRates", "AttitudeTimeYPRAnglesAndRates",
+                   "AttitudeTimeDCM", "AttitudeTimeDCMAngVels",
+                   "AttitudeTimeECFVector", "AttitudeTimeECIVector"]
+
+SUPPORTED_STK_ATT_FORMATS = ["AttitudeTimeQuaternions",
+                             "AttitudeTimeQuatScalarFirst",
+                             "AttitudeTimeQuatAngVels", "AttitudeTimeDCM",
+                             "AttitudeTimeDCMAngVels"]
 
 class InvalidEphemerisError(Exception):
     """ Bad ephemeris file error. """
@@ -84,7 +98,7 @@ class OrbitEphemeris:
         """
 
         # Identify ephemeris format
-        ephem_format = detect_ephemeris_format(ephem_file_name)
+        ephem_format = detect_orbit_ephemeris_format(ephem_file_name)
 
         # Choose ephemeris processor
         processor_map = {"stk" : self.load_stk_ephemeris}
@@ -114,6 +128,8 @@ class OrbitEphemeris:
         self._coord_sys = read_stk_orbit_coord_sys(ephem_file_contents)
         data_format = read_stk_orbit_data_format(ephem_file_contents)
         state_data = read_stk_orbit_state_data(ephem_file_contents, data_format)
+        interp_method, interp_order = read_stk_interpolation_options(
+            ephem_file_contents)
         self.validate_stk_params(data_format, state_data)
 
         # Build position interpolants
@@ -155,12 +171,11 @@ class OrbitEphemeris:
         """
 
         # Check if ephemeris data format is supported
-        if data_format not in SUPPORTED_STK_DATA_FORMATS:
+        if data_format not in SUPPORTED_STK_ORBIT_FORMATS:
             raise NotImplementedError("Unsupported ephemeris data format: {}".\
                                       format(data_format))
 
-# General helper functions
-def detect_ephemeris_format(ephem_file_name):
+def detect_orbit_ephemeris_format(ephem_file_name):
     """
     Detect the format of a target ephemeris file.
 
@@ -313,7 +328,7 @@ def read_stk_orbit_data_format(ephem_file_contents):
     """
 
     # Extract format option]
-    observed_formats = [fmt in ephem_file_contents for fmt in STK_DATA_FORMATS]
+    observed_formats = [fmt in ephem_file_contents for fmt in STK_ORBIT_FORMATS]
 
     # Handle errors
     if sum(observed_formats) > 1:
@@ -322,7 +337,7 @@ def read_stk_orbit_data_format(ephem_file_contents):
         raise InvalidEphemerisError("Missing or invalid data format.")
 
     # Return data format option
-    return STK_DATA_FORMATS[observed_formats.index(True)]
+    return STK_ORBIT_FORMATS[observed_formats.index(True)]
 
 def read_stk_interpolation_options(ephem_file_contents):
     """
@@ -425,6 +440,160 @@ def read_stk_orbit_state_data(ephem_file_contents, data_format):
     if len(ephem_data_array.shape) != 2:
         raise InvalidEphemerisError("Malformed data block.")
     return ephem_data_array[:, 0:7].T
+
+
+class AttitudeEphemeris:
+    """
+    General attitude ephemeris class.
+    """
+
+    def __init__(self, ephem_file_name=None):
+        """
+        AttitudeEphemeris class constructor.
+
+        Parameters
+        ---------
+        ephem_file_name : str
+            Target ephemeris file to load.
+
+        Returns
+        -------
+        attitude_ephemeris : AttitudeEphemeris
+            AttitudeEphemeris object containing data extracted from ephem_file.
+        """
+
+        # Ephemeris variables
+        self._initial_epoch = None
+        self._coord_sys = None
+        self._interpolant = None
+
+        # Load target ephemeris file
+        self.load_ephemeris(ephem_file_name)
+
+    def load_ephemeris(self, ephem_file_name):
+        """
+        Load an ephemeris file.
+
+        Parameters
+        ---------
+        ephem_file_name : str
+            Target ephemeris file to load.
+
+        Returns
+        -------
+        None
+        """
+
+        # Identify ephemeris format
+        ephem_format = detect_attitude_ephemeris_format(ephem_file_name)
+
+        # Choose ephemeris processor
+        processor_map = {"stk" : self.load_stk_ephemeris}
+        processor_map[ephem_format](ephem_file_name)
+
+    def load_stk_ephemeris(self, ephem_file_name):
+        """
+        Load an STK-format ephemeris file.
+
+        Parameters
+        ---------
+        ephem_file_name : str
+            Target ephemeris file to load.
+
+        Returns
+        -------
+        None
+        """
+
+        # Extract file contents
+        with open(ephem_file_name, 'r') as ephem_file_handle:
+            ephem_file_contents = ephem_file_handle.read().split('\n')
+
+        # Read ephemeris data
+        self._initial_epoch = read_stk_orbit_epoch(ephem_file_contents)
+        self._coord_sys = read_stk_orbit_coord_sys(ephem_file_contents)
+        data_format = read_stk_orbit_data_format(ephem_file_contents)
+        state_data = read_stk_orbit_state_data(ephem_file_contents, data_format)
+        interp_method, interp_order = read_stk_interpolation_options(
+            ephem_file_contents)
+        self.validate_stk_params(data_format, state_data)
+
+        # Build position interpolants
+        #x_interp = scipy.interpolate.PchipInterpolator(state_data[0],
+        #                                               state_data[1])
+        #y_interp = scipy.interpolate.PchipInterpolator(state_data[0],
+        #                                               state_data[2])
+        #z_interp = scipy.interpolate.PchipInterpolator(state_data[0],
+        #                                               state_data[3])
+
+        # Combine interpolants and store
+        #self._interpolant = lambda time: np.array([x_interp(time),
+        #                                           y_interp(time),
+        #                                           z_interp(time)])
+
+    def get_attitude(self, time):
+        """
+        Get ephemeris attitude state at a specified time.
+
+        Parameters
+        ---------
+        time : float, datetime
+            Time of desired state. Accepts input as either seconds measured from
+            the initial epoch or a specific date and time.
+
+        Returns
+        -------
+        quaternion : ndarray
+            Ephemeris attitude quaternion at the input time. Output quaternion
+            format designates the 4th element of the arrray as the scalar
+            component.
+        """
+
+        if type(time) is dt.datetime:
+            time = (time - self._initial_epoch).total_seconds()
+
+        return self._interpolant(time)
+
+    def validate_stk_params(self, data_format, state_data):
+        """
+        """
+
+        # Check if ephemeris data format is supported
+        if data_format not in SUPPORTED_STK_ATT_FORMATS:
+            raise NotImplementedError("Unsupported ephemeris data format: {}".\
+                                      format(data_format))
+
+def detect_attitude_ephemeris_format(ephem_file_name):
+    """
+    Detect the format of a target attitude ephemeris file.
+
+    Parameters
+    ----------
+    ephem_file_name : str
+        Target ephemeris file to identify.
+
+    Returns
+    -------
+    ephem_format : str
+        Short string describing the ephemeris format. Supported formats are stk
+        and ccsds.
+
+    TODO
+    ----
+    Implement more robust identification algorithm.
+    """
+
+    # Get file extension
+    _, file_extension = os.path.splitext(ephem_file_name)
+
+    # Map extension to file type
+    extension_map = {".a" : "stk"}
+
+    # Validate extension and return type
+    if file_extension not in extension_map:
+        raise NotImplementedError("Unsupported ephemeris format.")
+    else:
+        return extension_map[file_extension]
 
 def _extract_unique_line(file_contents, search_string):
     """
