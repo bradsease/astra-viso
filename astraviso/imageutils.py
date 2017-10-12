@@ -383,6 +383,109 @@ def in_frame(resolution, img_x, img_y, buffer=0.5):
             (img_x[idx] >= 0-buffer and img_x[idx] <= resolution[0]-1+buffer and
              img_y[idx] >= 0-buffer and img_y[idx] <= resolution[1]-1+buffer)]
 
+class ExtendedImage:
+    """ A simple FITS-like image container """
+
+    def __init__(self, image):
+        """
+        Create new ExtendedImage container.
+
+        Parameters
+        ----------
+        image : ndarray
+            Input image data.
+
+        Returns
+        -------
+        ext_image : ExtendedImage
+            Image container with empty keyword and table lists.
+
+        See Also
+        --------
+        ExtendedImage.set_keyword, ExtendedImage.set_table, ExtendedImage.imshow
+        """
+        self.image = image
+        self.keywords = {}
+        self.tables = {}
+
+    def set_keyword(self, keyword, value):
+        """
+        Assign a value to a specific meta-data keyword.
+
+        Parameters
+        ----------
+        keyword : str
+            Specified keyword. If data for the given keyword already exists, it
+            will be overwritten.
+        value : any scalar
+            Input value limited to scalar types. Strings are allowed.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        ExtendedImage.list_keywords, ExtendedImage.get_keyword
+        """
+        self.keywords[keyword] = value
+
+    def set_table(self, name, data):
+        """
+        Assign data to a specific data table.
+
+        Parameters
+        ----------
+        name : str
+            Specified table. If data for the given table already exists, it
+            will be overwritten.
+        data : array_like
+            Input data.
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        ExtendedImage.list_tables, ExtendedImage.get_table
+        """
+        self.table[name] = data
+
+    def list_keywords(self):
+        """
+        """
+        return list(self.keywords.keys())
+
+    def list_tables(self):
+        """
+        """
+        return list(self.tables.keys())
+
+    def get_keyword(self, keyword):
+        """
+        """
+        if keyword not in self.keywords:
+            raise ValueError("Could not find keyword '{}'".format(keyword))
+        return self.keywords[keyword]
+
+    def get_table(self, name):
+        """
+        """
+        if name not in self.tables:
+            raise ValueError("Could not find keyword '{}'".format(name))
+        return self.tables[name]
+
+    def write_to_fits(self):
+        """
+        """
+        pass
+
+    def imshow(scale):
+        """
+        """
+        imshow(self.image, scale=scale)
+
 def imshow(img, scale=None, points=None):
     """
     MATLAB-like imshow function.

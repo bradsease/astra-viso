@@ -601,7 +601,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_sensitivity_fcn, StarCam.get_photons, 
+        StarCam.set_sensitivity_fcn, StarCam.get_photons,
         imageutils.vismag2photon
 
         Notes
@@ -745,7 +745,7 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_projection_fcn, StarCam.get_projection, 
+        StarCam.set_projection_fcn, StarCam.get_projection,
 
         Notes
         -----
