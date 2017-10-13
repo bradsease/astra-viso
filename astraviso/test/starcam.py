@@ -637,3 +637,44 @@ class test_get_saturation(starcamtests):
         # Check function
         self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result==3), "Incorrect result.")
+
+class test__estimate_boresight_angular_displacement(starcamtests):
+    """
+    Test _estimate_boresight_angular_displacement method.
+    """
+
+    def test_low_fidelity(self):
+        """
+        Test low fidelity angle estimator.
+        """
+
+        self.starcam.set_pointing_preset("static",
+            initial_quaternion=np.array([0, 0, 0, 1]))
+        result = self.starcam._estimate_boresight_angular_displacement(0, 1,
+                 precision="low")
+        np.testing.assert_almost_equal(result, 0)
+
+        self.starcam.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0.1, 0, 0]))
+        result = self.starcam._estimate_boresight_angular_displacement(0, 1,
+                 precision="low")
+        np.testing.assert_almost_equal(result, 0.1)
+
+    def test_high_fidelity(self):
+        """
+        Test high fidelity angle estimator.
+        """
+
+        self.starcam.set_pointing_preset("static",
+            initial_quaternion=np.array([0, 0, 0, 1]))
+        result = self.starcam._estimate_boresight_angular_displacement(0, 1,
+                 precision="high")
+        np.testing.assert_almost_equal(result, 0)
+
+        self.starcam.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0.1, 0, 0]))
+        result = self.starcam._estimate_boresight_angular_displacement(0, 1,
+                 precision="high")
+        np.testing.assert_almost_equal(result, 0.1)

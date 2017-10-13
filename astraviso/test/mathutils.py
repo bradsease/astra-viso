@@ -56,10 +56,18 @@ class test_vector_functions(mathutilstests):
         """
         Test unit function.
         """
-
-        # Test unit
         np.random.seed(1)
         for idx in range(10):
             unit_vector = math.unit(np.random.randn(3))
             self.assertTrue(np.isclose(np.linalg.norm(unit_vector), 1),
                             "Magnitude of unit vector should be 1.")
+
+    def test_angle(self):
+        """
+        Test angle function.
+        """
+        vector1 = np.array([0, 0, 1])
+        vector2 = np.array([1, 0, 0])
+        np.testing.assert_almost_equal(math.angle(vector1, vector1), 0)
+        np.testing.assert_almost_equal(math.angle(vector1, vector2), np.pi/2)
+        np.testing.assert_almost_equal(math.angle(vector2, vector2), 0)

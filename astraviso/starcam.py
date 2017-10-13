@@ -3,12 +3,14 @@ Astra-Viso star camera module.
 """
 from __future__ import division
 import numpy as np
+import scipy.integrate
 from scipy import signal
 from astraviso import worldobject
 from astraviso import starmap
 from astraviso import imageutils
 from astraviso import projectionutils
 from astraviso import positionutils
+from astraviso import mathutils
 
 class StarCam(worldobject.WorldObject):
     """
@@ -1189,3 +1191,55 @@ class StarCam(worldobject.WorldObject):
 
         # Saturate image
         return self.saturation_fcn(image)
+
+    def _estimate_boresight_angular_displacement(self, start_time,
+                                                 exposure_time,
+                                                 precision="low"):
+        """
+        Estimate the total angular displacement of the boresight over a
+        specified exposure time. Requires internal pointing model.
+
+        Parameters
+        ----------
+        start_time : float
+            Time to begin sequence, measured in seconds from the initial epoch.
+        exposure_time : float
+            Duration of each exposure, measured in seconds.
+        precision : str
+            Desired angle calculation fidelity. Options are "low" and "high".
+            Default is "low".
+
+        Returns
+        -------
+        total_angle : float
+            Total displacement angle over the exposure time, in radians.
+        """
+        if self.pointing_fcn is None:
+            raise ValueError("No internal pointing model provided. Could not "+
+                             "compute displacement angle.")
+
+        # Low precision mode
+        if precision.lower() == "low":
+            boresight_start = self.get_boresight(start_time)
+            boresight_end = self.get_boresight(start_time + exposure_time)
+            angle = mathutils.angle(boresight_start, boresight_end)
+
+        # High precision mode
+        elif precision.lower() == "high":
+            boresight_start = self.get_boresight(start_time)
+            angle_over_time = lambda time: mathutils.angle(boresight_start,
+                                           self.get_boresight(start_time+time))
+            angle = scipy.integrate.quad(angle_over_time, 0, exposure_time)[0]
+            #raise NotImplementedError("High precision angle mode unavailable.")
+
+        # Unsupported mode
+        else:
+            raise ValueError("Unsupported precision mode.")
+
+        # Return result
+        return abs(angle)
+
+    def _estimate_field_of_view(self):
+        """
+        """
+        pass
