@@ -165,6 +165,22 @@ class test_integrate(starcamtests):
         self.assertEqual(image.shape[1], 1024, "Y Resolution incorrect.")
         self.assertGreater(np.sum(image), 0, "Image must contain non-zero pixels.")
 
+class test_sequence_iterator(starcamtests):
+    """
+    Test sequence_iterator method.
+    """
+
+    def test_creation(self):
+        """
+        Simple sequence creation tests.
+        """
+
+        seq = self.starcam.sequence_iterator(0, 1, 10)
+        self.assertTrue(hasattr(seq, "__iter__"), "Sequence is not iterable.")
+
+        seq = self.starcam.sequence_iterator(0, 1, 10, delay=2)
+        self.assertTrue(hasattr(seq, "__iter__"), "Sequence is not iterable.")
+
 class test_setpsf(starcamtests):
     """
     Test setpsf method.
@@ -206,7 +222,7 @@ class test_set_noise_fcn(starcamtests):
         noise_fcn = lambda image, delta_t: image + 2
         test_image = np.zeros((256,256))
 
-        # Set noise function and 
+        # Set noise function and
         self.starcam.set_noise_fcn(noise_fcn)
         noisy_image = self.starcam.noise_fcn(test_image, 0)
 

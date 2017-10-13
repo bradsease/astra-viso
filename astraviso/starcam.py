@@ -31,7 +31,6 @@ class StarCam(worldobject.WorldObject):
 
         # Internal settings
         self.__settings = {}
-        self.__settings["resolution"] = 1024
         self.__settings["max_angle_step"] = 1e-4
         self.__settings["integration_steps"] = 1000
 
@@ -51,15 +50,18 @@ class StarCam(worldobject.WorldObject):
 
         # Set sensor pointing default
         worldobject.WorldObject.__init__(self)
-        self.set_pointing_preset("kinematic", initial_quaternion=np.array([0, 0, 0, 1]),           \
-                                                           initial_angular_rate=np.array([0, 0, 0]))
+        self.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0.02, 0.02, 0.02]))
 
         # Set position model default
-        self.set_position_preset("kinematic", initial_position=np.array([0, 0, 0]),                \
-                                                               initial_velocity=np.array([0, 0, 0]))
+        self.set_position_preset("kinematic",
+            initial_position=np.array([0, 0, 0]),
+            initial_velocity=np.array([0, 0, 0]))
 
         # Projection model defaults
-        self.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016, resolution=1024)
+        self.set_projection_preset("pinhole", focal_len=93, pixel_size=0.016,
+                                   resolution=1024)
 
         # Set CCD defaults
         self.set_saturation_preset("no_bleed", bit_depth=16)
@@ -89,8 +91,8 @@ class StarCam(worldobject.WorldObject):
         # Create kernel
         for row in range(size):
             for col in range(size):
-                kernel[row, col] = np.exp(-0.5 * ((row-halfwidth)**2 +                   \
-                                                           (col-halfwidth)**2) / sigma**2)
+                kernel[row, col] = np.exp(-0.5 * ((row-halfwidth)**2 +
+                                          (col-halfwidth)**2) / sigma**2)
 
         # Normalize and return
         self.psf = kernel / np.sum(kernel)
@@ -158,7 +160,7 @@ class StarCam(worldobject.WorldObject):
 
         # Handle invalid input
         else:
-            raise ValueError("Input must either be an existing WorldObject or None.")
+            raise ValueError("Input must be existing WorldObject or None.")
 
     def delete_worldobject(self, index):
         """
@@ -247,13 +249,15 @@ class StarCam(worldobject.WorldObject):
         # Also a temporary solution...
         field_of_view = 45
         boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
-        stars = self.star_catalog.get_region(boresight, np.rad2deg(angle)+field_of_view/2)
+        stars = self.star_catalog.get_region(boresight,
+                                             np.rad2deg(angle)+field_of_view/2)
 
         # Extract and scale magnitudes
         mag = self.get_photons(stars["magnitude"], delta_t) /  steps
 
         # Allocate image
-        img = np.zeros((self.__settings["resolution"], self.__settings["resolution"]))
+        img = np.zeros((self.__settings["resolution"],
+                        self.__settings["resolution"]))
 
         # Integrate star signals
         for step in range(steps):
@@ -270,7 +274,8 @@ class StarCam(worldobject.WorldObject):
 
             # Check for stars in image bounds
             # *** Set buffer > 0 after implementing self.psf_fcn
-            resolution = (self.__settings["resolution"], self.__settings["resolution"])
+            resolution = (self.__settings["resolution"],
+                          self.__settings["resolution"])
             in_img = imageutils.in_frame(resolution, img_x, img_y, buffer=-0.01)
 
             # Create image
@@ -278,11 +283,14 @@ class StarCam(worldobject.WorldObject):
             for idx in in_img:
                 xidx = img_x[idx] - np.floor(img_x[idx])
                 yidx = img_y[idx] - np.floor(img_y[idx])
-                img[int(np.ceil(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*yidx
-                img[int(np.floor(img_y[idx])), int(np.ceil(img_x[idx]))] += mag[idx]*xidx*(1-yidx)
-                img[int(np.ceil(img_y[idx])), int(np.floor(img_x[idx]))] += mag[idx]*(1-xidx)*yidx
-                img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] +=                       \
-                                                                          mag[idx]*(1-xidx)*(1-yidx)
+                img[int(np.ceil(img_y[idx])), int(np.ceil(img_x[idx]))] += \
+                    mag[idx]*xidx*yidx
+                img[int(np.floor(img_y[idx])), int(np.ceil(img_x[idx]))] +=  \
+                    mag[idx]*xidx*(1-yidx)
+                img[int(np.ceil(img_y[idx])), int(np.floor(img_x[idx]))] +=  \
+                    mag[idx]*(1-xidx)*yidx
+                img[int(np.floor(img_y[idx])), int(np.floor(img_x[idx]))] += \
+                    mag[idx]*(1-xidx)*(1-yidx)
 
         # Integrate external object signals
         for object in self.external_objects:
@@ -292,8 +300,8 @@ class StarCam(worldobject.WorldObject):
                 current_time = time + step_size*step
 
                 # Apply light time correction
-                light_time = positionutils.light_time(object.get_position,           \
-                                                      self.get_position, current_time)
+                light_time = positionutils.light_time(object.get_position,
+                             self.get_position, current_time)
                 current_time -= light_time
 
                 # Compute relative position in camera frame
@@ -311,23 +319,29 @@ class StarCam(worldobject.WorldObject):
 
                 # Check if object is in frame
                 # *** Set buffer > 0 after implementing self.psf_fcn
-                resolution = (self.__settings["resolution"], self.__settings["resolution"])
-                in_img = imageutils.in_frame(resolution, img_x, img_y, buffer=-0.01)
+                resolution = (self.__settings["resolution"],
+                              self.__settings["resolution"])
+                in_img = imageutils.in_frame(resolution, img_x, img_y,
+                                             buffer=-0.01)
 
                 # If object is in image frame, add to image
                 if len(in_img) > 0:
 
                     # Get photon count
-                    mag = self.get_photons(object.get_vismag(current_time,                         \
-                                                        self.get_position(current_time)), step_size)
+                    mag = self.get_photons(object.get_vismag(current_time,
+                          self.get_position(current_time)), step_size)
 
                     # Add to image
                     xidx = img_x - np.floor(img_x)
                     yidx = img_y - np.floor(img_y)
-                    img[int(np.ceil(img_y)), int(np.ceil(img_x))] += mag*xidx*yidx
-                    img[int(np.floor(img_y)), int(np.ceil(img_x))] += mag*xidx*(1-yidx)
-                    img[int(np.ceil(img_y)), int(np.floor(img_x))] += mag*(1-xidx)*yidx
-                    img[int(np.floor(img_y)), int(np.floor(img_x))] += mag*(1-xidx)*(1-yidx)
+                    img[int(np.ceil(img_y)), int(np.ceil(img_x))] +=  \
+                        mag*xidx*yidx
+                    img[int(np.floor(img_y)), int(np.ceil(img_x))] +=  \
+                        mag*xidx*(1-yidx)
+                    img[int(np.ceil(img_y)), int(np.floor(img_x))] +=  \
+                        mag*(1-xidx)*yidx
+                    img[int(np.floor(img_y)), int(np.floor(img_x))] +=  \
+                        mag*(1-xidx)*(1-yidx)
 
         # Return result
         return img
@@ -339,7 +353,7 @@ class StarCam(worldobject.WorldObject):
         Parameters
         ----------
         time : float
-            Time to begin exposure. Measured in seconds from epoch.
+            Time to begin exposure. Measured in seconds from the initial epoch.
         delta_t : float
             Desired exposure time. Measured in seconds.
 
@@ -378,6 +392,47 @@ class StarCam(worldobject.WorldObject):
 
         # Return
         return image
+
+    def sequence_iterator(self, start_time, exposure_time, stop_time, delay=0):
+        """
+        Get an iterator that will generate images at regular intervals.
+
+        Parameters
+        ----------
+        start_time : float
+            Time to begin sequence, measured in seconds from the initial epoch.
+        exposure_time : float
+            Duration of each exposure, measured in seconds.
+        stop_time : float
+            Time to stop sequence, measured in seconds from the initial epoch.
+            All exposures will begin strictly before this time.
+
+        Returns
+        -------
+        sequence : generator
+            Iterator that produces sequential images.
+
+        Notes
+        -----
+        An image exposure may extend beyond stop_time if the last image in the
+        sequence begins before stop_time and exposure_time is long enough to
+        extend over the boundary.
+
+        Examples
+        --------
+        >>> cam = StarCam()
+        >>> for image in cam.sequence_iterator(0, 1, 10, delay=2):
+        ...     # Operate on 5 sequential images
+        """
+        if stop_time <= start_time:
+            raise ValueError("Invalid input: start_time <= stop_time")
+        if exposure_time <= 0:
+            raise ValueError("Exposure time <= 0: {}".format(exposure_time))
+        if delay < 0:
+            raise ValueError("Delay < 0: {}".format(delay))
+
+        return (self.snap(time, exposure_time) for time in
+                np.arange(start_time, stop_time, exposure_time+delay))
 
     def set_noise_fcn(self, fcn):
         """
@@ -467,23 +522,25 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "dark_current" not in kwargs or "read_noise" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for poisson-        \
-                                                          type noise: 'dark_current', 'read_noise'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 " for poisson-type noise: 'dark_current', "+
+                                 "'read_noise'")
 
             # Set function
-            noise_fcn = lambda image, delta_t: imageutils.poisson_noise(image, delta_t,            \
-                                                       kwargs["dark_current"], kwargs["read_noise"])
+            noise_fcn = lambda image, delta_t: imageutils.poisson_noise(image,
+                        delta_t, kwargs["dark_current"], kwargs["read_noise"])
             self.set_noise_fcn(noise_fcn)
 
         # Gaussian model
         elif preset.lower() == "gaussian":
             if "dark_current" not in kwargs or "read_noise" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for poisson-        \
-                                                          type noise: 'dark_current', 'read_noise'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 " for gaussian-type noise: 'dark_current',"+
+                                 " 'read_noise'")
 
             # Set function
-            noise_fcn = lambda image, delta_t: imageutils.gaussian_noise(image, delta_t,           \
-                                                       kwargs["dark_current"], kwargs["read_noise"])
+            noise_fcn = lambda image, delta_t: imageutils.gaussian_noise(image,
+                        delta_t, kwargs["dark_current"], kwargs["read_noise"])
             self.set_noise_fcn(noise_fcn)
 
         elif preset.lower() == "off":
@@ -493,8 +550,8 @@ class StarCam(worldobject.WorldObject):
 
         # Invalid input
         else:
-            raise NotImplementedError("Invalid noise preset. Available options are: poisson,       \
-                                                                                    gaussian, off.")
+            raise NotImplementedError("Invalid noise preset. Available options"+
+                                      "are: poisson, gaussian, off.")
 
     def add_noise(self, image, delta_t):
         """
@@ -571,8 +628,8 @@ class StarCam(worldobject.WorldObject):
 
         # Check that input function supports multiple inputs
         if len(fcn([1, 2], 1)) != 2:
-            raise ValueError("Input function must support multiple inputs and return an equivalent \
-                                                                                 number of values.")
+            raise ValueError("Input function must support multiple inputs and"+
+                             "return an equivalent number of values.")
 
         # Set function
         self.sensitivity_fcn = fcn
@@ -620,12 +677,12 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "aperture" not in kwargs or "mv0_flux" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                            'aperture', 'mv0_flux'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 " for this preset: 'aperture', 'mv0_flux'")
 
             # Build function & set
-            sensitivity_fcn = lambda vismags, delta_t: imageutils.vismag2photon(vismags, delta_t,  \
-                                                             kwargs["aperture"], kwargs["mv0_flux"])
+            sensitivity_fcn = lambda vismags, delta_t: imageutils.vismag2photon(
+                vismags, delta_t, kwargs["aperture"], kwargs["mv0_flux"])
             self.set_sensitivity_fcn(sensitivity_fcn)
 
         # Handle invalid option
@@ -769,12 +826,12 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "focal_len" not in kwargs or "pixel_size" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                         'focal_len', 'pixel_size'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 " for this preset: 'focal_len', 'pixel_size'")
 
             # Build function & set
-            proj_fcn = lambda vectors: projectionutils.pinhole_project(vectors,                    \
-                                    kwargs["focal_len"], kwargs["pixel_size"], kwargs["resolution"])
+            proj_fcn = lambda vectors: projectionutils.pinhole_project(vectors,
+                kwargs["focal_len"], kwargs["pixel_size"], kwargs["resolution"])
             self.set_projection_fcn(proj_fcn, kwargs["resolution"])
 
         # Handle invalid option
@@ -855,7 +912,8 @@ class StarCam(worldobject.WorldObject):
         if not callable(fcn):
             raise ValueError("Must provide callable function.")
         if fcn(np.zeros((16, 32))).shape != (16, 32):
-            raise ValueError("Quantum efficiency function output size must be equal to input.")
+            raise ValueError("Quantum efficiency function output size must be "+
+                             "equal to input.")
 
         # Set function
         self.quantum_efficiency_fcn = fcn
@@ -918,12 +976,12 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "quantum_efficiency" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                              'quantum_efficiency'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 "for this preset: 'quantum_efficiency'")
 
             # Build function & set
-            qe_fcn = lambda image: imageutils.apply_constant_quantum_efficiency(image,            \
-                                                                       kwargs["quantum_efficiency"])
+            qe_fcn = lambda image: imageutils.apply_constant_quantum_efficiency(
+                     image, kwargs["quantum_efficiency"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
         # Set gaussian option
@@ -931,16 +989,18 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "quantum_efficiency" not in kwargs or "sigma" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                     'quantum_efficiency', 'sigma'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 "for this preset: 'quantum_efficiency',"+
+                                 " 'sigma'")
 
             # Set seed, if necessary
             if "seed" not in kwargs:
                 kwargs["seed"] = np.random.rand()
 
             # Build function & set
-            qe_fcn = lambda image: imageutils.apply_gaussian_quantum_efficiency(image,             \
-                                      kwargs["quantum_efficiency"], kwargs["sigma"], kwargs["seed"])
+            qe_fcn = lambda image: imageutils.apply_gaussian_quantum_efficiency(
+                     image, kwargs["quantum_efficiency"], kwargs["sigma"],
+                     kwargs["seed"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
         # Set polynomial option
@@ -948,12 +1008,12 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "poly" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                                           'poly'.")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 "for this preset: 'poly'.")
 
             # Build function
-            qe_fcn = lambda image: imageutils.apply_polynomial_quantum_efficiency(image,           \
-                                                                                     kwargs["poly"])
+            qe_fcn = lambda img: imageutils.apply_polynomial_quantum_efficiency(
+                     img, kwargs["poly"])
             self.set_quantum_efficiency_fcn(qe_fcn)
 
         # Handle invalid option
@@ -978,12 +1038,13 @@ class StarCam(worldobject.WorldObject):
 
         See Also
         --------
-        StarCam.set_quantum_efficiency_fcn, StarCam.set_quantum_efficiency_preset
+        StarCam.set_quantum_efficiency_fcn,
+        StarCam.set_quantum_efficiency_preset
 
         Examples
         --------
         >>> cam = StarCam()
-        >>> cam.set_quantum_efficiency_preset("constant", quantum_efficiency=0.2)
+        >>> cam.set_quantum_efficiency_preset("constant",quantum_efficiency=0.2)
         >>> cam.get_saturation(5*np.ones((4,4)))
         array([[ 1.,  1.,  1.,  1.],
                [ 1.,  1.,  1.,  1.],
@@ -1034,7 +1095,8 @@ class StarCam(worldobject.WorldObject):
         if not callable(fcn):
             raise ValueError("Must provide callable function.")
         if fcn(np.zeros((16, 32))).shape != (16, 32):
-            raise ValueError("Saturation function output size must be equal to input.")
+            raise ValueError("Saturation function output size must be equal "+
+                             "to input.")
 
         # Set function
         self.saturation_fcn = fcn
@@ -1079,11 +1141,12 @@ class StarCam(worldobject.WorldObject):
 
             # Check input
             if "bit_depth" not in kwargs:
-                raise ValueError("Must provide the following keyword arguments for this preset:    \
-                                                                                       'bit_depth'")
+                raise ValueError("Must provide the following keyword arguments"+
+                                 " for this preset: 'bit_depth'")
 
             # Build function & set
-            saturation_fcn = lambda image: imageutils.saturate(image, kwargs["bit_depth"])
+            saturation_fcn = lambda image: imageutils.saturate(image,
+                             kwargs["bit_depth"])
             self.set_saturation_fcn(saturation_fcn)
 
         elif preset.lower() == "off":

@@ -19,7 +19,7 @@ class verificationtests(unittest.TestCase):
        the image when using the pinhole model.
     3) An object aligned with the boresight of the sensor and moving along the
        x or y axis in intertial space shall move along the same axis in the
-       image when using the pinhole model. 
+       image when using the pinhole model.
     4) An object aligned with the boresight of the sensor and moving along the
        z-axis in intertial space shall not move in the image plane when using
        the pinhole model.
@@ -113,6 +113,8 @@ class test_object_drift(verificationtests):
         # Initial setup
         cam = av.StarCam()
         cam.star_catalog.load_preset("random", 0)
+        cam.set_pointing_preset("static",
+                                initial_quaternion=np.array([0, 0, 0, 1]))
         cam.set_noise_preset("off")
 
         # Speed-up hack for when integration accuracy is not important
@@ -202,7 +204,7 @@ class test_cam_rotation(verificationtests):
 
         Requirement(s) Verified: #5, #6
         """
-        
+
         # Initial setup
         cam = av.StarCam()
         cam.star_catalog.load_preset("random", 0)
