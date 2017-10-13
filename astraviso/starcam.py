@@ -393,7 +393,7 @@ class StarCam(worldobject.WorldObject):
         # Return
         return image
 
-    def sequence_iterator(self, start_time, exposure_time, stop_time, delay=0):
+    def sequence(self, start_time, exposure_time, stop_time, delay=0):
         """
         Get an iterator that will generate images at regular intervals.
 
