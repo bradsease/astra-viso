@@ -360,6 +360,70 @@ def rot3(theta):
     # Construct dcm
     return np.array([[ct, -st, 0], [st, ct, 0], [0, 0, 1]])
 
+def dcm_to_axis_angle(dcm):
+    """
+    Convert a direction-cosine matrix to the corresponding axis-angle
+    representation.
+
+    Parameters
+    ----------
+    dcm : ndarray
+        Input 3x3 direction-cosine matrix.
+
+    Returns
+    -------
+    axis : ndarray
+        Rotation axis of the input DCM. Returns a zero vector if dcm is the
+        identity matrix.
+    angle : float
+        Magnitude of the angular displacement of the input rotation matrix.
+        Measured in radians.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> dcm = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+    >>> axis, angle = dcm_to_axis_angle(dcm)
+    >>> print(axis)
+    [ 0.  0.  1.]
+    >>> print(angle)
+    1.57079632679
+    """
+
+    # Compute angle, pre-allocate axis
+    angle = np.arccos(0.5*(np.trace(dcm)-1))
+    axis = np.zeros(3)
+
+    # Compute axis, leave as zero if undefined
+    if angle != 0:
+        axis[0] = dcm[2, 1] - dcm[1, 2]
+        axis[1] = dcm[0, 2] - dcm[2, 0]
+        axis[2] = dcm[1, 0] - dcm[0, 1]
+        axis *= 0.5 / np.sin(angle)
+
+    # Return result
+    return axis, angle
+
+def angle_between_dcm(dcm1, dcm2):
+    """
+    Compute the anglular separation between the orientations described by two
+    direction-cosine matrices (DCMs).
+
+    Parameters
+    ----------
+    dcm1 : ndarray
+        Input 3x3 direction-cosine matrix.
+    dcm2 : ndarray
+        Input 3x3 direction-cosine matrix.
+
+    Returns
+    -------
+    angle : float
+        Magnitude of the angular displacement of the input rotation matrix.
+        Measured in radians.
+    """
+    return dcm_to_axis_angle(np.dot(dcm1.T, dcm2))[1]
+
 def vector_to_ra_dec(vector, vector_rate=None, output="deg"):
     """
     Compute right ascension and declination from an input vector and optional

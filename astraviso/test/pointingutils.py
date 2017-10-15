@@ -369,6 +369,40 @@ class test_dcm_functions(pointingutilstests):
         dcm = point.rot3(-np.pi/3)
         self.check_rotation_matrix(dcm)
 
+    def test_dcm_to_axis_angle(self):
+        """
+        Test dcm_to_axis_angle function.
+        """
+
+        # Test zero rotation
+        axis, angle = point.dcm_to_axis_angle(np.eye(3))
+        self.assertTrue(np.all(axis == 0),
+                        "Axis for zero rotation should be undefined.")
+        self.assertEqual(angle, 0, "Angle for identity DCM should be zero.")
+
+        # Test 90 degree rotation
+        dcm = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+        axis, angle = point.dcm_to_axis_angle(dcm)
+        self.assertTrue(np.all(axis == np.array([0, 0, 1])),
+                        "Incorrect axis result from dcm_to_axis_angle.")
+        self.assertTrue(np.isclose(angle, np.pi/2),
+                        "Incorrect angle result from dcm_to_axis_angle.")
+
+    def test_angle_between_dcm(self):
+        """
+        Test angle_between_dcm function.
+        """
+
+        # Set up tests
+        ang = np.pi/6
+        dcm1 = np.eye(3)
+        dcm2 = point.rot2(ang)
+
+        # Compute angles
+        np.testing.assert_almost_equal(point.angle_between_dcm(dcm1, dcm1), 0)
+        np.testing.assert_almost_equal(point.angle_between_dcm(dcm1, dcm2), ang)
+        np.testing.assert_almost_equal(point.angle_between_dcm(dcm2, dcm2), 0)
+
 class test_radec_functions(pointingutilstests):
     """
     Test right ascension & declination functions.
