@@ -769,3 +769,131 @@ class WorldObject:
 
         # Rotate into body frame
         return np.dot(rel_pos, origin_object.get_pointing(time, mode="dcm"))
+
+    def _estimate_instantaneous_angular_rate(self, time):
+        """
+        Estimate the angular rate of the sensor at an instant in time. In
+        general, a WorldObject instance does not have angular rate information.
+        This function computes the angular rate from the internal pointing
+        trajectory.
+
+        Parameters
+        ----------
+        time : float
+            Desired time of the angular rate measurement.
+
+        Returns
+        -------
+        angular_rate : float
+            Observed angular rate in radians per second.
+
+        Notes
+        -----
+        Since the pointing function may be defined in a piecewise fashion, this
+        function will attempt multiple approaches to compute the derivative. If
+        a central difference fails, this function will attempt a forward or
+        backward finite difference.
+        """
+
+        #
+        delta = 1e-4
+        invalid_points = 0
+
+        # Compute first point, if possible
+        try:
+            initial_pointing = self.get_pointing(time-delta/2, "dcm")
+        except:
+            initial_pointing = self.get_pointing(time, "dcm")
+            invalid_points += 1
+
+        # Compute last point, if possible
+        try:
+            final_pointing = self.get_pointing(time+delta/2, "dcm")
+        except:
+            final_pointing = self.get_pointing(time, "dcm")
+            invalid_points += 1
+
+        # Switch to forward or backward finite difference, if possible
+        if invalid_points == 1:
+            delta = delta/2
+        elif invalid_points > 1:
+            raise AttributeError("Pointing function is undefined at time {} "+
+                                 "and {}. Failed to compute derivative for "+
+                                 "time: {}".format(time-delta/2, time+delta/2,
+                                 time))
+
+        # Compute result
+        return pointingutils.angle_between_dcm(final_pointing,
+                                               initial_pointing) / delta
+
+    def _estimate_total_angular_displacement(self, start_time,
+                                                 exposure_time,
+                                                 precision="low"):
+        """
+        Estimate the total angular displacement of the boresight over a
+        specified exposure time. Requires internal pointing model.
+
+        Parameters
+        ----------
+        start_time : float
+            Time to begin sequence, measured in seconds from the initial epoch.
+        exposure_time : float
+            Duration of each exposure, measured in seconds.
+        precision : str
+            Desired angle calculation fidelity. Options are "low", "medium", and
+            "high". Default is "high".
+
+        Returns
+        -------
+        total_angle : float
+            Total displacement angle over the exposure time, in radians.
+
+        Notes
+        -----
+        The three precision modes are structured as follows:
+
+            Low: Compute the angular displacement to the first order.
+            Medium: Divide the time span into 100 first-order estimates.
+            High: Estimate the instantaneous derivative and integrate.
+
+        High precision mode derives an instantaneous angular rate through a
+        central difference calculation. If the computation fails for any reason,
+        this function will attempt to fall back to medium precision.
+        """
+        if self.pointing_fcn is None:
+            raise ValueError("No internal pointing model provided. Could not "+
+                             "compute displacement angle.")
+
+        # Low precision mode
+        if precision.lower() == "low":
+            initial_pointing = self.get_pointing(start_time, "dcm")
+            final_pointing = self.get_pointing(start_time+exposure_time, "dcm")
+            angle = pointingutils.angle_between_dcm(initial_pointing,
+                                                    final_pointing)
+
+        # Medium precision mode
+        elif precision.lower() == "medium":
+            angle = 0
+            time_step = exposure_time/100
+
+            for step in range(100):
+                current_time = start_time + (step+1) * exposure_time/100
+                angle += self._estimate_instantaneous_angular_rate(
+                         current_time) * (time_step)
+
+        # High precision mode
+        elif precision.lower() == "high":
+            try:
+                angle = scipy.integrate.quad(
+                        self._estimate_instantaneous_angular_rate,
+                        start_time, start_time+exposure_time)[0]
+            except:
+                angle = self._estimate_total_angular_displacement(start_time,
+                        exposure_time, precision="low")
+
+        # Unsupported mode
+        else:
+            raise ValueError("Unsupported precision mode.")
+
+        # Return result
+        return abs(angle)

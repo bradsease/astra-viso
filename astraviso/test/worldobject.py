@@ -620,3 +620,104 @@ class test_in_frame_of(worldobjecttests):
         self.assertIsInstance(rel_pos, np.ndarray, "Incorrect output type.")
         self.assertTrue(np.all(rel_pos == np.array([1, -1, -1])), "Incorrect output value.")
         self.assertTrue(np.all(rel_pos_flipped == -1), "Incorrect output value.")
+
+class test__estimate_instantaneous_angular_rate(worldobjecttests):
+    """
+    Test _estimate_angular_rate method.
+    """
+
+    def test_central_difference(self):
+        """
+        Test default central difference approach.
+        """
+
+        self.worldobject.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0, 0, 0.1]))
+
+        result = self.worldobject._estimate_instantaneous_angular_rate(0.5)
+        np.testing.assert_almost_equal(result, 0.1)
+
+    def test_forward_backward_difference(self):
+        """
+        Test off-nominal derivatives.
+        """
+
+        self.worldobject.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0, 0, 0.1]))
+
+        def piecewise_pointing(time):
+            if 0 <= time <= 1:
+                return np.array([0, 0, 0, 1])
+            else:
+                raise ValueError("Invalid time.")
+
+        self.worldobject.set_pointing_fcn(piecewise_pointing, 'explicit')
+
+        # Forward difference
+        result = self.worldobject._estimate_instantaneous_angular_rate(0)
+        np.testing.assert_almost_equal(result, 0)
+
+        # Backward difference
+        result = self.worldobject._estimate_instantaneous_angular_rate(1)
+        np.testing.assert_almost_equal(result, 0)
+
+class test__estimate_total_angular_displacement(worldobjecttests):
+    """
+    Test _estimate_total_angular_displacement method.
+    """
+
+    def test_low_fidelity(self):
+        """
+        Test low fidelity angle estimator.
+        """
+
+        self.worldobject.set_pointing_preset("static",
+            initial_quaternion=np.array([0, 0, 0, 1]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="low")
+        np.testing.assert_almost_equal(result, 0)
+
+        self.worldobject.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0.1, 0, 0]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="low")
+        np.testing.assert_almost_equal(result, 0.1)
+
+    def test_medium_fidelity(self):
+        """
+        Test medium fidelity angle estimator.
+        """
+
+        self.worldobject.set_pointing_preset("static",
+            initial_quaternion=np.array([0, 0, 0, 1]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="medium")
+        np.testing.assert_almost_equal(result, 0)
+
+        self.worldobject.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0, 0, 0.3]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="medium")
+        np.testing.assert_almost_equal(result, 0.3)
+
+    def test_high_fidelity(self):
+        """
+        Test high fidelity angle estimator.
+        """
+
+        self.worldobject.set_pointing_preset("static",
+            initial_quaternion=np.array([0, 0, 0, 1]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="high")
+        np.testing.assert_almost_equal(result, 0)
+
+        self.worldobject.set_pointing_preset("kinematic",
+            initial_quaternion=np.array([0, 0, 0, 1]),
+            initial_angular_rate=np.array([0, 0, 0.3]))
+        result = self.worldobject._estimate_total_angular_displacement(0, 1,
+                 precision="high")
+        np.testing.assert_almost_equal(result, 0.3)
