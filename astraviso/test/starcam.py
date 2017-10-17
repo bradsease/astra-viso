@@ -637,3 +637,25 @@ class test_get_saturation(starcamtests):
         # Check function
         self.assertTrue(callable(self.starcam.saturation_fcn), "Function not callable.")
         self.assertTrue(np.all(test_result==3), "Incorrect result.")
+
+class test__estimate_inverse_projection(starcamtests):
+    """
+    Test _estimate_inverse_projection method.
+    """
+
+    def test_pinhole(self):
+        """
+        Test pinhole models.
+        """
+        self.starcam._estimate_inverse_projection()
+
+class test__estimate_field_of_view(starcamtests):
+    """
+    Test _estimate_field_of_view method.
+    """
+
+    def test_pinhole(self):
+        """
+        Test pinhole model.
+        """
+        self.starcam._estimate_field_of_view()

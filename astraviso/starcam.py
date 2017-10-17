@@ -246,11 +246,11 @@ class StarCam(worldobject.WorldObject):
         # Temporary solution...
         steps = self.__settings["integration_steps"]
         step_size = delta_t / steps
-        angle = 0
 
         # Extract subset of stars from catalog
         # Also a temporary solution...
         field_of_view = 45
+        angle = 0
         boresight = np.dot([0, 0, 1], self.get_pointing(time, mode="dcm"))
         stars = self.star_catalog.get_region(boresight,
                                              np.rad2deg(angle)+field_of_view/2)
@@ -1192,6 +1192,21 @@ class StarCam(worldobject.WorldObject):
 
         # Saturate image
         return self.saturation_fcn(image)
+
+    def _estimate_inverse_projection(self):
+        """
+        """
+
+        # Create grid
+        grid_max = 5
+        step_size = .1
+        grid_x, grid_y = np.meshgrid(
+                         np.arange(grid_max, step=step_size)-grid_max/2,
+                         np.arange(grid_max, step=step_size)-grid_max/2)
+        vectors = np.concatenate((grid_x.reshape(-1, 1), grid_y.reshape(-1, 1),
+                                  np.ones_like(grid_x.reshape(-1, 1))), axis=1)
+
+        img_x, img_y = self.projection_fcn(vectors)
 
     def _estimate_field_of_view(self):
         """
