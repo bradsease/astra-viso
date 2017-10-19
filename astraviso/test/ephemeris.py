@@ -57,11 +57,11 @@ class TestEphemerisClass(EphemTests):
             np.testing.assert_almost_equal(state[1:4], interp_solution)
 
         # Verify accuracy between nominal (60 s) and thinned ephemeris (120 s).
-        # Currently accepting 20 km accuracy.
+        # Currently accepting mm level accuracy.
         thin_ephem_path = pkg.resource_filename("astraviso",
                                                 "test/data/test_sat_thinned.e")
         thin_ephem = ephem.OrbitEphemeris(thin_ephem_path)
         for time in np.arange(0.0, 82560.0, 60.0):
             diff = np.linalg.norm(test_ephem.get_position(time) - \
                                   thin_ephem.get_position(time))
-            np.testing.assert_almost_equal(diff, 0, decimal=0)
+            np.testing.assert_almost_equal(diff, 0, decimal=3)

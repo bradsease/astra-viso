@@ -135,9 +135,12 @@ class OrbitEphemeris:
 
         # Set interpolation method
         if interp_method.lower() == "lagrange":
+            # Interpolation order override for higher precision
+            interp_order = max(11, interp_order)
             interpolator = mathutils.build_lagrange_interpolator
         elif interp_method.lower() == "hermite":
             print("Hermite method not implemented. Defaulting to lagrange.")
+            interp_order = max(11, interp_order)
             interpolator = mathutils.build_lagrange_interpolator
 
         # Build position interpolants
