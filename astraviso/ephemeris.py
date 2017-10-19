@@ -20,6 +20,7 @@ import bisect
 import scipy.interpolate
 import numpy as np
 import datetime as dt
+from astraviso import mathutils
 
 STK_ORBIT_FORMATS = ["EphemerisTimePos", "EphemerisTimePosVel",
                      "EphemerisTimePosVelAcc", "EphemerisLLATimePos",
@@ -132,13 +133,20 @@ class OrbitEphemeris:
             ephem_file_contents)
         self.validate_stk_params(data_format, state_data)
 
+        # Set interpolation method
+        if interp_method.lower() == "lagrange":
+            interpolator = mathutils.build_lagrange_interpolator
+        elif interp_method.lower() == "hermite":
+            print("Hermite method not implemented. Defaulting to lagrange.")
+            interpolator = mathutils.build_lagrange_interpolator
+
         # Build position interpolants
-        x_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-                                                       state_data[1])
-        y_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-                                                       state_data[2])
-        z_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-                                                       state_data[3])
+        x_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[1], interpolator, window_size=interp_order+1)
+        y_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[2], interpolator, window_size=interp_order+1)
+        z_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[3], interpolator, window_size=interp_order+1)
 
         # Combine interpolants and store
         self._interpolant = lambda time: np.array([x_interp(time),

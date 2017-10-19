@@ -71,3 +71,65 @@ class test_vector_functions(mathutilstests):
         np.testing.assert_almost_equal(math.angle(vector1, vector1), 0)
         np.testing.assert_almost_equal(math.angle(vector1, vector2), np.pi/2)
         np.testing.assert_almost_equal(math.angle(vector2, vector2), 0)
+
+class test_lagrange_interpolating_polynomial(mathutilstests):
+    """
+    Test lagrange_interpolating_polynomial function.
+    """
+
+    def test_basic(self):
+        """
+        Test...
+        """
+
+        t = np.arange(7)
+        for order in np.arange(1, 6):
+            y = t ** order
+            for test_val in np.arange(7, step=0.25):
+                result = math.lagrange_interpolating_polynomial(t, y, test_val)
+                np.testing.assert_almost_equal(result, test_val**order)
+
+class test_MovingWindowInterpolator(mathutilstests):
+    """
+    Test MovingWindowInterpolator class.
+    """
+
+    def test_lagrange(self):
+        """
+        Test lagrange MovingWindowInterpolator.
+        """
+
+        # Test over range of polynomial degrees
+        for order in np.arange(1, 5):
+
+            t = np.arange(-20, 20)
+            fcn = lambda time: time ** order
+
+            mwi = math.MovingWindowInterpolator(t, fcn(t),
+                math.build_lagrange_interpolator)
+
+            for test_val in np.arange(-20, 20, step=0.25):
+                result = mwi(test_val)
+                np.testing.assert_almost_equal(result, fcn(test_val))
+
+        # Test for LEO orbit-like case (mm level accuracy)
+        t = np.arange(5400, step=20)
+        fcn = lambda time: 6600000 * np.cos(2*np.pi*time / 5400)
+
+        mwi = math.MovingWindowInterpolator(t, fcn(t),
+            math.build_lagrange_interpolator, window_size=6)
+
+        for test_val in np.arange(0, 5400, step=30):
+            result = mwi(test_val)
+            np.testing.assert_almost_equal(result, fcn(test_val), decimal=3)
+
+        # Test for GEO orbit-like case (mm level accuracy)
+        t = np.arange(86400, step=60)
+        fcn = lambda time: 42000000 * np.cos(2*np.pi*time / 86400)
+
+        mwi = math.MovingWindowInterpolator(t, fcn(t),
+            math.build_lagrange_interpolator, window_size=6)
+
+        for test_val in np.arange(0, 86400, step=70):
+            result = mwi(test_val)
+            np.testing.assert_almost_equal(result, fcn(test_val), decimal=3)

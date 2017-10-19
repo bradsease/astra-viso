@@ -64,4 +64,4 @@ class TestEphemerisClass(EphemTests):
         for time in np.arange(0.0, 82560.0, 60.0):
             diff = np.linalg.norm(test_ephem.get_position(time) - \
                                   thin_ephem.get_position(time))
-            assert(diff < 20000)
+            np.testing.assert_almost_equal(diff, 0, decimal=0)
