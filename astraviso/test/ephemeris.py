@@ -7,6 +7,7 @@ import numpy as np
 import datetime as dt
 import pkg_resources as pkg
 from astraviso import ephemeris as ephem
+from astraviso import mathutils
 
 
 class EphemTests(unittest.TestCase):
@@ -15,9 +16,9 @@ class EphemTests(unittest.TestCase):
     """
     pass
 
-class TestEphemerisClass(EphemTests):
+class TestOrbitEphemerisClass(EphemTests):
     """
-    Test top-level ephem.Ephemeris class.
+    Test top-level ephemeris.OrbitEphemeris class.
     """
 
     def test_sample_ephem(self):
@@ -65,3 +66,93 @@ class TestEphemerisClass(EphemTests):
             diff = np.linalg.norm(test_ephem.get_position(time) - \
                                   thin_ephem.get_position(time))
             np.testing.assert_almost_equal(diff, 0, decimal=3)
+
+class TestAttitudeEphemerisClass(EphemTests):
+    """
+    Test top-level ephemeris.AttitudeEphemeris class.
+    """
+
+    def setUp(self):
+        self.att_time_quat = pkg.resource_filename("astraviso",
+            "test/data/AttitudeTimeQuaternions.a")
+        self.att_time_quat_thinned = pkg.resource_filename("astraviso",
+            "test/data/AttitudeTimeQuaternions_thinned.a")
+        self.att_time_quat_ang_vels = pkg.resource_filename("astraviso",
+            "test/data/AttitudeTimeQuatAngVels.a")
+
+    def test_attitudetimequaternions_ephem(self):
+
+        # Verify ephemeris load
+        test_ephem = ephem.AttitudeEphemeris(self.att_time_quat)
+        self.assertEqual(test_ephem._initial_epoch,
+                         dt.datetime(2017, 10, 10, 16, 0, 0),
+                         "Incorrect initial epoch.")
+        self.assertEqual(test_ephem._coord_sys, "J2000",
+                         "Incorrect coordinate system.")
+
+        # Test interpolated solution
+        test_result = test_ephem.get_attitude(0.5)
+        np.testing.assert_almost_equal(np.sqrt(np.sum(test_result**2)), 1)
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(test_result), 4, "Incorrect output dimension.")
+
+        # Verify AttitudeTimeQuaternions sample
+        test_result = test_ephem.get_attitude(0)
+        np.testing.assert_almost_equal(test_result,
+            np.array([-3.61538786711038e-01, -6.07692026507889e-01,
+                      3.61538863884271e-01, 6.07692156049029e-01]))
+        test_result_dt = test_ephem.get_attitude(
+            dt.datetime(2017, 10, 10, 16, 0, 0))
+        np.testing.assert_almost_equal(test_result_dt, test_result)
+
+        # Verify AttitudeTimeQuaternions at end of ephemeris
+        test_result = test_ephem.get_attitude(
+            dt.datetime(2017, 10, 10, 16, 0, 0) + dt.timedelta(seconds=600))
+        np.testing.assert_almost_equal(test_result,
+            np.array([-2.17009849997894e-01, -7.78157334236009e-01,
+                      4.62955040362287e-01, 3.64760906323243e-01]))
+
+
+    def test_attitudetimequatangvels_ephem(self):
+
+        # Verify ephemeris load
+        test_ephem = ephem.AttitudeEphemeris(self.att_time_quat_ang_vels)
+        self.assertEqual(test_ephem._initial_epoch,
+                         dt.datetime(2017, 10, 10, 16, 0, 0),
+                         "Incorrect initial epoch.")
+        self.assertEqual(test_ephem._coord_sys, "J2000",
+                         "Incorrect coordinate system.")
+
+        # Test interpolated solution
+        test_result = test_ephem.get_attitude(0.5)
+        np.testing.assert_almost_equal(np.sqrt(np.sum(test_result**2)), 1)
+        self.assertIsInstance(test_result, np.ndarray, "Incorrect output type.")
+        self.assertEqual(len(test_result), 4, "Incorrect output dimension.")
+
+        # Verify AttitudeTimeQuaternions sample
+        test_result = test_ephem.get_attitude(0)
+        np.testing.assert_almost_equal(test_result,
+            np.array([-3.61538786711038e-01, -6.07692026507889e-01,
+                      3.61538863884271e-01, 6.07692156049029e-01]))
+        test_result_dt = test_ephem.get_attitude(
+            dt.datetime(2017, 10, 10, 16, 0, 0))
+        np.testing.assert_almost_equal(test_result_dt, test_result)
+
+        # Verify AttitudeTimeQuaternions at end of ephemeris
+        test_result = test_ephem.get_attitude(
+            dt.datetime(2017, 10, 10, 16, 0, 0) + dt.timedelta(seconds=600))
+        np.testing.assert_almost_equal(test_result,
+            np.array([-2.17009849997894e-01, -7.78157334236009e-01,
+                      4.62955040362287e-01, 3.64760906323243e-01]))
+
+
+    def test_interpolation_accuracy(self):
+
+        # Load ephemerides
+        primary_ephem = ephem.AttitudeEphemeris(self.att_time_quat)
+        thinned_ephem = ephem.AttitudeEphemeris(self.att_time_quat_thinned)
+
+        # Test interpolated solution
+        for time in np.arange(30, step=0.2):
+            np.testing.assert_almost_equal(primary_ephem.get_attitude(time),
+                                           thinned_ephem.get_attitude(time))

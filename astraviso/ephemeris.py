@@ -7,17 +7,15 @@ References
     http://help.agi.com/stk/index.htm#stk/importfiles-02.htm
 [2] Analytical Graphics, Inc., "Attitude File Format (*.a)".
     http://help.agi.com/stk/index.htm#stk/importfiles-01.htm
+
 TODO:
-    - Implement support for Lagrange and Hermite interpolation options. Code
-      currently uses PCHIP and has large errors for LEOs.
+    - Implement support for Hermite interpolation option.
     - Support for non-standard units in STK format ephemerides. Currently only
       supports m and m/s.
 """
 
 from __future__ import division
 import os
-import bisect
-import scipy.interpolate
 import numpy as np
 import datetime as dt
 from astraviso import mathutils
@@ -124,9 +122,9 @@ class OrbitEphemeris:
             ephem_file_contents = ephem_file_handle.read().split('\n')
 
         # Read ephemeris data
-        self._initial_epoch = read_stk_orbit_epoch(ephem_file_contents)
+        self._initial_epoch = read_stk_epoch(ephem_file_contents)
         self._central_body = read_stk_orbit_central_body(ephem_file_contents)
-        self._coord_sys = read_stk_orbit_coord_sys(ephem_file_contents)
+        self._coord_sys = read_stk_coord_sys(ephem_file_contents)
         data_format = read_stk_orbit_data_format(ephem_file_contents)
         state_data = read_stk_orbit_state_data(ephem_file_contents, data_format)
         interp_method, interp_order = read_stk_interpolation_options(
@@ -220,7 +218,7 @@ def detect_orbit_ephemeris_format(ephem_file_name):
 
 
 # STK orbit ephemeris helper functions
-def read_stk_orbit_epoch(ephem_file_contents):
+def read_stk_epoch(ephem_file_contents):
     """
     Read ScenarioEpoch from the contents of an STK-format ephemeris file.
 
@@ -288,7 +286,7 @@ def read_stk_orbit_central_body(ephem_file_contents):
     # Return result
     return extracted_central_body
 
-def read_stk_orbit_coord_sys(ephem_file_contents):
+def read_stk_coord_sys(ephem_file_contents):
     """
     Read CoordinateSystem from the contents of an STK-format ephemeris file.
 
@@ -318,6 +316,40 @@ def read_stk_orbit_coord_sys(ephem_file_contents):
             extracted_coord_sys = coord_sys_line.split()[1]
         else:
             raise InvalidEphemerisError("Malformed coordinate system line.")
+
+    # Return result
+    return extracted_coord_sys
+
+def read_stk_coord_axes(ephem_file_contents):
+    """
+    Read CoordinateAxes from the contents of an STK-format ephemeris file.
+
+    Parameters
+    ----------
+    ephem_file_contents : list
+        Target ephemeris file contents separated into a list of lines.
+
+    Returns
+    -------
+    extracted_coord_axes : str
+        Extracted coordinate system. If the ephemeris file contains no
+        CoordinateSystem line, the default return value is "Fixed".
+    """
+
+    # Search for coordinate system
+    coord_axes_line = _extract_unique_line(ephem_file_contents,
+                                           "CoordinateAxes")
+
+    # Default coordinate system
+    if coord_axes_line is None:
+        extracted_coord_axes = "Inertial"
+
+    # Extract coordinate system from line
+    else:
+        if len(coord_axes_line.split()) == 2:
+            extracted_coord_sys = coord_axes_line.split()[1]
+        else:
+            raise InvalidEphemerisError("Malformed coordinate axes line.")
 
     # Return result
     return extracted_coord_sys
@@ -521,26 +553,39 @@ class AttitudeEphemeris:
             ephem_file_contents = ephem_file_handle.read().split('\n')
 
         # Read ephemeris data
-        self._initial_epoch = read_stk_orbit_epoch(ephem_file_contents)
-        self._coord_sys = read_stk_orbit_coord_sys(ephem_file_contents)
-        data_format = read_stk_orbit_data_format(ephem_file_contents)
-        state_data = read_stk_orbit_state_data(ephem_file_contents, data_format)
+        self._initial_epoch = read_stk_epoch(ephem_file_contents)
+        self._coord_sys = read_stk_coord_axes(ephem_file_contents)
         interp_method, interp_order = read_stk_interpolation_options(
             ephem_file_contents)
+        data_format = read_stk_attitude_data_format(ephem_file_contents)
+        state_data = read_stk_attitude_state_data(ephem_file_contents, data_format)
         self.validate_stk_params(data_format, state_data)
 
+        # Set interpolation method
+        if interp_method.lower() == "lagrange":
+            # Interpolation order override for higher precision
+            interp_order = max(1, interp_order)
+            interpolator = mathutils.build_lagrange_interpolator
+        elif interp_method.lower() == "hermite":
+            print("Hermite method not implemented. Defaulting to lagrange.")
+            interp_order = max(1, interp_order)
+            interpolator = mathutils.build_lagrange_interpolator
+
         # Build position interpolants
-        #x_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-        #                                               state_data[1])
-        #y_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-        #                                               state_data[2])
-        #z_interp = scipy.interpolate.PchipInterpolator(state_data[0],
-        #                                               state_data[3])
+        q1_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[1], interpolator, window_size=interp_order+1)
+        q2_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[2], interpolator, window_size=interp_order+1)
+        q3_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[3], interpolator, window_size=interp_order+1)
+        q4_interp = mathutils.MovingWindowInterpolator(state_data[0],
+            state_data[4], interpolator, window_size=interp_order+1)
 
         # Combine interpolants and store
-        #self._interpolant = lambda time: np.array([x_interp(time),
-        #                                           y_interp(time),
-        #                                           z_interp(time)])
+        self._interpolant = lambda time: np.array([q1_interp(time),
+                                                   q2_interp(time),
+                                                   q3_interp(time),
+                                                   q4_interp(time)])
 
     def get_attitude(self, time):
         """
@@ -563,7 +608,7 @@ class AttitudeEphemeris:
         if type(time) is dt.datetime:
             time = (time - self._initial_epoch).total_seconds()
 
-        return self._interpolant(time)
+        return mathutils.unit(self._interpolant(time))
 
     def validate_stk_params(self, data_format, state_data):
         """
@@ -605,6 +650,74 @@ def detect_attitude_ephemeris_format(ephem_file_name):
         raise NotImplementedError("Unsupported ephemeris format.")
     else:
         return extension_map[file_extension]
+
+def read_stk_attitude_data_format(ephem_file_contents):
+    """
+    Read ephemeris data format from the contents of an STK-format ephemeris
+    file.
+
+    Parameters
+    ----------
+    ephem_file_contents : list
+        Target ephemeris file contents separated into a list of lines.
+
+    Returns
+    -------
+    extracted_format : str
+        Extracted data format.
+    """
+
+    # Extract format option]
+    observed_formats = [fmt in ephem_file_contents for fmt in STK_ATT_FORMATS]
+
+    # Handle errors
+    if sum(observed_formats) > 1:
+        raise InvalidEphemerisError("Found multiple format identifiers.")
+    elif sum(observed_formats) == 0:
+        raise InvalidEphemerisError("Missing or invalid data format.")
+
+    # Return data format option
+    return STK_ATT_FORMATS[observed_formats.index(True)]
+
+def read_stk_attitude_state_data(ephem_file_contents, data_format):
+    """
+    Read ephemeris state data from the contents of an STK-format ephemeris file.
+
+    Parameters
+    ----------
+    ephem_file_contents : list
+        Target ephemeris file contents separated into a list of lines.
+
+    Returns
+    -------
+    ephem_data_array : ndarray
+        Extracted state data. Each row in the resulting array corresponds to a
+        column in the data of the ephemeris file.
+    """
+
+    # Find start / end
+    start_idx = [idx for idx, line in enumerate(ephem_file_contents) if
+                 data_format in line][0]
+    end_idx = [idx for idx, line in enumerate(ephem_file_contents) if
+               "END Attitude" in line][0]
+
+    # Check for errors
+    if start_idx is None or end_idx is None:
+        raise InvalidEphemerisError("Unable to determine start and end of \
+                                    data block.")
+
+    # Extract data
+    ephem_data = []
+    for idx in range(start_idx+1, end_idx):
+        split_line = ephem_file_contents[idx].split()
+        if len(split_line) > 0:
+            ephem_data.append([float(element) for element in split_line])
+
+    # Convert to numpy array and return
+    ephem_data_array = np.array(ephem_data)
+    if len(ephem_data_array.shape) != 2:
+        raise InvalidEphemerisError("Malformed data block.")
+    return ephem_data_array[:, 0:5].T
 
 def _extract_unique_line(file_contents, search_string):
     """
